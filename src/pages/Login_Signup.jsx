@@ -41,10 +41,16 @@ const Login_Signup = () => {
     e.preventDefault();
     setError('');
     try {
+      const loginPayload = {
+        email: loginData.email,
+        username: loginData.email, // Send email as username as well
+        password: loginData.password
+      };
+      
       const res = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(loginData),
+        body: JSON.stringify(loginPayload),
         credentials: 'include',
       });
       const data = await res.json();
