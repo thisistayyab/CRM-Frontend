@@ -11,7 +11,8 @@ import IconButton from '@mui/material/IconButton';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Chip from '@mui/material/Chip';
 
-const API_URL = "http://localhost:8000/v1/api/product/orders";
+// const API_URL = "http://localhost:8000/v1/api/product/orders";
+const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product/orders";
 
 const statusColors = {
   active: 'green',

@@ -12,7 +12,8 @@ import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 
-const API_URL = "http://localhost:8000/v1/api/product";
+// const API_URL = "http://localhost:8000/v1/api/product";
+const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product";
 
 const columns = [
   {

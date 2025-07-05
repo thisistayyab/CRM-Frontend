@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../assets/Stylesheets/form.css';
 
-const API_URL = "http://localhost:8000/v1/api/user"
+// const API_URL = "http://localhost:8000/v1/api/user"
+const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/user"
 
 const Login_Signup = () => {
   const [isRightPanelActive, setIsRightPanelActive] = useState(false);
