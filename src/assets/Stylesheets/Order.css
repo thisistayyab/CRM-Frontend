@@ -1,0 +1,40 @@
+.order{
+    height: 80px;
+    display: flex;
+    margin: 0px 30px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.exp-btn{
+    margin-right: 9px;
+    padding: 1px 9px;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+.odr-btn{
+    padding: 1px 9px;
+    font-size: 16px;
+    border-radius: 5px;
+    color: white;
+    background-color: black;
+}
+
+.effect{
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, border-radius 0.3s ease-in-out;
+}
+.effect:hover{
+    cursor: pointer;
+    transform: scale(1.05);
+}
+
+.order-canceled-row .MuiDataGrid-cell {
+  text-decoration: line-through;
+  color: #888;
+}
+
+.order-returned-row .MuiDataGrid-cell {
+  text-decoration: line-through;
+  color: darkorange;
+}
