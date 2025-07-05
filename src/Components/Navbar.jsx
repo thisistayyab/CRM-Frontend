@@ -3,7 +3,8 @@ import '../assets/Stylesheets/Navbar.css';
 import { Link, useNavigate } from "react-router-dom"; 
 import avatar from '../assets/images/users/avatar.jpg'
 
-const API_URL = "http://localhost:8000/v1/api/user";
+// const API_URL = "http://localhost:8000/v1/api/user";
+const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/user";
 
 const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);

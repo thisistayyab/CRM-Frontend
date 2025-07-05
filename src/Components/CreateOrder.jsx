@@ -31,8 +31,10 @@ const CreateOrder = () => {
   const [productError, setProductError] = useState(null);
   const [selectedProductId, setSelectedProductId] = useState('');
 
-  const API_URL = "http://localhost:8000/v1/api/product";
-  const ORDER_API_URL = "http://localhost:8000/v1/api/product/orders";
+  // const API_URL = "http://localhost:8000/v1/api/product";
+  const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product";
+  // const ORDER_API_URL = "http://localhost:8000/v1/api/product/orders";
+  const ORDER_API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product/orders";
 
   useEffect(() => {
     fetchProducts();
