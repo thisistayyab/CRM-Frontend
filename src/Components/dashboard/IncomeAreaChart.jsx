@@ -116,10 +116,9 @@ export default function IncomeAreaChart({ view }) {
             <stop offset="90%" stopColor={alpha(theme.palette.background.default, 0.4)} />
           </linearGradient>
           <linearGradient id="myGradient2" gradientTransform="rotate(90)">
-  <stop offset="10%" stopColor={alpha(theme.palette.primary.main, 0.4)} />
-  <stop offset="90%" stopColor={alpha(theme.palette.background.default, 0.4)} />
-</linearGradient>
-
+            <stop offset="10%" stopColor={alpha(theme.palette.primary.main, 0.4)} />
+            <stop offset="90%" stopColor={alpha(theme.palette.background.default, 0.4)} />
+          </linearGradient>
         </defs>
       </LineChart>
       <Legend items={visibleSeries} onToggle={toggleVisibility} />

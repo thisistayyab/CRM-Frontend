@@ -50,7 +50,84 @@ const actionSX = {
 
 // ==============================|| DASHBOARD - DEFAULT ||============================== //
 
+import { useEffect, useState } from 'react';
+
+function getPreviousWeekDates() {
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+  const lastMonday = new Date(today);
+  lastMonday.setDate(today.getDate() - dayOfWeek - 6);
+  lastMonday.setHours(0, 0, 0, 0);
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(lastMonday);
+    d.setDate(lastMonday.getDate() + i);
+    days.push(d);
+  }
+  return days;
+}
+
 export default function Dashboard() {
+  const [stats, setStats] = useState(null);
+  const [weekIncome, setWeekIncome] = useState(0);
+
+  useEffect(() => {
+    // fetch('http://localhost:8000/v1/api/product/orders/stats', { credentials: 'include' })
+    fetch('https://crm-backend-rho-weld.vercel.app/v1/api/product/orders/stats', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => setStats(data));
+
+    // Fetch all orders to calculate previous week's income
+    // fetch('http://localhost:8000/v1/api/product/orders', { credentials: 'include' })
+    fetch('https://crm-backend-rho-weld.vercel.app/v1/api/product/orders', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.data) {
+          const days = getPreviousWeekDates();
+          let total = 0;
+          days.forEach(day => {
+            const dayStart = new Date(day);
+            dayStart.setHours(0, 0, 0, 0);
+            const dayEnd = new Date(day);
+            dayEnd.setHours(23, 59, 59, 999);
+            data.data.forEach(order => {
+              if (order.status === 'complete' && order.createdAt && order.totalPrice) {
+                const date = new Date(order.createdAt);
+                if (date >= dayStart && date <= dayEnd) {
+                  total += order.totalPrice;
+                }
+              }
+            });
+          });
+          setWeekIncome(total);
+        }
+      });
+  }, []);
+
+  if (!stats) return null;
+  const { currentYear, lastYear } = stats;
+
+  const getPercent = (current, last) => {
+    if (last === 0) {
+      if (current === 0) return 0;
+      return 100;
+    }
+    return ((current - last) / last) * 100;
+  };
+  const getColor = (current, last) => {
+    if (last === 0 && current > 0) return 'primary';
+    return (current - last) >= 0 ? 'primary' : 'warning';
+  };
+  const getIsLoss = (current, last) => {
+    if (last === 0 && current > 0) return false;
+    return (current - last) < 0;
+  };
+
+  const userPercent = getPercent(currentYear.users, lastYear.users);
+  const productPercent = getPercent(currentYear.products, lastYear.products);
+  const orderPercent = getPercent(currentYear.orders, lastYear.orders);
+  const salesPercent = getPercent(currentYear.sales, lastYear.sales);
+
   return (
     <Grid paddingTop={'30px'} marginLeft={'30px'} marginRight={'30px'} container rowSpacing={4.5} columnSpacing={2.75}>
       {/* row 1 */}
@@ -58,16 +135,16 @@ export default function Dashboard() {
         <Typography variant="h5">Dashboard</Typography>
       </Grid>
       <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-        <AnalyticEcommerce title="Total Page Views" count="4,42,236" percentage={59.3} extra="35,000" />
+        <AnalyticEcommerce title="Total Customers" count={currentYear.users} percentage={Math.abs(userPercent).toFixed(1)} isLoss={getIsLoss(currentYear.users, lastYear.users)} color={getColor(currentYear.users, lastYear.users)} extra={currentYear.users} />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-        <AnalyticEcommerce title="Total Users" count="78,250" percentage={70.5} extra="8,900" />
+        <AnalyticEcommerce title="Total Products" count={currentYear.products} percentage={Math.abs(productPercent).toFixed(1)} isLoss={getIsLoss(currentYear.products, lastYear.products)} color={getColor(currentYear.products, lastYear.products)} extra={currentYear.products} />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-        <AnalyticEcommerce title="Total Order" count="18,800" percentage={27.4} isLoss color="warning" extra="1,943" />
+        <AnalyticEcommerce title="Total Order" count={currentYear.orders} percentage={Math.abs(orderPercent).toFixed(1)} isLoss={getIsLoss(currentYear.orders, lastYear.orders)} color={getColor(currentYear.orders, lastYear.orders)} extra={currentYear.orders} />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-        <AnalyticEcommerce title="Total Sales" count="35,078" percentage={27.4} isLoss color="warning" extra="20,395" />
+        <AnalyticEcommerce title="Total Sales" count= {`${currentYear.sales}PKR`} percentage={Math.abs(salesPercent).toFixed(1)} isLoss={getIsLoss(currentYear.sales, lastYear.sales)} color={getColor(currentYear.sales, lastYear.sales)} extra={currentYear.sales} />
       </Grid>
       <Grid sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} size={{ md: 8 }} />
       {/* row 2 */}
@@ -87,7 +164,7 @@ export default function Dashboard() {
               <Typography variant="h6" color="text.secondary">
                 This Week Statistics
               </Typography>
-              <Typography variant="h3">$7,650</Typography>
+              <Typography variant="h3">PKR {weekIncome.toLocaleString()}</Typography>
             </Stack>
           </Box>
           <MonthlyBarChart />

@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Login_Signup from './pages/Login_Signup';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import User from './pages/User';
@@ -13,13 +14,17 @@ import './App.css';
 import EditProfile from './Components/EditProfile';
 import ProtectedRoute from './Components/ProtectedRoute';
 import Analytics from './pages/Analytics';
+import EditOrder from './Components/EditOrder';
+import ViewOrder from './Components/ViewOrder';
+import CustomerOrders from './pages/CustomerOrders';
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Route */}
-        <Route path="/login-signup" element={<Login_Signup />} />
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
         {/* Protected Layout */}
         <Route
@@ -38,11 +43,15 @@ function App() {
           <Route path="addproduct" element={<AddProduct />} />
           <Route path="orders" element={<Order />} />
           <Route path="createorder" element={<CreateOrder />} />
+          <Route path="editorder/:id" element={<EditOrder />} />
+          <Route path="order/:id" element={<ViewOrder />} />
+          <Route path="vieworder/:id" element={<ViewOrder />} />
           <Route path="settings" element={<Setting />} />
           <Route path="analytics" element={<Analytics/>} />
+          <Route path="customer-orders/:phoneNumber" element={<CustomerOrders />} />
         </Route>
         {/* Catch-all: redirect unknown routes to login */}
-        <Route path="*" element={<Navigate to="/login-signup" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   );

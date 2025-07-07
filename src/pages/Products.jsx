@@ -11,6 +11,10 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 // const API_URL = "http://localhost:8000/v1/api/product";
 const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product";
@@ -69,17 +73,56 @@ const columns = [
   {
     field: 'actions',
     headerName: 'Actions',
-    width: 180,
-    renderCell: (params) => (
-      <>
-        <button onClick={() => params.row.onEdit(params.row)} style={{ color: 'blue', border: 'none', background: 'none', cursor: 'pointer', marginRight: 8 }}>
-          Edit
-        </button>
-        <button onClick={() => params.row.onDelete(params.row.id)} style={{ color: 'red', border: 'none', background: 'none', cursor: 'pointer' }}>
-          Delete
-        </button>
-      </>
-    ),
+    width: 80,
+    renderCell: (params) => {
+      const [anchorEl, setAnchorEl] = React.useState(null);
+      const open = Boolean(anchorEl);
+      const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+      };
+      const handleClose = () => {
+        setAnchorEl(null);
+      };
+      return (
+        <>
+          <IconButton
+            aria-label="more"
+            aria-controls={`actions-menu-${params.row.id}`}
+            aria-haspopup="true"
+            onClick={handleClick}
+            size="small"
+          >
+            <MoreVertIcon />
+          </IconButton>
+          <Menu
+            id={`actions-menu-${params.row.id}`}
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+          >
+            <MenuItem
+              onClick={() => {
+                handleClose();
+                params.row.onEdit(params.row);
+              }}
+              sx={{ color: 'black' }}
+            >
+              Edit
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                handleClose();
+                params.row.onDelete(params.row.id);
+              }}
+              sx={{ color: 'red' }}
+            >
+              Delete
+            </MenuItem>
+          </Menu>
+        </>
+      );
+    },
   },
 ];
 
@@ -195,6 +238,15 @@ export default function Products() {
           pageSizeOptions={[5]}
           checkboxSelection
           disableRowSelectionOnClick
+          sx={{
+            '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+              outline: 'none',
+              border: 'none',
+            },
+            '& .MuiDataGrid-row.Mui-selected, & .MuiDataGrid-row.Mui-selected:hover': {
+              backgroundColor: 'inherit',
+            },
+          }}
         />
       </Box>
       <Dialog open={!!editProduct} onClose={() => setEditProduct(null)}>

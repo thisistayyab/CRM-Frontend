@@ -22,6 +22,8 @@ const CreateOrder = () => {
     phoneNumber: '',
     customerAddress: '',
     shippingCharges: 0,
+    trackingNumber: '',
+    courierCompany: 'Custom',
   });
   const [selectedProducts, setSelectedProducts] = useState([]); // [{productId, quantity}]
   const [products, setProducts] = useState([]);
@@ -108,11 +110,13 @@ const CreateOrder = () => {
           }),
           totalPrice,
           shippingCharges: Number(form.shippingCharges || 0),
+          trackingNumber: form.trackingNumber,
+          courierCompany: form.courierCompany,
         })
       });
       if (res.ok) {
         setSuccess(true);
-        setForm({ orderId: '', customerName: '', phoneNumber: '', customerAddress: '', shippingCharges: 0 });
+        setForm({ orderId: '', customerName: '', phoneNumber: '', customerAddress: '', shippingCharges: 0, trackingNumber: '', courierCompany: 'Custom' });
         setSelectedProducts([]);
       } else {
         alert('Failed to create order');
@@ -169,6 +173,27 @@ const CreateOrder = () => {
             margin="normal"
             required
           />
+          <TextField
+            label="Tracking Number"
+            name="trackingNumber"
+            value={form.trackingNumber}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+          />
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Courier Company</InputLabel>
+            <Select
+              name="courierCompany"
+              value={form.courierCompany}
+              label="Courier Company"
+              onChange={handleChange}
+            >
+              <MenuItem value="TCS">TCS</MenuItem>
+              <MenuItem value="Leopard">Leopard</MenuItem>
+              <MenuItem value="Custom">Custom</MenuItem>
+            </Select>
+          </FormControl>
           <Paper sx={{ p: 2, my: 2 }}>
             <Typography variant="h6">Select Products</Typography>
             {productLoading && <Typography color="text.secondary">Loading products...</Typography>}

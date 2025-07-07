@@ -32,21 +32,21 @@ const ProtectedRoute = ({ children }) => {
               });
               
               if (retryRes.status !== 200) {
-                navigate('/login-signup');
+                navigate('/login');
               }
             } else {
-              navigate('/login-signup');
+              navigate('/login');
             }
           } catch (refreshError) {
             console.error('Token refresh failed:', refreshError);
-            navigate('/login-signup');
+            navigate('/login');
           }
         } else if (res.status !== 200) {
-          navigate('/login-signup');
+          navigate('/login');
         }
       } catch (error) {
         console.error('Auth check failed:', error);
-        navigate('/login-signup');
+        navigate('/login');
       } finally {
         setChecking(false);
       }

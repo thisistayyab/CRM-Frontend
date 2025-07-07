@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
-import { Link } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import '../assets/Stylesheets/Order.css'
 import Button from '@mui/material/Button';
 import Select from '@mui/material/Select';
@@ -10,6 +10,7 @@ import Menu from '@mui/material/Menu';
 import IconButton from '@mui/material/IconButton';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Chip from '@mui/material/Chip';
+import Link from '@mui/material/Link';
 
 // const API_URL = "http://localhost:8000/v1/api/product/orders";
 const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product/orders";
@@ -18,11 +19,33 @@ const statusColors = {
   active: 'green',
   canceled: 'red',
   returned: 'darkorange',
+  complete: 'blue',
 };
 
 const columns = [
-  { field: 'orderId', headerName: 'Order ID', width: 120 },
+  { field: 'trackingNumber', headerName: 'Tracking Number', width: 150, renderCell: (params) => {
+    const tracking = params.value;
+    const courier = params.row.courierCompany;
+    if (!tracking) return '—';
+    if (courier === 'TCS') {
+      return <Link href={`https://www.tcsexpress.com/track/${tracking}`} target="_blank" rel="noopener noreferrer">{tracking}</Link>;
+    } else if (courier === 'Leopard') {
+      return <Link href={`https://www.leopardscourier.com/shipment_tracking?cn_number=${tracking}`} target="_blank" rel="noopener noreferrer">{tracking}</Link>;
+    } else {
+      return tracking;
+    }
+  } },
+  { field: 'orderId', headerName: 'Order ID', width: 120, renderCell: (params) => (
+    <Link component={RouterLink} to={`/vieworder/${params.row.id}`} underline="hover" color="primary">
+      {params.value}
+    </Link>
+  ) },
   { field: 'customerName', headerName: 'Customer', width: 150 },
+  { field: 'orderDate', headerName: 'Order Date', width: 160, renderCell: (params) => (
+    params.row && params.row.createdAt
+      ? new Date(params.row.createdAt).toLocaleString()
+      : '—'
+  ) },
   { field: 'phoneNumber', headerName: 'Phone', width: 130 },
   { field: 'customerAddress', headerName: 'Address', width: 180 },
   { field: 'shippingCharges', headerName: 'Shipping', width: 100 },
@@ -38,6 +61,13 @@ const columns = [
         : '—'}
     </span>
   ) },
+  { field: 'orderCountForCustomer', headerName: 'Customer Order Count', width: 180, renderCell: (params) => (
+    params.value && params.row.phoneNumber ? (
+      <Link component={RouterLink} to={`/customer-orders/${params.row.phoneNumber}`} underline="hover" color="primary">
+        {params.value} order{params.value > 1 ? 's' : ''}
+      </Link>
+    ) : '—'
+  ) },
   { field: 'status', headerName: 'Status', width: 140, renderCell: (params) => (
     <Chip
       label={params.row.status.charAt(0).toUpperCase() + params.row.status.slice(1)}
@@ -47,6 +77,13 @@ const columns = [
         fontWeight: 'bold',
         minWidth: 100,
       }}
+    />
+  ) },
+  { field: 'courierCompany', headerName: 'Courier Company', width: 160, renderCell: (params) => (
+    <Chip
+      label={params.value || 'Custom'}
+      color={params.value === 'TCS' ? 'error' : params.value === 'Leopard' ? 'warning' : 'default'}
+      sx={{ fontWeight: 'bold', minWidth: 100 }}
     />
   ) },
   {
@@ -96,7 +133,7 @@ const columns = [
                 params.row.onCancel(params.row.id);
               }}
               disabled={params.row.status === 'canceled'}
-              sx={{ color: 'orange' }}
+              sx={{ color: 'red' }}
             >
               Cancel
             </MenuItem>
@@ -110,6 +147,25 @@ const columns = [
             >
               Return
             </MenuItem>
+            <MenuItem
+              onClick={() => {
+                handleClose();
+                params.row.onEdit(params.row);
+              }}
+              sx={{ color: 'black' }}
+            >
+              Edit
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                handleClose();
+                params.row.onComplete(params.row.id);
+              }}
+              disabled={params.row.status === 'complete'}
+              sx={{ color: 'blue' }}
+            >
+              Complete
+            </MenuItem>
           </Menu>
         </>
       );
@@ -120,6 +176,7 @@ const columns = [
 export default function Orders() {
   const [rows, setRows] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
+  const navigate = useNavigate();
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -127,13 +184,16 @@ export default function Orders() {
       const res = await fetch(API_URL, { credentials: 'include' });
       const data = await res.json();
       if (res.ok && data.data) {
+        const sortedOrders = data.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setRows(
-          data.data.map((order) => ({
+          sortedOrders.map((order) => ({
             ...order,
             id: order._id,
             onDelete: handleDelete,
             onCancel: handleCancel,
             onStatusChange: handleStatusChange,
+            onEdit: handleEdit,
+            onComplete: handleComplete,
             quantities: order.item && Array.isArray(order.item) ? order.item.map(() => 1) : [],
           }))
         );
@@ -197,17 +257,41 @@ export default function Orders() {
     }
   };
 
+  const handleEdit = (order) => {
+    navigate(`/editorder/${order.id}`);
+  };
+
+  const handleComplete = async (id) => {
+    try {
+      const res = await fetch(`${API_URL}/${id}/complete`, {
+        method: 'PATCH',
+        credentials: 'include',
+      });
+      if (res.ok) {
+        fetchOrders();
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  };
+
   return (
     <>
       <div className='order'>
         <h1>Orders</h1>
         <div>
-          <Link to="/createorder">
-            <button className='odr-btn effect'>Create Order</button>
-          </Link>
+          <Button
+            component={RouterLink}
+            to="/createorder"
+            className='odr-btn effect'
+            variant="contained"
+            color="primary"
+          >
+            Create Order
+          </Button>
         </div>
       </div>
-      <Box paddingLeft={2} paddingRight={2} sx={{ height: '70%', width: '100%' }}>
+      <Box paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 180px)', width: '100%', background: '#fff', overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
         <DataGrid
           rows={rows}
           columns={columns}
@@ -225,6 +309,22 @@ export default function Orders() {
           pageSizeOptions={[5]}
           checkboxSelection
           disableRowSelectionOnClick
+          sx={{
+            '& .MuiDataGrid-virtualScroller': {
+              overflowX: 'auto',
+            },
+            '& .MuiDataGrid-main': {
+              background: '#fff',
+            },
+            border: 0,
+            '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+              outline: 'none',
+              border: 'none',
+            },
+            '& .MuiDataGrid-row.Mui-selected, & .MuiDataGrid-row.Mui-selected:hover': {
+              backgroundColor: 'inherit',
+            },
+          }}
         />
       </Box>
     </>
