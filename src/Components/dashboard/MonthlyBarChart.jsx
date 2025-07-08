@@ -4,19 +4,13 @@ import { useEffect, useState } from 'react';
 
 import { BarChart } from '@mui/x-charts/BarChart';
 
-function getPreviousWeekDates() {
-  // Returns array of 7 Date objects for previous week (Mon-Sun)
+function getLast7DaysExcludingToday() {
   const today = new Date();
-  const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
-  // Find last Monday
-  const lastMonday = new Date(today);
-  lastMonday.setDate(today.getDate() - dayOfWeek - 6);
-  lastMonday.setHours(0, 0, 0, 0);
-  // Build array for last week (Mon-Sun)
+  today.setHours(0, 0, 0, 0);
   const days = [];
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(lastMonday);
-    d.setDate(lastMonday.getDate() + i);
+  for (let i = 7; i >= 1; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
     days.push(d);
   }
   return days;
@@ -26,17 +20,16 @@ function getPreviousWeekDates() {
 
 export default function MonthlyBarChart() {
   const theme = useTheme();
-  const [weekIncome, setWeekIncome] = useState(Array(7).fill(0));
+  const [weekIncome, setWeekIncome] = useState([]);
   const [labels, setLabels] = useState([]);
 
   useEffect(() => {
-    // fetch('http://localhost:8000/v1/api/product/orders', { credentials: 'include' })
     fetch('https://crm-backend-rho-weld.vercel.app/v1/api/product/orders', { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         if (data.data) {
-          const days = getPreviousWeekDates();
-          const incomeByDay = Array(7).fill(0);
+          const days = getLast7DaysExcludingToday();
+          const incomeByDay = Array(days.length).fill(0);
           days.forEach((day, idx) => {
             const dayStart = new Date(day);
             dayStart.setHours(0, 0, 0, 0);

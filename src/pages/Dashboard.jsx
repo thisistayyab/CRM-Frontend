@@ -52,16 +52,13 @@ const actionSX = {
 
 import { useEffect, useState } from 'react';
 
-function getPreviousWeekDates() {
+function getLast7DaysExcludingToday() {
   const today = new Date();
-  const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
-  const lastMonday = new Date(today);
-  lastMonday.setDate(today.getDate() - dayOfWeek - 6);
-  lastMonday.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
   const days = [];
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(lastMonday);
-    d.setDate(lastMonday.getDate() + i);
+  for (let i = 7; i >= 1; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
     days.push(d);
   }
   return days;
@@ -83,7 +80,7 @@ export default function Dashboard() {
       .then(res => res.json())
       .then(data => {
         if (data.data) {
-          const days = getPreviousWeekDates();
+          const days = getLast7DaysExcludingToday();
           let total = 0;
           days.forEach(day => {
             const dayStart = new Date(day);
