@@ -2,9 +2,16 @@ import React, { useState } from "react";
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import "../assets/Stylesheets/Sidebar.css";
 import Navbar from "../Components/Navbar";
+import MIUIAlert from '../Components/MIUIAlert';
 
 const Home = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [alert, setAlert] = useState({ open: false, type: 'error', message: '' });
+  const [alertKey, setAlertKey] = useState(0);
+  const handleAlertClose = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setAlert((a) => ({ ...a, open: false }));
+  };
   const navigate = useNavigate();
 
   const toggleSidebar = () => {
@@ -19,7 +26,8 @@ const Home = () => {
         credentials: "include",
       });
     } catch (error){
-        console.log(error)
+        setAlert({ open: true, type: 'error', message: 'Logout failed.' });
+        setAlertKey((k) => k + 1);
     }
     navigate("/login-signup");
   };
@@ -28,6 +36,13 @@ const Home = () => {
 
   return (
     <>
+      <MIUIAlert
+        open={alert.open}
+        type={alert.type}
+        message={alert.message}
+        onClose={handleAlertClose}
+        alertKey={alertKey}
+      />
       <Navbar />
       <div className={`sidebar ${isOpen ? "open" : ""}`}>
         <div className="logo-details">

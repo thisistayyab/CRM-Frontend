@@ -15,7 +15,35 @@ import FallOutlined from '@ant-design/icons/FallOutlined';
 
 const iconSX = { fontSize: '0.75rem', color: 'inherit', marginLeft: 0, marginRight: 0 };
 
-export default function AnalyticEcommerce({ color = 'primary', title, count, percentage, isLoss, extra }) {
+export default function AnalyticEcommerce({ color = 'primary', title, count, percentage, isLoss, extra, period = 'year', prevCount }) {
+  // Dynamic period label
+  let periodLabel = 'this year';
+  if (period === 'today') periodLabel = 'today';
+  else if (period === 'week') periodLabel = 'this week';
+  else if (period === 'month') periodLabel = 'this month';
+  else if (period === 'year') periodLabel = 'this year';
+
+  // Use raw numbers for diff calculation
+  let isCurrency = false;
+  let curr = Number(count);
+  let prev = Number(prevCount);
+  if (title && title.toLowerCase().includes('sales')) {
+    isCurrency = true;
+    curr = Number(count);
+    prev = Number(prevCount);
+  }
+  const diff = curr - prev;
+
+  // Info sentence logic
+  let infoSentence = '';
+  if (diff > 0) {
+    infoSentence = `You made extra ${isCurrency ? `PKR ${diff.toLocaleString()}` : diff} ${periodLabel}`;
+  } else if (diff < 0) {
+    infoSentence = `You made ${isCurrency ? `PKR ${Math.abs(diff).toLocaleString()}` : Math.abs(diff)} less ${periodLabel}`;
+  } else {
+    infoSentence = `No change ${periodLabel}`;
+  }
+
   return (
     <MainCard contentSX={{ p: 2.25 }}>
       <Stack sx={{ gap: 0.5 }}>
@@ -25,7 +53,7 @@ export default function AnalyticEcommerce({ color = 'primary', title, count, per
         <Grid container alignItems="center">
           <Grid>
             <Typography variant="h4" color="inherit">
-              {count}
+              {isCurrency ? `PKR ${curr.toLocaleString()}` : curr}
             </Typography>
           </Grid>
           {percentage && (
@@ -44,11 +72,7 @@ export default function AnalyticEcommerce({ color = 'primary', title, count, per
       </Stack>
       <Box sx={{ pt: 2.25 }}>
         <Typography variant="caption" color="text.secondary">
-          You made an extra{' '}
-          <Typography variant="caption" sx={{ color: `${color || 'primary'}.main` }}>
-            {extra}
-          </Typography>{' '}
-          this year
+          {infoSentence}
         </Typography>
       </Box>
     </MainCard>

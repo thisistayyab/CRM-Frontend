@@ -16,6 +16,10 @@ const status = [
     label: 'Today'
   },
   {
+    value: 'week',
+    label: 'This Week'
+  },
+  {
     value: 'month',
     label: 'This Month'
   },
@@ -53,7 +57,7 @@ export default function SaleReportCard() {
           </TextField>
         </Grid>
       </Grid>
-      <SalesChart />
+      <SalesChart period={value} />
     </>
   );
 }

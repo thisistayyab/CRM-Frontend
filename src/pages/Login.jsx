@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../assets/Stylesheets/form.css';
+import MIUIAlert from '../Components/MIUIAlert';
 
 const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/user";
 // const API_URL = "http://localhost:8000/v1/api/user";
@@ -8,6 +9,12 @@ const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/user";
 const Login = () => {
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [alert, setAlert] = useState({ open: false, type: 'error', message: '' });
+  const [alertKey, setAlertKey] = useState(0);
+  const handleAlertClose = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setAlert((a) => ({ ...a, open: false }));
+  };
   const navigate = useNavigate();
 
   const handleLoginChange = (e) => {
@@ -16,7 +23,7 @@ const Login = () => {
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setAlert({ open: false, type: 'error', message: '' });
     try {
       const loginPayload = {
         email: loginData.email,
@@ -33,16 +40,29 @@ const Login = () => {
       if (res.ok && data.data && data.data.accessToken) {
         navigate('/');
       } else {
-        setError(data.message || 'Login failed');
+        if (res.status === 401 || res.status === 403) {
+          setAlert({ open: true, type: 'error', message: 'Wrong credentials' });
+        } else {
+          setAlert({ open: true, type: 'error', message: 'Login failed' });
+        }
+        setAlertKey((k) => k + 1);
       }
     } catch (err) {
       console.log(err);
-      setError('Login failed');
+      setAlert({ open: true, type: 'error', message: 'Login failed' });
+      setAlertKey((k) => k + 1);
     }
   };
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f7f7f7' }}>
+      <MIUIAlert
+        open={alert.open}
+        type={alert.type}
+        message={alert.message}
+        onClose={handleAlertClose}
+        alertKey={alertKey}
+      />
       <form onSubmit={handleLoginSubmit} style={{ background: '#fff', padding: 32, borderRadius: 8, boxShadow: '0 2px 16px rgba(0,0,0,0.08)', minWidth: 320, maxWidth: 360, width: '100%' }}>
         <h2 style={{ textAlign: 'center', marginBottom: 24 }}>Sign In</h2>
         <div style={{ marginBottom: 16 }}>
@@ -56,7 +76,6 @@ const Login = () => {
           <span>Don't have an account? </span>
           <a href="/signup" style={{ color: '#FF4B2B', fontWeight: 'bold', textDecoration: 'underline', cursor: 'pointer' }}>Sign Up</a>
         </div>
-        {error && <div style={{ color: 'red', textAlign: 'center', marginTop: 16 }}>{error}</div>}
       </form>
     </div>
   );

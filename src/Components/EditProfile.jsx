@@ -9,6 +9,7 @@ import {
   Paper,
 } from "@mui/material";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
+import MIUIAlert from './MIUIAlert';
 
 // const API_URL = "http://localhost:8000/v1/api/user";
 const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/user";
@@ -20,6 +21,12 @@ const ProfileEdit = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [alert, setAlert] = useState({ open: false, type: 'error', message: '' });
+  const [alertKey, setAlertKey] = useState(0);
+  const handleAlertClose = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setAlert((a) => ({ ...a, open: false }));
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -43,13 +50,18 @@ const ProfileEdit = () => {
         credentials: "include",
         body: formData,
       });
-      if (!res.ok) throw new Error("Failed to update profile");
       const data = await res.json();
-      console.log(data)
-      alert("Profile updated successfully!");
+      if (!res.ok) {
+        setAlert({ open: true, type: 'error', message: data.message || "Failed to update profile" });
+        setAlertKey((k) => k + 1);
+        return;
+      }
+      setAlert({ open: true, type: 'success', message: 'Profile updated successfully!' });
+      setAlertKey((k) => k + 1);
       // Optionally redirect or update user state here
     } catch (err) {
-      alert(err.message || "Error updating profile");
+      setAlert({ open: true, type: 'error', message: err.message || "Error updating profile" });
+      setAlertKey((k) => k + 1);
     }
   };
 
@@ -64,6 +76,13 @@ const ProfileEdit = () => {
         p: 2,
       }}
     >
+      <MIUIAlert
+        open={alert.open}
+        type={alert.type}
+        message={alert.message}
+        onClose={handleAlertClose}
+        alertKey={alertKey}
+      />
       <Paper
         elevation={4}
         sx={{

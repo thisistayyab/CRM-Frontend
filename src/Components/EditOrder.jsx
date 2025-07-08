@@ -6,6 +6,7 @@ import {
 import { useParams } from 'react-router-dom';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import MIUIAlert from './MIUIAlert';
 
 const EditOrder = () => {
   const { id } = useParams(); // used for editing
@@ -25,6 +26,12 @@ const EditOrder = () => {
   const [selectedProductId, setSelectedProductId] = useState('');
   const [productLoading, setProductLoading] = useState(true);
   const [productError, setProductError] = useState(null);
+  const [alert, setAlert] = useState({ open: false, type: 'error', message: '' });
+  const [alertKey, setAlertKey] = useState(0);
+  const handleAlertClose = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setAlert((a) => ({ ...a, open: false }));
+  };
 
   const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product";
   // const API_URL = "http://localhost:8000/v1/api/product";
@@ -45,6 +52,8 @@ const EditOrder = () => {
     } catch (err) {
       console.log(err)
       setProductError('Failed to load products');
+      setAlert({ open: true, type: 'error', message: 'Failed to load products.' });
+      setAlertKey((k) => k + 1);
     }
     setProductLoading(false);
   };
@@ -63,6 +72,7 @@ const EditOrder = () => {
           shippingCharges: order.shippingCharges || 0,
           trackingNumber: order.trackingNumber || '',
           courierCompany: order.courierCompany || 'Custom',
+          otherExpenses: order.otherExpenses || 0,
         });
         const formattedItems = order.item.map(i => ({
           productId: typeof i.product === 'object' ? i.product._id : i.product,
@@ -72,7 +82,8 @@ const EditOrder = () => {
       }
     } catch (err) {
       console.log(err)
-      alert('Failed to load order');
+      setAlert({ open: true, type: 'error', message: 'Failed to load order.' });
+      setAlertKey((k) => k + 1);
     }
   };
 
@@ -123,6 +134,7 @@ const EditOrder = () => {
           salePrice: prod?.salePrice
         };
       }),
+      otherExpenses: Number(form.otherExpenses || 0),
     };
 
     try {
@@ -135,22 +147,34 @@ const EditOrder = () => {
 
       if (res.ok) {
         setSuccess(true);
+        setAlert({ open: true, type: 'success', message: 'Order saved successfully!' });
+        setAlertKey((k) => k + 1);
         if (!id) {
           setForm({ orderId: '', customerName: '', phoneNumber: '', customerAddress: '', shippingCharges: 0, trackingNumber: '', courierCompany: 'Custom' });
           setSelectedProducts([]);
         }
       } else {
-        alert('Failed to save order');
+        const errData = await res.json();
+        setAlert({ open: true, type: 'error', message: errData.message || 'Failed to save order.' });
+        setAlertKey((k) => k + 1);
       }
     } catch (err) {
       console.log(err)
-      alert('Error saving order');
+      setAlert({ open: true, type: 'error', message: 'Error saving order.' });
+      setAlertKey((k) => k + 1);
     }
     setLoading(false);
   };
 
   return (
     <Box sx={{ p: 4, backgroundColor: '#f4f6fc', minHeight: '100vh' }}>
+      <MIUIAlert
+        open={alert.open}
+        type={alert.type}
+        message={alert.message}
+        onClose={handleAlertClose}
+        alertKey={alertKey}
+      />
       <Box sx={{ maxWidth: 800, mx: 'auto' }}>
         <Typography variant="h4" fontWeight="bold" gutterBottom>
           {id ? '✏️ Edit Order' : '📝 Create Order'}
@@ -177,6 +201,7 @@ const EditOrder = () => {
             <Grid item xs={12} sm={6}><TextField fullWidth label="Customer Name" name="customerName" value={form.customerName} onChange={handleChange} required /></Grid>
             <Grid item xs={12} sm={6}><TextField fullWidth label="Phone Number" name="phoneNumber" value={form.phoneNumber} onChange={handleChange} required /></Grid>
             <Grid item xs={12}><TextField fullWidth label="Customer Address" name="customerAddress" value={form.customerAddress} onChange={handleChange} required /></Grid>
+            <Grid item xs={12}><TextField fullWidth label="Other Expenses" name="otherExpenses" value={form.otherExpenses || ''} onChange={handleChange} type="number" /></Grid>
           </Grid>
 
           <Paper sx={{ p: 2, my: 2 }}>

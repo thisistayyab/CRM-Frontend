@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../assets/Stylesheets/form.css';
+import MIUIAlert from '../Components/MIUIAlert';
 
 const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/user"
 // const API_URL = "http://localhost:8000/v1/api/user"
@@ -9,6 +10,12 @@ const Signup = () => {
   const [signupData, setSignupData] = useState({ fullname: '', email: '', username: '', password: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [alert, setAlert] = useState({ open: false, type: 'error', message: '' });
+  const [alertKey, setAlertKey] = useState(0);
+  const handleAlertClose = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setAlert((a) => ({ ...a, open: false }));
+  };
   const navigate = useNavigate();
 
   const handleSignupChange = (e) => {
@@ -17,7 +24,7 @@ const Signup = () => {
 
   const handleSignupSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setAlert({ open: false, type: 'error', message: '' });
     setSuccess('');
     try {
       const res = await fetch(`${API_URL}/register`, {
@@ -27,19 +34,29 @@ const Signup = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        setSuccess('Signup successful! Please login.');
+        setAlert({ open: true, type: 'success', message: 'Signup successful! Please login.' });
+        setAlertKey((k) => k + 1);
         setTimeout(() => navigate('/login'), 1500);
       } else {
-        setError(data.message || 'Signup failed');
+        setAlert({ open: true, type: 'error', message: data.message || 'Signup failed' });
+        setAlertKey((k) => k + 1);
       }
     } catch (err) {
       console.log(err);
-      setError('Signup failed');
+      setAlert({ open: true, type: 'error', message: 'Signup failed' });
+      setAlertKey((k) => k + 1);
     }
   };
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f7f7f7' }}>
+      <MIUIAlert
+        open={alert.open}
+        type={alert.type}
+        message={alert.message}
+        onClose={handleAlertClose}
+        alertKey={alertKey}
+      />
       <form onSubmit={handleSignupSubmit} style={{ background: '#fff', padding: 32, borderRadius: 8, boxShadow: '0 2px 16px rgba(0,0,0,0.08)', minWidth: 320, maxWidth: 400, width: '100%' }}>
         <h2 style={{ textAlign: 'center', marginBottom: 24 }}>Sign Up</h2>
         <div style={{ marginBottom: 16 }}>
@@ -59,8 +76,6 @@ const Signup = () => {
           <span>Already have an account? </span>
           <a href="/login" style={{ color: '#FF4B2B', fontWeight: 'bold', textDecoration: 'underline', cursor: 'pointer' }}>Sign In</a>
         </div>
-        {success && <div style={{ color: 'green', textAlign: 'center', marginTop: 16 }}>{success}</div>}
-        {error && <div style={{ color: 'red', textAlign: 'center', marginTop: 16 }}>{error}</div>}
       </form>
     </div>
   );

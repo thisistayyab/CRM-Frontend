@@ -4,13 +4,17 @@ import { useEffect, useState } from 'react';
 
 import { BarChart } from '@mui/x-charts/BarChart';
 
-function getLast7DaysExcludingToday() {
+function getCurrentWeekDays() {
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const dayOfWeek = today.getDay();
+  // Monday as start of week
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7));
+  monday.setHours(0, 0, 0, 0);
   const days = [];
-  for (let i = 7; i >= 1; i--) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
     days.push(d);
   }
   return days;
@@ -24,11 +28,12 @@ export default function MonthlyBarChart() {
   const [labels, setLabels] = useState([]);
 
   useEffect(() => {
+    // fetch('http://localhost:8000/v1/api/product/orders', { credentials: 'include' })
     fetch('https://crm-backend-rho-weld.vercel.app/v1/api/product/orders', { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         if (data.data) {
-          const days = getLast7DaysExcludingToday();
+          const days = getCurrentWeekDays();
           const incomeByDay = Array(days.length).fill(0);
           days.forEach((day, idx) => {
             const dayStart = new Date(day);
@@ -45,7 +50,7 @@ export default function MonthlyBarChart() {
             });
           });
           setWeekIncome(incomeByDay);
-          setLabels(days.map(d => d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })));
+          setLabels(days.map(d => d.toLocaleDateString(undefined, { weekday: 'short' })));
         }
       });
   }, []);

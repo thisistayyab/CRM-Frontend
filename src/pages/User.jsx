@@ -9,6 +9,7 @@ import {
   Divider,
   Button,
 } from '@mui/material';
+import MIUIAlert from '../Components/MIUIAlert';
 
 // const API_URL = "http://localhost:8000/v1/api/user"
 const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/user"
@@ -16,13 +17,18 @@ const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/user"
 const User = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [alert, setAlert] = useState({ open: false, type: 'error', message: '' });
+  const [alertKey, setAlertKey] = useState(0);
+  const handleAlertClose = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setAlert((a) => ({ ...a, open: false }));
+  };
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
       setLoading(true);
-      setError(null);
+      // setError(null);
       try {
         const res = await fetch(`${API_URL}/get-user`, {
           method: 'GET',
@@ -34,12 +40,16 @@ const User = () => {
           return;
         }
         if (!res.ok) {
-          throw new Error('Failed to fetch user');
+          const data = await res.json();
+          setAlert({ open: true, type: 'error', message: data.message || 'Failed to fetch user' });
+          setAlertKey((k) => k + 1);
+          return;
         }
         const data = await res.json();
         setUser(data.data);
       } catch (err) {
-        setError(err.message || 'Error fetching user');
+        setAlert({ open: true, type: 'error', message: err.message || 'Error fetching user' });
+        setAlertKey((k) => k + 1);
       } finally {
         setLoading(false);
       }
@@ -51,70 +61,75 @@ const User = () => {
     return <Box sx={{ p: 4, textAlign: 'center' }}>Loading user...</Box>;
   }
 
-  if (error) {
-    return <Box sx={{ p: 4, textAlign: 'center', color: 'red' }}>{error}</Box>;
-  }
-
   if (!user) {
     return <Box sx={{ p: 4, textAlign: 'center' }}>No user data found.</Box>;
   }
 
   return (
-    <Box
-      sx={{
-        p: { xs: 2, md: 4 },
-        backgroundColor: '#e4e9f7',
-        minHeight: '100vh',
-        ml: { xs: 0, md: '80px' }, // Sidebar adjustment
-      }}
-    >
-      <Box sx={{ maxWidth: 800, mx: 'auto' }}>
-        <Typography variant="h4" fontWeight="bold" gutterBottom>
-          👤 User Profile
-        </Typography>
+    <>
+      <MIUIAlert
+        open={alert.open}
+        type={alert.type}
+        message={alert.message}
+        onClose={handleAlertClose}
+        alertKey={alertKey}
+      />
+      <Box
+        sx={{
+          p: { xs: 2, md: 4 },
+          backgroundColor: '#e4e9f7',
+          minHeight: '100vh',
+          ml: { xs: 0, md: '80px' }, // Sidebar adjustment
+        }}
+      >
+        <Box sx={{ maxWidth: 800, mx: 'auto' }}>
+          <Typography variant="h4" fontWeight="bold" gutterBottom>
+            👤 User Profile
+          </Typography>
 
-        <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
-          {/* Profile Section */}
-          <Box display="flex" alignItems="center" gap={3} flexWrap="wrap">
-            <Avatar
-              sx={{ width: 80, height: 80, fontSize: 32, bgcolor: 'primary.main' }}
-              src={user.profilepic || ''}
-            >
-              {user.fullname ? user.fullname.charAt(0) : '?'}
-            </Avatar>
-            <Box>
-              <Typography variant="h5" fontWeight="bold">{user.fullname || user.name || 'No Name'}</Typography>
-              <Typography variant="body1" color="text.secondary">{user.email}</Typography>
-              <Typography variant="body2" color="primary.main">{user.role || 'User'}</Typography>
+          <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
+            {/* Profile Section */}
+            <Box display="flex" alignItems="center" gap={3} flexWrap="wrap">
+              <Avatar
+                sx={{ width: 80, height: 80, fontSize: 32, bgcolor: 'primary.main' }}
+                src={user.profilepic || ''}
+              >
+                {user.fullname ? user.fullname.charAt(0) : '?'}
+              </Avatar>
+              <Box>
+                <Typography variant="h5" fontWeight="bold">{user.fullname || user.name || 'No Name'}</Typography>
+                <Typography variant="body1" color="text.secondary">{user.email}</Typography>
+                <Typography variant="body2" color="primary.main">{user.role || 'User'}</Typography>
+              </Box>
             </Box>
-          </Box>
 
-          <Divider sx={{ my: 3 }} />
+            <Divider sx={{ my: 3 }} />
 
-          {/* Account Details */}
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="subtitle2" color="text.secondary">Phone</Typography>
-              <Typography variant="body1">{user.phone || 'N/A'}</Typography>
+            {/* Account Details */}
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="subtitle2" color="text.secondary">Phone</Typography>
+                <Typography variant="body1">{user.phone || 'N/A'}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="subtitle2" color="text.secondary">Address</Typography>
+                <Typography variant="body1">{user.address || 'N/A'}</Typography>
+              </Grid>
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="subtitle2" color="text.secondary">Address</Typography>
-              <Typography variant="body1">{user.address || 'N/A'}</Typography>
-            </Grid>
-          </Grid>
 
-          <Divider sx={{ my: 3 }} />
+            <Divider sx={{ my: 3 }} />
 
-          {/* Actions */}
-          <Box display="flex" gap={2}>
-            <Link to='/profile-edit'>
-              <Button variant="contained" color="primary">Edit Profile</Button>
-            </Link>
-            <Button variant="outlined" color="error">Deactivate</Button>
-          </Box>
-        </Paper>
+            {/* Actions */}
+            <Box display="flex" gap={2}>
+              <Link to='/profile-edit'>
+                <Button variant="contained" color="primary">Edit Profile</Button>
+              </Link>
+              <Button variant="outlined" color="error">Deactivate</Button>
+            </Box>
+          </Paper>
+        </Box>
       </Box>
-    </Box>
+    </>
   );
 };
 

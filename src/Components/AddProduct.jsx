@@ -9,6 +9,7 @@ import {
   InputLabel
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import MIUIAlert from './MIUIAlert';
 
 // const API_URL = "http://localhost:8000/v1/api/product";
 const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product";
@@ -23,6 +24,12 @@ const AddProduct = () => {
   const [loading, setLoading] = useState(false);
   const [salePrice, setSalePrice] = useState('');
   const navigate = useNavigate();
+  const [alert, setAlert] = useState({ open: false, type: 'success', message: '' });
+  const [alertKey, setAlertKey] = useState(0);
+  const handleAlertClose = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setAlert((a) => ({ ...a, open: false }));
+  };
 
   const handleImageChange = (e) => {
     setImage(e.target.files[0]);
@@ -31,6 +38,19 @@ const AddProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    // Validate required fields
+    if (!name || !price || !inventory || !category || !description) {
+      setAlert({ open: true, type: 'warning', message: 'All required fields must be filled.' });
+      setAlertKey((k) => k + 1);
+      setLoading(false);
+      return;
+    }
+    if (!image) {
+      setAlert({ open: true, type: 'warning', message: 'Product image is required.' });
+      setAlertKey((k) => k + 1);
+      setLoading(false);
+      return;
+    }
     const formData = new FormData();
     formData.append('productname', name);
     formData.append('price', price);
@@ -38,21 +58,31 @@ const AddProduct = () => {
     formData.append('description', description);
     formData.append('category', category);
     if (salePrice) formData.append('salePrice', salePrice);
-    if (image) formData.append('image', image);
+    formData.append('image', image);
     try {
       const res = await fetch(API_URL, {
         method: 'POST',
         credentials: 'include',
         body: formData,
       });
-      if (res.ok) {
-        navigate('/products');
+      const data = await res.json();
+      if (res.ok && data.data) {
+        setAlert({ open: true, type: 'success', message: 'Product added successfully!' });
+        setAlertKey((k) => k + 1);
+        setTimeout(() => navigate('/products'), 1000);
+      } else if (data.message && data.message.toLowerCase().includes('image')) {
+        setAlert({ open: true, type: 'warning', message: 'Product image is required.' });
+        setAlertKey((k) => k + 1);
+      } else if (data.message && data.message.toLowerCase().includes('required')) {
+        setAlert({ open: true, type: 'warning', message: 'All required fields must be filled.' });
+        setAlertKey((k) => k + 1);
       } else {
-        alert('Failed to add product');
+        setAlert({ open: true, type: 'error', message: 'Error processing your request.' });
+        setAlertKey((k) => k + 1);
       }
     } catch (err) {
-      console.log(err)
-      alert('Error adding product');
+      setAlert({ open: true, type: 'error', message: 'Error processing your request.' });
+      setAlertKey((k) => k + 1);
     } finally {
       setLoading(false);
     }
@@ -60,6 +90,13 @@ const AddProduct = () => {
 
   return (
     <Box sx={{ p: 4 }}>
+      <MIUIAlert
+        open={alert.open}
+        type={alert.type}
+        message={alert.message}
+        onClose={handleAlertClose}
+        alertKey={alertKey}
+      />
       <Paper elevation={3} sx={{ p: 4, maxWidth: 600, mx: 'auto', borderRadius: '20px' }}>
         <Typography variant="h4" gutterBottom align="center" fontWeight="bold">
           Add Product

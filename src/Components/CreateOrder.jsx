@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import MIUIAlert from './MIUIAlert';
 
 const CreateOrder = () => {
   const [form, setForm] = useState({
@@ -32,6 +33,12 @@ const CreateOrder = () => {
   const [productLoading, setProductLoading] = useState(true);
   const [productError, setProductError] = useState(null);
   const [selectedProductId, setSelectedProductId] = useState('');
+  const [alert, setAlert] = useState({ open: false, type: 'success', message: '' });
+  const [alertKey, setAlertKey] = useState(0);
+  const handleAlertClose = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setAlert((a) => ({ ...a, open: false }));
+  };
 
   // const API_URL = "http://localhost:8000/v1/api/product";
   const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product";
@@ -89,6 +96,19 @@ const CreateOrder = () => {
     e.preventDefault();
     setLoading(true);
     setSuccess(false);
+    // Validate required fields
+    if (!form.orderId || !form.customerName || !form.phoneNumber || !form.customerAddress) {
+      setAlert({ open: true, type: 'warning', message: 'All required fields must be filled.' });
+      setAlertKey((k) => k + 1);
+      setLoading(false);
+      return;
+    }
+    if (!selectedProducts.length) {
+      setAlert({ open: true, type: 'warning', message: 'At least one product must be selected.' });
+      setAlertKey((k) => k + 1);
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch(ORDER_API_URL, {
         method: 'POST',
@@ -112,19 +132,27 @@ const CreateOrder = () => {
           shippingCharges: Number(form.shippingCharges || 0),
           trackingNumber: form.trackingNumber,
           courierCompany: form.courierCompany,
+          otherExpenses: Number(form.otherExpenses || 0),
         })
       });
       if (res.ok) {
         setSuccess(true);
+        setAlert({ open: true, type: 'success', message: 'Order created successfully!' });
+        setAlertKey((k) => k + 1);
         setForm({ orderId: '', customerName: '', phoneNumber: '', customerAddress: '', shippingCharges: 0, trackingNumber: '', courierCompany: 'Custom' });
         setSelectedProducts([]);
       } else {
-        alert('Failed to create order');
         const errData = await res.json();
-        console.log(errData);
+        if (errData.message && errData.message.toLowerCase().includes('required')) {
+          setAlert({ open: true, type: 'warning', message: 'All required fields must be filled.' });
+        } else {
+          setAlert({ open: true, type: 'error', message: 'Error processing your request.' });
+        }
+        setAlertKey((k) => k + 1);
       }
     } catch (err) {
-      alert('Error creating order');
+      setAlert({ open: true, type: 'error', message: 'Error processing your request.' });
+      setAlertKey((k) => k + 1);
       console.log(err);
     }
     setLoading(false);
@@ -132,6 +160,13 @@ const CreateOrder = () => {
 
   return (
     <Box sx={{ p: 4, backgroundColor: '#f4f6fc', minHeight: '100vh' }}>
+      <MIUIAlert
+        open={alert.open}
+        type={alert.type}
+        message={alert.message}
+        onClose={handleAlertClose}
+        alertKey={alertKey}
+      />
       <Box sx={{ maxWidth: 700, mx: 'auto' }}>
         <Typography variant="h4" fontWeight="bold" gutterBottom>
           📝 Create Order
@@ -253,6 +288,15 @@ const CreateOrder = () => {
             margin="normal"
             type="number"
             inputProps={{ min: 0 }}
+          />
+          <TextField
+            label="Other Expenses"
+            name="otherExpenses"
+            value={form.otherExpenses || ''}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            type="number"
           />
           <Typography variant="h6" sx={{ mt: 2 }}>Total: Rs {totalPrice}</Typography>
           <Button

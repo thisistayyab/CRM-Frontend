@@ -11,6 +11,9 @@ import IconButton from '@mui/material/IconButton';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Chip from '@mui/material/Chip';
 import Link from '@mui/material/Link';
+import Popover from '@mui/material/Popover';
+import MIUIAlert from '../Components/MIUIAlert';
+import ConfirmDialog from '../Components/ConfirmDialog';
 
 // const API_URL = "http://localhost:8000/v1/api/product/orders";
 const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product/orders";
@@ -50,17 +53,45 @@ const columns = [
   { field: 'customerAddress', headerName: 'Address', width: 180 },
   { field: 'shippingCharges', headerName: 'Shipping', width: 100 },
   { field: 'totalPrice', headerName: 'Total Price', width: 120 },
-  { field: 'items', headerName: 'Items', width: 250, renderCell: (params) => (
-    <span>
-      {Array.isArray(params.row.item) && params.row.item.length > 0
-        ? params.row.item.map((item) => {
-            const prod = item.product;
-            const name = prod && (prod.productname || prod.name || 'Product');
-            return `${name} (x${item.quantity})`;
-          }).join(', ')
-        : '—'}
-    </span>
-  ) },
+  { field: 'otherExpenses', headerName: 'Other Expenses', width: 130, renderCell: (params) => params.value != null ? params.value : 0 },
+  { field: 'netProfit', headerName: 'Net Profit', width: 130, renderCell: (params) => {
+    const value = params.value != null ? params.value : 0;
+    return <span style={{ color: value < 0 ? 'red' : 'green', fontWeight: 'bold' }}>{value}</span>;
+  } },
+  { field: 'items', headerName: 'Items', width: 150, renderCell: (params) => {
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const items = Array.isArray(params.row.item) ? params.row.item : [];
+    const totalQty = items.reduce((sum, i) => sum + (i.quantity || 0), 0);
+    const handleClick = (event) => setAnchorEl(event.currentTarget);
+    const handleClose = () => setAnchorEl(null);
+    if (!items.length) return '—';
+    return (
+      <>
+        <Link component="button" underline="hover" onClick={handleClick} sx={{ cursor: 'pointer' }}>
+          {totalQty} item{totalQty > 1 ? 's' : ''}
+        </Link>
+        <Popover
+          open={Boolean(anchorEl)}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        >
+          <Box sx={{ p: 1, minWidth: 140 }}>
+            {items.map((item, idx) => {
+              const prod = item.product;
+              const name = prod && (prod.productname || prod.name || 'Product');
+              return (
+                <Box key={idx} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5, borderBottom: idx !== items.length - 1 ? '1px solid #eee' : 'none' }}>
+                  <span>{name}</span>
+                  <span>&nbsp;x{item.quantity}</span>
+                </Box>
+              );
+            })}
+          </Box>
+        </Popover>
+      </>
+    );
+  } },
   { field: 'orderCountForCustomer', headerName: 'Customer Order Count', width: 180, renderCell: (params) => (
     params.value && params.row.phoneNumber ? (
       <Link component={RouterLink} to={`/customer-orders/${params.row.phoneNumber}`} underline="hover" color="primary">
@@ -177,6 +208,14 @@ export default function Orders() {
   const [rows, setRows] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const navigate = useNavigate();
+  const [alert, setAlert] = React.useState({ open: false, type: 'success', message: '' });
+  const [alertKey, setAlertKey] = React.useState(0);
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = React.useState(null);
+  const handleAlertClose = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setAlert((a) => ({ ...a, open: false }));
+  };
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -211,18 +250,38 @@ export default function Orders() {
   }, []);
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this order?')) return;
+    setPendingDeleteId(id);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!pendingDeleteId) return;
+    setConfirmOpen(false);
     try {
-      const res = await fetch(`${API_URL}/${id}`, {
+      const res = await fetch(`${API_URL}/${pendingDeleteId}`, {
         method: 'DELETE',
         credentials: 'include',
       });
       if (res.ok) {
-        setRows((prev) => prev.filter((row) => row.id !== id));
+        setRows((prev) => prev.filter((row) => row.id !== pendingDeleteId));
+        setAlert({ open: true, type: 'success', message: 'Order deleted successfully!' });
+        setAlertKey((k) => k + 1);
+      } else {
+        const errData = await res.json();
+        setAlert({ open: true, type: 'error', message: errData.message || 'Error deleting order.' });
+        setAlertKey((k) => k + 1);
       }
     } catch (err) {
-      console.log(err)
+      setAlert({ open: true, type: 'error', message: 'Error deleting order.' });
+      setAlertKey((k) => k + 1);
+    } finally {
+      setPendingDeleteId(null);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setConfirmOpen(false);
+    setPendingDeleteId(null);
   };
 
   const handleCancel = async (id) => {
@@ -233,9 +292,16 @@ export default function Orders() {
       });
       if (res.ok) {
         fetchOrders();
+        setAlert({ open: true, type: 'success', message: 'Order canceled.' });
+        setAlertKey((k) => k + 1);
+      } else {
+        const errData = await res.json();
+        setAlert({ open: true, type: 'error', message: errData.message || 'Error canceling order.' });
+        setAlertKey((k) => k + 1);
       }
     } catch (err) {
-      console.log(err)
+      setAlert({ open: true, type: 'error', message: 'Error canceling order.' });
+      setAlertKey((k) => k + 1);
     }
   };
 
@@ -246,13 +312,22 @@ export default function Orders() {
     else if (newStatus === 'active') endpoint = `${API_URL}/${id}`; // For future extension
     if (endpoint) {
       try {
-        await fetch(endpoint, {
+        const res = await fetch(endpoint, {
           method: 'PATCH',
           credentials: 'include',
         });
-        fetchOrders();
+        if (res.ok) {
+          fetchOrders();
+          setAlert({ open: true, type: 'success', message: `Order marked as ${newStatus}.` });
+          setAlertKey((k) => k + 1);
+        } else {
+          const errData = await res.json();
+          setAlert({ open: true, type: 'error', message: errData.message || `Error updating order status to ${newStatus}.` });
+          setAlertKey((k) => k + 1);
+        }
       } catch (err) {
-        console.log(err);
+        setAlert({ open: true, type: 'error', message: `Error updating order status to ${newStatus}.` });
+        setAlertKey((k) => k + 1);
       }
     }
   };
@@ -269,14 +344,37 @@ export default function Orders() {
       });
       if (res.ok) {
         fetchOrders();
+        setAlert({ open: true, type: 'success', message: 'Order marked as complete.' });
+        setAlertKey((k) => k + 1);
+      } else {
+        const errData = await res.json();
+        setAlert({ open: true, type: 'error', message: errData.message || 'Error marking order as complete.' });
+        setAlertKey((k) => k + 1);
       }
     } catch (err) {
-      console.log(err)
+      setAlert({ open: true, type: 'error', message: 'Error marking order as complete.' });
+      setAlertKey((k) => k + 1);
     }
   };
 
   return (
     <>
+      <MIUIAlert
+        open={alert.open}
+        type={alert.type}
+        message={alert.message}
+        onClose={handleAlertClose}
+        alertKey={alertKey}
+      />
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Delete Order?"
+        message="Are you sure you want to delete this order? This action cannot be undone."
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
       <div className='order'>
         <h1>Orders</h1>
         <div>
@@ -291,7 +389,7 @@ export default function Orders() {
           </Button>
         </div>
       </div>
-      <Box paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 180px)', width: '100%', background: '#fff', overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
+      <Box paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 70px)', width: '100%', background: '#fff', overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
         <DataGrid
           rows={rows}
           columns={columns}

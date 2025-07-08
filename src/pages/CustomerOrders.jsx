@@ -5,6 +5,8 @@ import { DataGrid } from '@mui/x-data-grid';
 import Chip from '@mui/material/Chip';
 import Link from '@mui/material/Link';
 import { Link as RouterLink } from 'react-router-dom';
+import Popover from '@mui/material/Popover';
+import MIUIAlert from '../Components/MIUIAlert';
 
 const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product/orders";
 // const API_URL = "http://localhost:8000/v1/api/product/orders";
@@ -43,17 +45,40 @@ const columns = [
   { field: 'customerAddress', headerName: 'Address', width: 180 },
   { field: 'shippingCharges', headerName: 'Shipping', width: 100 },
   { field: 'totalPrice', headerName: 'Total Price', width: 120 },
-  { field: 'items', headerName: 'Items', width: 250, renderCell: (params) => (
-    <span>
-      {Array.isArray(params.row.item) && params.row.item.length > 0
-        ? params.row.item.map((item) => {
-            const prod = item.product;
-            const name = prod && (prod.productname || prod.name || 'Product');
-            return `${name} (x${item.quantity})`;
-          }).join(', ')
-        : '—'}
-    </span>
-  ) },
+  { field: 'items', headerName: 'Items', width: 150, renderCell: (params) => {
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const items = Array.isArray(params.row.item) ? params.row.item : [];
+    const totalQty = items.reduce((sum, i) => sum + (i.quantity || 0), 0);
+    const handleClick = (event) => setAnchorEl(event.currentTarget);
+    const handleClose = () => setAnchorEl(null);
+    if (!items.length) return '—';
+    return (
+      <>
+        <Link component="button" underline="hover" onClick={handleClick} sx={{ cursor: 'pointer' }}>
+          {totalQty} item{totalQty > 1 ? 's' : ''}
+        </Link>
+        <Popover
+          open={Boolean(anchorEl)}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        >
+          <Box sx={{ p: 1, minWidth: 140 }}>
+            {items.map((item, idx) => {
+              const prod = item.product;
+              const name = prod && (prod.productname || prod.name || 'Product');
+              return (
+                <Box key={idx} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5, borderBottom: idx !== items.length - 1 ? '1px solid #eee' : 'none' }}>
+                  <span>{name}</span>
+                  <span>x{item.quantity}</span>
+                </Box>
+              );
+            })}
+          </Box>
+        </Popover>
+      </>
+    );
+  } },
   { field: 'orderCountForCustomer', headerName: 'Customer Order Count', width: 180, renderCell: (params) => (
     params.value && params.row.phoneNumber ? (
       <Link component={RouterLink} to={`/customer-orders/${params.row.phoneNumber}`} underline="hover" color="primary">
@@ -85,6 +110,12 @@ export default function CustomerOrders() {
   const { phoneNumber } = useParams();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [alert, setAlert] = useState({ open: false, type: 'error', message: '' });
+  const [alertKey, setAlertKey] = useState(0);
+  const handleAlertClose = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setAlert((a) => ({ ...a, open: false }));
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -101,45 +132,61 @@ export default function CustomerOrders() {
                 id: order._id,
               }))
           );
+        } else {
+          setAlert({ open: true, type: 'error', message: data.message || 'Error loading customer orders.' });
+          setAlertKey((k) => k + 1);
         }
+      })
+      .catch(err => {
+        setAlert({ open: true, type: 'error', message: 'Error loading customer orders.' });
+        setAlertKey((k) => k + 1);
       })
       .finally(() => setLoading(false));
   }, [phoneNumber]);
 
   return (
-    <Box paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 180px)', width: '100%', background: '#fff', overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
-      <h2>Orders for Customer (Phone: {phoneNumber})</h2>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        loading={loading}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 50,
-            },
-          },
-        }}
-        pageSizeOptions={[5]}
-        checkboxSelection
-        disableRowSelectionOnClick
-        sx={{
-          '& .MuiDataGrid-virtualScroller': {
-            overflowX: 'auto',
-          },
-          '& .MuiDataGrid-main': {
-            background: '#fff',
-          },
-          border: 0,
-          '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
-            outline: 'none',
-            border: 'none',
-          },
-          '& .MuiDataGrid-row.Mui-selected, & .MuiDataGrid-row.Mui-selected:hover': {
-            backgroundColor: 'inherit',
-          },
-        }}
+    <>
+      <MIUIAlert
+        open={alert.open}
+        type={alert.type}
+        message={alert.message}
+        onClose={handleAlertClose}
+        alertKey={alertKey}
       />
-    </Box>
+      <Box paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 180px)', width: '100%', background: '#fff', overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
+        <h2>Orders for Customer (Phone: {phoneNumber})</h2>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          loading={loading}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 50,
+              },
+            },
+          }}
+          pageSizeOptions={[5]}
+          checkboxSelection
+          disableRowSelectionOnClick
+          sx={{
+            '& .MuiDataGrid-virtualScroller': {
+              overflowX: 'auto',
+            },
+            '& .MuiDataGrid-main': {
+              background: '#fff',
+            },
+            border: 0,
+            '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+              outline: 'none',
+              border: 'none',
+            },
+            '& .MuiDataGrid-row.Mui-selected, & .MuiDataGrid-row.Mui-selected:hover': {
+              backgroundColor: 'inherit',
+            },
+          }}
+        />
+      </Box>
+    </>
   );
 } 
