@@ -17,9 +17,11 @@ import MenuItem from '@mui/material/MenuItem';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import MIUIAlert from '../Components/MIUIAlert';
 import ConfirmDialog from '../Components/ConfirmDialog';
+import { api } from '../server';
 
+const API_URL = `${api}/v1/api/product`;
 // const API_URL = "http://localhost:8000/v1/api/product";
-const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product";
+// const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product";
 
 const columns = [
   {

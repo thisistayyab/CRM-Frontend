@@ -13,6 +13,7 @@ import { BarChart } from '@mui/x-charts/BarChart';
 
 // project imports
 import MainCard from './MainCard.jsx';
+import { api } from '../../server.js';
 
 // ==============================|| SALES COLUMN CHART ||============================== //
 
@@ -24,8 +25,9 @@ export default function SalesChart({ period = 'today' }) {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    fetch('https://crm-backend-rho-weld.vercel.app/v1/api/product/orders', { credentials: 'include' })
+    // fetch('https://crm-backend-rho-weld.vercel.app/v1/api/product/orders', { credentials: 'include' })
     // fetch('http://localhost:8000/v1/api/product/orders', { credentials: 'include' })
+    fetch(`${api}/v1/api/product/orders`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         if (data.data) {

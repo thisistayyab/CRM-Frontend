@@ -2,9 +2,14 @@ import React from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import Slide from '@mui/material/Slide';
+import Fade from '@mui/material/Fade';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+
+function TransitionDown(props) {
+  return <Slide {...props} direction="down" />;
+}
 
 const MIUIAlert = ({ open, type = 'success', message = '', onClose, alertKey }) => (
   <Snackbar
@@ -13,7 +18,7 @@ const MIUIAlert = ({ open, type = 'success', message = '', onClose, alertKey }) 
     autoHideDuration={5000}
     onClose={onClose}
     anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-    TransitionComponent={Slide}
+    TransitionComponent={TransitionDown}
     sx={{
       '& .MuiAlert-root': {
         border: '1.5px solid',
@@ -26,7 +31,6 @@ const MIUIAlert = ({ open, type = 'success', message = '', onClose, alertKey }) 
         minWidth: 320,
         maxWidth: 420,
         borderRadius: 2,
-        transition: 'opacity 0.5s',
       }
     }}
   >
@@ -46,8 +50,6 @@ const MIUIAlert = ({ open, type = 'success', message = '', onClose, alertKey }) 
         alignItems: 'center',
         padding: '8px 16px',
         boxSizing: 'border-box',
-        opacity: open ? 1 : 0,
-        transition: 'opacity 0.5s',
       }}
       action={
         <IconButton

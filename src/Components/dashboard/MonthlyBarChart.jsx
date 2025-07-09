@@ -3,6 +3,7 @@ import { useTheme } from '@mui/material/styles';
 import { useEffect, useState } from 'react';
 
 import { BarChart } from '@mui/x-charts/BarChart';
+import { api } from '../../server';
 
 function getCurrentWeekDays() {
   const today = new Date();
@@ -26,10 +27,10 @@ export default function MonthlyBarChart() {
   const theme = useTheme();
   const [weekIncome, setWeekIncome] = useState([]);
   const [labels, setLabels] = useState([]);
-
   useEffect(() => {
+    fetch(`${api}/v1/api/product/orders`, { credentials: 'include' })
     // fetch('http://localhost:8000/v1/api/product/orders', { credentials: 'include' })
-    fetch('https://crm-backend-rho-weld.vercel.app/v1/api/product/orders', { credentials: 'include' })
+    // fetch('https://crm-backend-rho-weld.vercel.app/v1/api/product/orders', { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         if (data.data) {

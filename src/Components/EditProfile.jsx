@@ -11,8 +11,8 @@ import {
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import MIUIAlert from './MIUIAlert';
 
-// const API_URL = "http://localhost:8000/v1/api/user";
-const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/user";
+const API_URL = "http://localhost:8000/v1/api/user";
+// const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/user";
 
 const ProfileEdit = () => {
   const [profilePic, setProfilePic] = useState(null);

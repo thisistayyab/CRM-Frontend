@@ -14,9 +14,12 @@ import Link from '@mui/material/Link';
 import Popover from '@mui/material/Popover';
 import MIUIAlert from '../Components/MIUIAlert';
 import ConfirmDialog from '../Components/ConfirmDialog';
+import { api } from '../server';
+
+const API_URL =  `${api}/v1/api/product/orders`
 
 // const API_URL = "http://localhost:8000/v1/api/product/orders";
-const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product/orders";
+// const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product/orders";
 
 const statusColors = {
   active: 'green',
@@ -212,6 +215,70 @@ export default function Orders() {
   const [alertKey, setAlertKey] = React.useState(0);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [pendingDeleteId, setPendingDeleteId] = React.useState(null);
+  const [selectionModel, setSelectionModel] = React.useState([]);
+  const [search, setSearch] = React.useState('');
+
+  // Filtered rows based on search
+  const filteredRows = React.useMemo(() => {
+    if (!search.trim()) return rows;
+    const q = search.trim().toLowerCase();
+    return rows.filter(row => {
+      const orderId = typeof row.orderId === 'string' ? row.orderId.toLowerCase() : '';
+      const trackingNumber = typeof row.trackingNumber === 'string' ? row.trackingNumber.toLowerCase() : '';
+      const phoneNumber = typeof row.phoneNumber === 'string' ? row.phoneNumber.toLowerCase() : (row.phoneNumber ? String(row.phoneNumber).toLowerCase() : '');
+      return (
+        orderId.includes(q) ||
+        trackingNumber.includes(q) ||
+        phoneNumber.includes(q)
+      );
+    });
+  }, [rows, search]);
+
+  // CSV export helper
+  const exportToCSV = () => {
+    const selectedRows = selectionModel.length > 0
+      ? rows.filter((row) => selectionModel.includes(row.id))
+      : rows;
+    if (selectedRows.length === 0) {
+      setAlert({ open: true, type: 'info', message: 'No orders to export.' });
+      setAlertKey((k) => k + 1);
+      return;
+    }
+    // Define CSV headers
+    const headers = [
+      'Order ID', 'Tracking Number', 'Customer', 'Order Date', 'Phone', 'Address',
+      'Shipping', 'Total Price', 'Other Expenses', 'Net Profit', 'Status', 'Courier Company'
+    ];
+    // Map rows to CSV, quoting all fields and formatting date
+    const csvRows = [
+      headers.join(','),
+      ...selectedRows.map(row => [
+        '"' + (row.orderId || '') + '"',
+        '"' + (row.trackingNumber || '') + '"',
+        '"' + (row.customerName || '') .replace(/"/g, '""') + '"',
+        '"' + (row.createdAt ? new Date(row.createdAt).toLocaleString() : '') + '"',
+        '"' + (row.phoneNumber || '') + '"',
+        '"' + (row.customerAddress || '').replace(/"/g, '""') + '"',
+        '"' + (row.shippingCharges != null ? row.shippingCharges : '') + '"',
+        '"' + (row.totalPrice != null ? row.totalPrice : '') + '"',
+        '"' + (row.otherExpenses != null ? row.otherExpenses : 0) + '"',
+        '"' + (row.netProfit != null ? row.netProfit : 0) + '"',
+        '"' + (row.status || '') + '"',
+        '"' + (row.courierCompany || '') + '"'
+      ].join(','))
+    ];
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'orders.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const handleAlertClose = (event, reason) => {
     if (reason === 'clickaway') return;
     setAlert((a) => ({ ...a, open: false }));
@@ -365,6 +432,8 @@ export default function Orders() {
         message={alert.message}
         onClose={handleAlertClose}
         alertKey={alertKey}
+        autoHideDuration={5000}
+        transitionProps={{ timeout: 500 }}
       />
       <ConfirmDialog
         open={confirmOpen}
@@ -377,7 +446,14 @@ export default function Orders() {
       />
       <div className='order'>
         <h1>Orders</h1>
-        <div>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <input
+            type="text"
+            placeholder="Search by Order ID, Tracking Number, or Phone Number"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', minWidth: 320 }}
+          />
           <Button
             component={RouterLink}
             to="/createorder"
@@ -387,11 +463,19 @@ export default function Orders() {
           >
             Create Order
           </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={exportToCSV}
+            className='odr-btn effect'
+          >
+            Export
+          </Button>
         </div>
       </div>
       <Box paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 70px)', width: '100%', background: '#fff', overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
         <DataGrid
-          rows={rows}
+          rows={filteredRows}
           columns={columns}
           loading={loading}
           getRowClassName={(params) =>
@@ -407,6 +491,8 @@ export default function Orders() {
           pageSizeOptions={[5]}
           checkboxSelection
           disableRowSelectionOnClick
+          onRowSelectionModelChange={setSelectionModel}
+          selectionModel={selectionModel}
           sx={{
             '& .MuiDataGrid-virtualScroller': {
               overflowX: 'auto',

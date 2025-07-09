@@ -7,9 +7,11 @@ import Link from '@mui/material/Link';
 import { Link as RouterLink } from 'react-router-dom';
 import Popover from '@mui/material/Popover';
 import MIUIAlert from '../Components/MIUIAlert';
+import { api } from '../server';
 
-const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product/orders";
+// const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product/orders";
 // const API_URL = "http://localhost:8000/v1/api/product/orders";
+const API_URL = `${api}/v1/api/product/orders`;
 
 const statusColors = {
   active: 'green',

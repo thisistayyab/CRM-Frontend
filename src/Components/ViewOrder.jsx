@@ -6,6 +6,7 @@ import { useParams, Link as RouterLink } from 'react-router-dom';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import MIUIAlert from './MIUIAlert';
+import { api } from '../server';
 
 const statusColors = {
   active: 'success',
@@ -26,8 +27,9 @@ const ViewOrder = () => {
     setAlert((a) => ({ ...a, open: false }));
   };
 
+  const API_URL = `${api}/v1/api/product/orders/${id}`;
   // const API_URL = `http://localhost:8000/v1/api/product/orders/${id}`;
-  const API_URL = `https://crm-backend-rho-weld.vercel.app/v1/api/product/orders/${id}`;
+  // const API_URL = `https://crm-backend-rho-weld.vercel.app/v1/api/product/orders/${id}`;
 
   useEffect(() => {
     fetch(API_URL, { credentials: 'include' })

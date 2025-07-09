@@ -53,6 +53,7 @@ const actionSX = {
 // ==============================|| DASHBOARD - DEFAULT ||============================== //
 
 import { useEffect, useState } from 'react';
+import { api } from '../server.js';
 
 function getLast7DaysExcludingToday() {
   const today = new Date();
@@ -109,8 +110,9 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
+    fetch(`${api}/v1/api/product/orders`, { credentials: 'include' })
     // fetch('http://localhost:8000/v1/api/product/orders', { credentials: 'include' })
-    fetch('https://crm-backend-rho-weld.vercel.app/v1/api/product/orders', { credentials: 'include' })
+    // fetch('https://crm-backend-rho-weld.vercel.app/v1/api/product/orders', { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         if (data.data) {

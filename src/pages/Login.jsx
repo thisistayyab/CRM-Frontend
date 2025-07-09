@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../assets/Stylesheets/form.css';
 import MIUIAlert from '../Components/MIUIAlert';
+import { api } from '../server';
 
-const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/user";
+// const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/user";
 // const API_URL = "http://localhost:8000/v1/api/user";
+const API_URL = `${api}/v1/api/user`;
 
 const Login = () => {
   const [loginData, setLoginData] = useState({ email: '', password: '' });

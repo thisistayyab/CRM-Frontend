@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import '../assets/Stylesheets/Navbar.css'; 
 import { Link, useNavigate } from "react-router-dom"; 
 import avatar from '../assets/images/users/avatar.jpg'
+import { api } from '../server';
 
+const API_URL = `${api}/v1/api/user`;
 // const API_URL = "http://localhost:8000/v1/api/user";
-const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/user";
+// const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/user";
 
 const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -38,7 +40,8 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost:8000/v1/api/user/logout", {
+      // await fetch("http://localhost:8000/v1/api/user/logout", {
+      await fetch(`${api}/v1/api/user/logout`, {
         method: "POST",
         credentials: "include",
       });

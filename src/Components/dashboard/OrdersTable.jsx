@@ -18,6 +18,7 @@ import { NumericFormat } from 'react-number-format';
 
 // project imports
 import Dot from './@extended/Dot.jsx';
+import { api } from '../../server.js';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -139,8 +140,9 @@ export default function OrderTable() {
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
+    fetch(`${api}/v1/api/product/orders`, { credentials: 'include' })
     // fetch('http://localhost:8000/v1/api/product/orders', { credentials: 'include' })
-    fetch('https://crm-backend-rho-weld.vercel.app/v1/api/product/orders', { credentials: 'include' })
+    // fetch('https://crm-backend-rho-weld.vercel.app/v1/api/product/orders', { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         if (data.data) {

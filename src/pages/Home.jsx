@@ -3,6 +3,7 @@ import { Outlet, Link, useNavigate } from "react-router-dom";
 import "../assets/Stylesheets/Sidebar.css";
 import Navbar from "../Components/Navbar";
 import MIUIAlert from '../Components/MIUIAlert';
+import { api } from "../server";
 
 const Home = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -20,8 +21,9 @@ const Home = () => {
 
   const handleLogout = async () => {
     try {
+      await fetch(`${api}/v1/api/user/logout`, {
       // await fetch("http://localhost:8000/v1/api/user/logout", {
-      await fetch("https://crm-backend-rho-weld.vercel.app/v1/api/user/logout", {
+      // await fetch("https://crm-backend-rho-weld.vercel.app/v1/api/user/logout", {
         method: "POST",
         credentials: "include",
       });

@@ -15,6 +15,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import MIUIAlert from './MIUIAlert';
+import { api } from '../server';
 
 const CreateOrder = () => {
   const [form, setForm] = useState({
@@ -40,10 +41,13 @@ const CreateOrder = () => {
     setAlert((a) => ({ ...a, open: false }));
   };
 
-  // const API_URL = "http://localhost:8000/v1/api/product";
-  const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product";
+  const ORDER_API_URL = `${api}/v1/api/product/orders`;
+  const API_URL = `${api}/v1/api/product`;
+
+  // const API_URL = "http://localhost:8000/v1/api/product;
+  // const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product;
   // const ORDER_API_URL = "http://localhost:8000/v1/api/product/orders";
-  const ORDER_API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product/orders";
+  // const ORDER_API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product/orders";
 
   useEffect(() => {
     fetchProducts();
