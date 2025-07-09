@@ -1,7 +1,17 @@
 {
-  "name": "my-app",
+  "name": "taylancecrm",
+  "description": "Taylance CRM is a powerful, user-friendly Customer Relationship Management system built to streamline sales, manage clients, and boost productivity. Created by Taylance Technologies for startups, freelancers, and growing businesses.",
   "private": true,
   "version": "0.0.0",
+  "keywords": [
+    "CRM",
+    "MERN",
+    "Taylance CRM",
+    "thisistayyab",
+    "Profit loss calculation"
+  ],
+  "license": "ISC",
+  "author": "Taylance Technologies",
   "type": "module",
   "scripts": {
     "dev": "vite",

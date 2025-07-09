@@ -10,7 +10,6 @@ import AddProduct from './Components/AddProduct';
 import Order from './pages/Order';
 import CreateOrder from './Components/CreateOrder';
 import Setting from './pages/Setting';
-import './App.css';
 import EditProfile from './Components/EditProfile';
 import ProtectedRoute from './Components/ProtectedRoute';
 import Analytics from './pages/Analytics';
