@@ -1,0 +1,16 @@
+*{
+    margin: 0;
+    padding: 0;
+    font-family: 'Urbanist', sans-serif;
+}
+
+html, body {
+    width: 100%;
+    overflow-x: hidden;
+    background: #e4e9f7;
+}
+
+/* Use Poppins for all MUI DataGrid and table content */
+.MuiDataGrid-root, .MuiDataGrid-cell, .MuiDataGrid-columnHeader, .MuiTable-root, .MuiTableCell-root, .MuiTableRow-root {
+    font-family: 'Poppins', sans-serif !important;
+}

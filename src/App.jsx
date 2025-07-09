@@ -16,6 +16,7 @@ import Analytics from './pages/Analytics';
 import EditOrder from './Components/EditOrder';
 import ViewOrder from './Components/ViewOrder';
 import CustomerOrders from './pages/CustomerOrders';
+import './App.css'
 
 function App() {
   return (

@@ -473,7 +473,7 @@ export default function Orders() {
           </Button>
         </div>
       </div>
-      <Box paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 70px)', width: '100%', background: '#fff', overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
+      <Box margin={1} paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 70px)', width: '100%', background: '#fff', overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
         <DataGrid
           rows={filteredRows}
           columns={columns}
