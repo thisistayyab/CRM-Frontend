@@ -11,10 +11,12 @@ import {
   Typography,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { GoogleIcon, FacebookIcon, SitemarkIcon } from './CustomIcons';
+import { GoogleIcon, FacebookIcon } from './CustomIcons';
+import logo from '../../../assets/images/logo.png';
 import { useNavigate } from 'react-router-dom';
 import MIUIAlert from '../../MIUIAlert';
 import { api } from '../../../server';
+import { useColorScheme } from '@mui/material/styles';
 
 const API_URL = `${api}/v1/api/user`;
 
@@ -43,10 +45,19 @@ export default function SignupCard() {
     username: '',
     password: '',
   });
-  const [errors, setErrors] = useState({});
+  const [fullnameError, setFullnameError] = useState(false);
+  const [fullnameErrorMessage, setFullnameErrorMessage] = useState('');
+  const [usernameError, setUsernameError] = useState(false);
+  const [usernameErrorMessage, setUsernameErrorMessage] = useState('');
+  const [emailError, setEmailError] = useState(false);
+  const [emailErrorMessage, setEmailErrorMessage] = useState('');
+  const [passwordError, setPasswordError] = useState(false);
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
   const [alert, setAlert] = useState({ open: false, type: 'error', message: '' });
   const [alertKey, setAlertKey] = useState(0);
   const navigate = useNavigate();
+  const { mode, systemMode } = useColorScheme();
+  const resolvedMode = mode === 'system' ? systemMode : mode;
 
   const handleAlertClose = (_, reason) => {
     if (reason !== 'clickaway') setAlert((a) => ({ ...a, open: false }));
@@ -54,17 +65,64 @@ export default function SignupCard() {
 
   const handleChange = (e) => {
     setSignupData({ ...signupData, [e.target.name]: e.target.value });
+    // Clear error and message for the field being edited
+    switch (e.target.name) {
+      case 'fullname':
+        setFullnameError(false);
+        setFullnameErrorMessage('');
+        break;
+      case 'username':
+        setUsernameError(false);
+        setUsernameErrorMessage('');
+        break;
+      case 'email':
+        setEmailError(false);
+        setEmailErrorMessage('');
+        break;
+      case 'password':
+        setPasswordError(false);
+        setPasswordErrorMessage('');
+        break;
+      default:
+        break;
+    }
   };
 
   const validate = () => {
-    const newErrors = {};
-    if (!signupData.fullname.trim()) newErrors.fullname = 'Full name is required.';
-    if (!signupData.username.trim()) newErrors.username = 'Username is required.';
-    if (!/\S+@\S+\.\S+/.test(signupData.email)) newErrors.email = 'Enter a valid email.';
-    if (!signupData.password || signupData.password.length < 6)
-      newErrors.password = 'Password must be at least 6 characters.';
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    let isValid = true;
+    if (!signupData.fullname.trim()) {
+      setFullnameError(true);
+      setFullnameErrorMessage('Full name is required.');
+      isValid = false;
+    } else {
+      setFullnameError(false);
+      setFullnameErrorMessage('');
+    }
+    if (!signupData.username.trim()) {
+      setUsernameError(true);
+      setUsernameErrorMessage('Username is required.');
+      isValid = false;
+    } else {
+      setUsernameError(false);
+      setUsernameErrorMessage('');
+    }
+    if (!/\S+@\S+\.\S+/.test(signupData.email)) {
+      setEmailError(true);
+      setEmailErrorMessage('Please enter a valid email address.');
+      isValid = false;
+    } else {
+      setEmailError(false);
+      setEmailErrorMessage('');
+    }
+    if (!signupData.password || signupData.password.length < 6) {
+      setPasswordError(true);
+      setPasswordErrorMessage('Password must be at least 6 characters long.');
+      isValid = false;
+    } else {
+      setPasswordError(false);
+      setPasswordErrorMessage('');
+    }
+    return isValid;
   };
 
   const handleSubmit = async (e) => {
@@ -103,12 +161,16 @@ export default function SignupCard() {
         message={alert.message}
         onClose={handleAlertClose}
         alertKey={alertKey}
+        mode={resolvedMode}
       />
 
       <Card variant="outlined">
-        <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-          <SitemarkIcon />
-        </Box>
+        <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', justifyContent: 'center', mb: 1 }}>
+                <Box component="img" src={logo} alt="Taylance CRM Logo" sx={{ width: 40, height: 40, borderRadius: 2, mr: 1, background: '#232946', p: 0.5, boxShadow: 1 }} />
+                <Typography variant="h6" sx={{ color: '#4f8cff', fontWeight: 700, letterSpacing: 1, fontFamily: 'Urbanist, sans-serif', fontSize: 26 }}>
+                  Taylance CRM
+                </Typography>
+              </Box>
         <Typography
           component="h1"
           variant="h4"
@@ -125,10 +187,9 @@ export default function SignupCard() {
               name="fullname"
               value={signupData.fullname}
               onChange={handleChange}
-              error={!!errors.fullname}
-              helperText={errors.fullname}
+              error={fullnameError}
+              helperText={fullnameErrorMessage}
               placeholder="John Doe"
-              required
               fullWidth
               variant="outlined"
             />
@@ -141,10 +202,9 @@ export default function SignupCard() {
               name="username"
               value={signupData.username}
               onChange={handleChange}
-              error={!!errors.username}
-              helperText={errors.username}
+              error={usernameError}
+              helperText={usernameErrorMessage}
               placeholder="john123"
-              required
               fullWidth
               variant="outlined"
             />
@@ -158,10 +218,9 @@ export default function SignupCard() {
               type="email"
               value={signupData.email}
               onChange={handleChange}
-              error={!!errors.email}
-              helperText={errors.email}
+              error={emailError}
+              helperText={emailErrorMessage}
               placeholder="your@email.com"
-              required
               fullWidth
               variant="outlined"
             />
@@ -175,10 +234,9 @@ export default function SignupCard() {
               type="password"
               value={signupData.password}
               onChange={handleChange}
-              error={!!errors.password}
-              helperText={errors.password}
+              error={passwordError}
+              helperText={passwordErrorMessage}
               placeholder="••••••"
-              required
               fullWidth
               variant="outlined"
             />

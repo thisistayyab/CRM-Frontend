@@ -11,7 +11,7 @@ function TransitionDown(props) {
   return <Slide {...props} direction="down" />;
 }
 
-const MIUIAlert = ({ open, type = 'success', message = '', onClose, alertKey }) => (
+const MIUIAlert = ({ open, type = 'success', message = '', onClose, alertKey, mode = 'light' }) => (
   <Snackbar
     key={alertKey}
     open={open}
@@ -23,9 +23,9 @@ const MIUIAlert = ({ open, type = 'success', message = '', onClose, alertKey }) 
       '& .MuiAlert-root': {
         border: '1.5px solid',
         borderColor: (theme) => theme.palette[type]?.main || '#2196f3',
-        background: 'rgba(255,255,255,0.95)',
-        color: (theme) => theme.palette[type]?.main || '#2196f3',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        background: mode === 'dark' ? 'rgba(24,28,42,0.98)' : 'rgba(255,255,255,0.95)',
+        color: mode === 'dark' ? '#fff' : (theme) => theme.palette[type]?.main || '#2196f3',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
         fontWeight: 500,
         alignItems: 'center',
         minWidth: 320,
@@ -43,7 +43,7 @@ const MIUIAlert = ({ open, type = 'success', message = '', onClose, alertKey }) 
         width: '100%',
         border: 'none',
         background: 'transparent',
-        color: (theme) => theme.palette[type]?.main || '#2196f3',
+        color: mode === 'dark' ? '#fff' : (theme) => theme.palette[type]?.main || '#2196f3',
         fontWeight: 500,
         fontSize: 16,
         display: 'flex',
@@ -58,11 +58,11 @@ const MIUIAlert = ({ open, type = 'success', message = '', onClose, alertKey }) 
           size="small"
           sx={{
             ml: 1,
-            color: (theme) => theme.palette[type]?.main || '#2196f3',
+            color: mode === 'dark' ? '#fff' : (theme) => theme.palette[type]?.main || '#2196f3',
             borderRadius: 1.5,
             transition: 'background 0.2s',
             '&:hover': {
-              background: 'rgba(0,0,0,0.04)',
+              background: mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
             },
             padding: '4px',
             fontSize: 22

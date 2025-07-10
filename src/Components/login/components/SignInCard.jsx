@@ -12,10 +12,12 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { styled } from '@mui/material/styles';
 import ForgotPassword from './ForgotPassword';
-import { GoogleIcon, FacebookIcon, SitemarkIcon } from './CustomIcons';
+import { GoogleIcon, FacebookIcon } from './CustomIcons';
+import logo from '../../../assets/images/logo.png';
 import { useNavigate } from 'react-router-dom';
 import MIUIAlert from '../../MIUIAlert';
 import { api } from '../../../server';
+import { useColorScheme } from '@mui/material/styles';
 
 
 // const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/user";
@@ -55,6 +57,8 @@ export default function SignInCard() {
     setAlert((a) => ({ ...a, open: false }));
   };
   const navigate = useNavigate();
+  const { mode, systemMode } = useColorScheme();
+  const resolvedMode = mode === 'system' ? systemMode : mode;
 
   const handleLoginChange = (e) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
@@ -148,10 +152,14 @@ export default function SignInCard() {
         message={alert.message}
         onClose={handleAlertClose}
         alertKey={alertKey}
+        mode={resolvedMode}
       />
     <Card variant="outlined">
-      <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-        <SitemarkIcon />
+      <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', justifyContent: 'center', mb: 1 }}>
+        <Box component="img" src={logo} alt="Taylance CRM Logo" sx={{ width: 40, height: 40, borderRadius: 2, mr: 1, background: '#232946', p: 0.5, boxShadow: 1 }} />
+        <Typography variant="h6" sx={{ color: '#4f8cff', fontWeight: 700, letterSpacing: 1, fontFamily: 'Urbanist, sans-serif', fontSize: 26 }}>
+          Taylance CRM
+        </Typography>
       </Box>
       <Typography
         component="h1"
