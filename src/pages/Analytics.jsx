@@ -1,8 +1,11 @@
 import React from 'react'
+import SignUpSide from '../Components/login/SignUpSide'
 
 const Analytics = () => {
   return (
-    <div>Analytics</div>
+    <>
+      <SignUpSide/>
+    </>
   )
 }
 
