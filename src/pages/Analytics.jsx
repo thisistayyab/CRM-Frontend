@@ -4,7 +4,7 @@ import SignUpSide from '../Components/login/SignUpSide'
 const Analytics = () => {
   return (
     <>
-      <h1>Analytics</h1>
+      <h1>Comming Soon</h1>
     </>
   )
 }

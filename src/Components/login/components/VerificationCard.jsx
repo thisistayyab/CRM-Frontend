@@ -4,6 +4,7 @@ import { styled } from '@mui/material/styles';
 import MIUIAlert from '../../MIUIAlert';
 import { api } from '../../../server';
 import { useColorScheme } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -23,7 +24,7 @@ const Card = styled(MuiCard)(({ theme }) => ({
   }),
 }));
 
-export default function VerificationCard({ email, onVerified }) {
+export default function VerificationCard({ email, password, onVerified }) {
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [alert, setAlert] = useState({ open: false, type: 'error', message: '' });
@@ -32,6 +33,7 @@ export default function VerificationCard({ email, onVerified }) {
   const [resendDisabled, setResendDisabled] = useState(false);
   const { mode, systemMode } = useColorScheme();
   const resolvedMode = mode === 'system' ? systemMode : mode;
+  const navigate = useNavigate();
 
   const handleAlertClose = (_, reason) => {
     if (reason !== 'clickaway') setAlert((a) => ({ ...a, open: false }));
@@ -54,8 +56,26 @@ export default function VerificationCard({ email, onVerified }) {
       });
       const data = await res.json();
       if (res.ok) {
-        setAlert({ open: true, type: 'success', message: data.message || 'Email verified! You can now log in.' });
+        setAlert({ open: true, type: 'success', message: data.message || 'Email verified! Logging you in...' });
         setAlertKey((k) => k + 1);
+        // Auto-login after verification if password is provided
+        if (password) {
+          // Try to log in
+          const loginRes = await fetch(`${api}/v1/api/user/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, username: email, password }),
+            credentials: 'include',
+          });
+          const loginData = await loginRes.json();
+          if (loginRes.ok && loginData.data && loginData.data.accessToken) {
+            navigate('/');
+            return;
+          } else {
+            setAlert({ open: true, type: 'error', message: loginData.message || 'Verification succeeded, but login failed. Please log in manually.' });
+            setAlertKey((k) => k + 1);
+          }
+        }
         if (onVerified) onVerified();
       } else {
         setAlert({ open: true, type: 'error', message: data.message || 'Verification failed.' });

@@ -87,6 +87,8 @@ export default function SignInCard() {
       } else {
         if (res.status === 401 || res.status === 403) {
           setAlert({ open: true, type: 'error', message: 'Wrong credentials' });
+        } else if (data.message && data.message.toLowerCase().includes('user not found')) {
+          setAlert({ open: true, type: 'error', message: 'User not found' });
         } else {
           setAlert({ open: true, type: 'error', message: 'Login failed' });
         }

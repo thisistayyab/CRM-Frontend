@@ -166,7 +166,7 @@ export default function SignupCard() {
         mode={resolvedMode}
       />
       {pendingVerification ? (
-        <VerificationCard email={signupData.email} onVerified={() => navigate('/login')} />
+        <VerificationCard email={signupData.email} password={signupData.password} />
       ) : (
       <Card variant="outlined">
         <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', justifyContent: 'center', mb: 1 }}>
