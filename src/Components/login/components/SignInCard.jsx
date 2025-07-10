@@ -11,7 +11,8 @@ import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { styled } from '@mui/material/styles';
-import ForgotPassword from './ForgotPassword';
+import ForgotPasswordCard from './ForgotPasswordCard';
+import Dialog from '@mui/material/Dialog';
 import { GoogleIcon, FacebookIcon } from './CustomIcons';
 import logo from '../../../assets/images/logo.png';
 import { useNavigate } from 'react-router-dom';
@@ -52,6 +53,7 @@ export default function SignInCard() {
   const [error, setError] = useState('');
   const [alert, setAlert] = useState({ open: false, type: 'error', message: '' });
   const [alertKey, setAlertKey] = useState(0);
+  const [showForgot, setShowForgot] = useState(false);
   const handleAlertClose = (event, reason) => {
     if (reason === 'clickaway') return;
     setAlert((a) => ({ ...a, open: false }));
@@ -154,6 +156,9 @@ export default function SignInCard() {
         alertKey={alertKey}
         mode={resolvedMode}
       />
+    {showForgot ? (
+      <ForgotPasswordCard onSuccess={() => setShowForgot(false)} />
+    ) : (
     <Card variant="outlined">
       <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', justifyContent: 'center', mb: 1 }}>
         <Box component="img" src={logo} alt="Taylance CRM Logo" sx={{ width: 40, height: 40, borderRadius: 2, mr: 1, background: '#232946', p: 0.5, boxShadow: 1 }} />
@@ -199,7 +204,7 @@ export default function SignInCard() {
             <Link
               component="button"
               type="button"
-              onClick={handleClickOpen}
+              onClick={() => setShowForgot(true)}
               variant="body2"
               sx={{ alignSelf: 'baseline' }}
             >
@@ -216,7 +221,6 @@ export default function SignInCard() {
             value={loginData.password} 
             onChange={handleLoginChange}
             autoComplete="current-password"
-            autoFocus
             required
             fullWidth
             variant="outlined"
@@ -227,7 +231,6 @@ export default function SignInCard() {
           control={<Checkbox value="remember" color="primary" />}
           label="Remember me"
         />
-        <ForgotPassword open={open} handleClose={handleClose} />
         <Button type="submit" fullWidth variant="contained" onClick={validateInputs}>
           Sign in
         </Button>
@@ -270,6 +273,7 @@ export default function SignInCard() {
         </Button>
       </Box>
     </Card>
+    )}
     </>
   );
 }

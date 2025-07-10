@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import MIUIAlert from '../../MIUIAlert';
 import { api } from '../../../server';
 import { useColorScheme } from '@mui/material/styles';
+import VerificationCard from './VerificationCard';
 
 const API_URL = `${api}/v1/api/user`;
 
@@ -58,6 +59,7 @@ export default function SignupCard() {
   const navigate = useNavigate();
   const { mode, systemMode } = useColorScheme();
   const resolvedMode = mode === 'system' ? systemMode : mode;
+  const [pendingVerification, setPendingVerification] = useState(false);
 
   const handleAlertClose = (_, reason) => {
     if (reason !== 'clickaway') setAlert((a) => ({ ...a, open: false }));
@@ -139,9 +141,9 @@ export default function SignupCard() {
       });
       const data = await res.json();
       if (res.ok) {
-        setAlert({ open: true, type: 'success', message: 'Signup successful! Please login.' });
+        setPendingVerification(true);
+        setAlert({ open: true, type: 'success', message: data.message || 'Verification code sent. Please check your inbox.' });
         setAlertKey((k) => k + 1);
-        setTimeout(() => navigate('/login'), 1500);
       } else {
         setAlert({ open: true, type: 'error', message: data.message || 'Signup failed' });
         setAlertKey((k) => k + 1);
@@ -163,7 +165,9 @@ export default function SignupCard() {
         alertKey={alertKey}
         mode={resolvedMode}
       />
-
+      {pendingVerification ? (
+        <VerificationCard email={signupData.email} onVerified={() => navigate('/login')} />
+      ) : (
       <Card variant="outlined">
         <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', justifyContent: 'center', mb: 1 }}>
                 <Box component="img" src={logo} alt="Taylance CRM Logo" sx={{ width: 40, height: 40, borderRadius: 2, mr: 1, background: '#232946', p: 0.5, boxShadow: 1 }} />
@@ -271,6 +275,7 @@ export default function SignupCard() {
           </Button>
         </Box>
       </Card>
+      )}
     </>
   );
 }
