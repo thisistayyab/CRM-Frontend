@@ -79,7 +79,6 @@ const User = () => {
       <Box
         sx={{
           p: { xs: 2, md: 4 },
-          backgroundColor: '#e4e9f7',
           minHeight: '100vh',
           ml: { xs: 0, md: '80px' }, // Sidebar adjustment
         }}

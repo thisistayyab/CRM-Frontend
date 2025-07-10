@@ -257,10 +257,16 @@ export default function SignupCard() {
         <Divider>or</Divider>
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Button fullWidth variant="outlined" startIcon={<GoogleIcon />}>
+          <Button fullWidth variant="outlined" startIcon={<GoogleIcon />} onClick={() => {
+            setAlert({ open: true, type: 'info', message: 'This functionality is currently unavailable.' });
+            setAlertKey((k) => k + 1);
+          }}>
             Sign up with Google
           </Button>
-          <Button fullWidth variant="outlined" startIcon={<FacebookIcon />}>
+          <Button fullWidth variant="outlined" startIcon={<FacebookIcon />} onClick={() => {
+            setAlert({ open: true, type: 'info', message: 'This functionality is currently unavailable.' });
+            setAlertKey((k) => k + 1);
+          }}>
             Sign up with Facebook
           </Button>
         </Box>

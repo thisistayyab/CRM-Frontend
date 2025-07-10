@@ -249,7 +249,10 @@ export default function SignInCard() {
         <Button
           fullWidth
           variant="outlined"
-          onClick={() => alert('Sign in with Google')}
+          onClick={() => {
+            setAlert({ open: true, type: 'info', message: 'This functionality is currently unavailable.' });
+            setAlertKey((k) => k + 1);
+          }}
           startIcon={<GoogleIcon />}
         >
           Sign in with Google
@@ -257,7 +260,10 @@ export default function SignInCard() {
         <Button
           fullWidth
           variant="outlined"
-          onClick={() => alert('Sign in with Facebook')}
+          onClick={() => {
+            setAlert({ open: true, type: 'info', message: 'This functionality is currently unavailable.' });
+            setAlertKey((k) => k + 1);
+          }}
           startIcon={<FacebookIcon />}
         >
           Sign in with Facebook
