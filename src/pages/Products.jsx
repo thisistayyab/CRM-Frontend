@@ -1,7 +1,7 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
+import { Box, Typography, Button } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { Link } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import '../assets/Stylesheets/Order.css'
 import pic from '../assets/images/users/avatar-1.png';
 import { useState } from 'react';
@@ -10,7 +10,6 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -291,15 +290,24 @@ export default function Products() {
 
   return (
     <>
-      <div className='order'>
-        <h1>Products</h1>
-        <div>
-          <Link to="/addproduct">
-            <button className='odr-btn effect'>Add Product</button>
-          </Link>
-        </div>
-      </div>
-      <Box paddingLeft={2} paddingRight={2} sx={{ height: '70%',}}>
+      <Box sx={{ px: 2, py: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        Products
+      </Typography>
+
+      <Box>
+        <Button
+          component={RouterLink}
+          to="/addproduct"
+          variant="contained"
+          color="primary"
+          sx={{ width: { xs: '100%', sm: 'auto' } }}
+        >
+          Add Product
+        </Button>
+      </Box>
+    </Box>
+      <Box paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 70px)', background: '#fff', overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
         <DataGrid
           rows={rows}
           columns={columns}

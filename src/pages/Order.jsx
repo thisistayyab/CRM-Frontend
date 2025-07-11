@@ -1,9 +1,8 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
+import { Box, Typography, Button, TextField } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import '../assets/Stylesheets/Order.css'
-import Button from '@mui/material/Button';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
@@ -444,35 +443,49 @@ export default function Orders() {
         confirmText="Delete"
         cancelText="Cancel"
       />
-      <div className='order'>
-        <h1>Orders</h1>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <input
-            type="text"
-            placeholder="Search by Order ID, Tracking Number, or Phone Number"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', minWidth: 320 }}
-          />
-          <Button
-            component={RouterLink}
-            to="/createorder"
-            className='odr-btn effect'
-            variant="contained"
-            color="primary"
-          >
-            Create Order
-          </Button>
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={exportToCSV}
-            className='odr-btn effect'
-          >
-            Export
-          </Button>
-        </div>
-      </div>
+      <Box sx={{ px: 2, py: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        Orders
+      </Typography>
+
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', sm: 'row' },
+          gap: 2,
+          alignItems: { sm: 'center' },
+          width: '100%',
+        }}
+      >
+        <TextField
+          fullWidth
+          size="small"
+          placeholder="Search by Order ID, Tracking Number, or Phone Number"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          sx={{ minWidth: { sm: 300 }, flex: 1 }}
+        />
+
+        <Button
+          component={RouterLink}
+          to="/createorder"
+          variant="contained"
+          color="primary"
+          sx={{ width: { xs: '100%', sm: 'auto' } }}
+        >
+          Create Order
+        </Button>
+
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={exportToCSV}
+          sx={{ width: { xs: '100%', sm: 'auto' } }}
+        >
+          Export
+        </Button>
+      </Box>
+    </Box>
       <Box margin={2} paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 70px)', background: '#fff', overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
         <DataGrid
           rows={filteredRows}

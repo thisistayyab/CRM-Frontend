@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -37,6 +37,8 @@ const Navbar = () => {
   const [fullname, setFullname] = useState('');
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [showMobileNavbar, setShowMobileNavbar] = useState(true);
+  const lastScrollY = useRef(window.scrollY);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -71,6 +73,20 @@ const Navbar = () => {
     fetchProfilePic();
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY.current && currentScrollY > 40) {
+        setShowMobileNavbar(false); // Scrolling down
+      } else {
+        setShowMobileNavbar(true); // Scrolling up
+      }
+      lastScrollY.current = currentScrollY;
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const handleLogout = async () => {
     try {
       await fetch(`${api}/v1/api/user/logout`, {
@@ -95,7 +111,19 @@ const Navbar = () => {
 
   return (
     <>
-      <AppBar position="static" color="default" elevation={2} sx={{ background: '#181c2a', color: '#fff', fontFamily: 'Urbanist, sans-serif' }}>
+      <AppBar
+        position="fixed"
+        color="default"
+        elevation={2}
+        sx={{
+          background: '#181c2a',
+          color: '#fff',
+          fontFamily: 'Urbanist, sans-serif',
+          top: showMobileNavbar ? 0 : '-64px',
+          transition: 'top 0.3s',
+          zIndex: 1200,
+        }}
+      >
         <Toolbar>
           {/* Hamburger for mobile */}
           <Box sx={{ display: { xs: 'block', sm: 'block', md: 'none' }, mr: 1 }}>
@@ -139,6 +167,8 @@ const Navbar = () => {
           </Box>
         </Toolbar>
       </AppBar>
+      {/* Spacer to keep content from jumping when navbar hides */}
+      <Box sx={{ height: { xs: '56px', sm: '56px', md: '64px' } }} />
       {/* Mobile Drawer */}
       <Drawer
         anchor="left"
