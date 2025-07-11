@@ -11,6 +11,23 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import logo from '../assets/images/logo.png';
 import avatar from '../assets/images/users/avatar.jpg';
 import { api } from '../server';
+import Drawer from '@mui/material/Drawer';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import InputBase from '@mui/material/InputBase';
+import Divider from '@mui/material/Divider';
+import Tooltip from '@mui/material/Tooltip';
+import MenuIcon from '@mui/icons-material/Menu';
+import SearchIcon from '@mui/icons-material/Search';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import PersonIcon from '@mui/icons-material/Person';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
+import PieChartIcon from '@mui/icons-material/PieChart';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import SettingsIcon from '@mui/icons-material/Settings';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const API_URL = `${api}/v1/api/user`;
 
@@ -19,6 +36,7 @@ const Navbar = () => {
   const [profilePic, setProfilePic] = useState(avatar);
   const [fullname, setFullname] = useState('');
   const navigate = useNavigate();
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -26,6 +44,9 @@ const Navbar = () => {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
+
+  const handleDrawerOpen = () => setDrawerOpen(true);
+  const handleDrawerClose = () => setDrawerOpen(false);
 
   useEffect(() => {
     const fetchProfilePic = async () => {
@@ -63,45 +84,125 @@ const Navbar = () => {
     navigate('/login-signup');
   };
 
+  const navItems = [
+    { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
+    { text: 'User', icon: <PersonIcon />, path: '/user' },
+    { text: 'Products', icon: <ShoppingBagIcon />, path: '/products' },
+    { text: 'Analytics', icon: <PieChartIcon />, path: '/analytics' },
+    { text: 'Order', icon: <ShoppingCartIcon />, path: '/orders' },
+    { text: 'Setting', icon: <SettingsIcon />, path: '/settings' },
+  ];
+
   return (
-    <AppBar position="static" color="default" elevation={2} sx={{ background: '#181c2a', color: '#fff', fontFamily: 'Urbanist, sans-serif' }}>
-      <Toolbar>
-        {/* Left: Empty for spacing */}
-        <Box sx={{ flex: 1 }} />
-        {/* Center: Logo and Brand Name */}
-        <Box sx={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', display: 'flex', alignItems: 'center', textDecoration: 'none' }} component={RouterLink} to="/">
-          <Box component="img" src={logo} alt="Taylance CRM Logo" sx={{ width: 40, height: 40, borderRadius: 2, mr: 1, background: '#232946', p: 0.5, boxShadow: 1 }} />
-          <Typography variant="h6" sx={{ color: '#fff', fontWeight: 700, letterSpacing: 1, fontFamily: 'Urbanist, sans-serif', fontSize: 26,display: { xs: 'none', sm: 'block' } }}>
-            Taylance CRM
-          </Typography>
-        </Box>
-        {/* Right: User Name and Avatar */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, justifyContent: 'flex-end' }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#fff', display: { xs: 'none', sm: 'block' }, fontFamily: 'Urbanist, sans-serif' }}>
-            {fullname}
-          </Typography>
-          <IconButton onClick={handleMenuOpen} size="large" sx={{ p: 0 }}>
-            <Avatar src={profilePic} alt={fullname || 'User'} sx={{ width: 40, height: 40, border: '2px solid #4f8cff', bgcolor: '#fff' }} />
+    <>
+      <AppBar position="static" color="default" elevation={2} sx={{ background: '#181c2a', color: '#fff', fontFamily: 'Urbanist, sans-serif' }}>
+        <Toolbar>
+          {/* Hamburger for mobile */}
+          <Box sx={{ display: { xs: 'block', sm: 'block', md: 'none' }, mr: 1 }}>
+            <IconButton onClick={handleDrawerOpen} sx={{ color: '#fff' }}>
+              <MenuIcon />
+            </IconButton>
+          </Box>
+          {/* Left: Empty for spacing (hidden on mobile) */}
+          <Box sx={{ flex: 1, display: { xs: 'none', md: 'block' } }} />
+          {/* Center: Logo and Brand Name */}
+          <Box sx={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', display: 'flex', alignItems: 'center', textDecoration: 'none' }} component={RouterLink} to="/">
+            <Box component="img" src={logo} alt="Taylance CRM Logo" sx={{ width: 40, height: 40, borderRadius: 2, mr: 1, background: '#232946', p: 0.5, boxShadow: 1 }} />
+            <Typography variant="h6" sx={{ color: '#fff', fontWeight: 700, letterSpacing: 1, fontFamily: 'Urbanist, sans-serif', fontSize: 26,display: { xs: 'none', sm: 'block' } }}>
+              Taylance CRM
+            </Typography>
+          </Box>
+          {/* Right: User Name and Avatar */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, justifyContent: 'flex-end' }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#fff', display: { xs: 'none', sm: 'block' }, fontFamily: 'Urbanist, sans-serif' }}>
+              {fullname}
+            </Typography>
+            <IconButton onClick={handleMenuOpen} size="large" sx={{ p: 0 }}>
+              <Avatar src={profilePic} alt={fullname || 'User'} sx={{ width: 40, height: 40, border: '2px solid #4f8cff', bgcolor: '#fff' }} />
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              PaperProps={{ sx: { mt: 1.5, minWidth: 180, borderRadius: 2, bgcolor: '#232946', color: '#fff', boxShadow: 6 } }}
+            >
+              <Box sx={{ px: 2, py: 1, borderBottom: '1px solid #4f8cff', textAlign: 'center' }}>
+                <Avatar src={profilePic} alt={fullname || 'User'} sx={{ width: 48, height: 48, mx: 'auto', mb: 1 }} />
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#fff', fontFamily: 'Urbanist, sans-serif' }}>{fullname}</Typography>
+              </Box>
+              <MenuItem component={RouterLink} to="/user" onClick={handleMenuClose} sx={{ color: '#fff', fontFamily: 'Urbanist, sans-serif' }}>Profile</MenuItem>
+              <MenuItem component={RouterLink} to="/settings" onClick={handleMenuClose} sx={{ color: '#fff', fontFamily: 'Urbanist, sans-serif' }}>Settings</MenuItem>
+              <MenuItem onClick={handleLogout} sx={{ color: '#fff', fontFamily: 'Urbanist, sans-serif' }}>Logout</MenuItem>
+            </Menu>
+          </Box>
+        </Toolbar>
+      </AppBar>
+      {/* Mobile Drawer */}
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={handleDrawerClose}
+        sx={{ display: { xs: 'block', md: 'none' }, '& .MuiDrawer-paper': { width: 240, background: '#181c2a', color: '#fff', fontFamily: 'Urbanist, sans-serif' } }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', p: 2, justifyContent: 'space-between' }}>
+          <Box component={RouterLink} to="/" sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }} onClick={handleDrawerClose}>
+            <Box component="img" src={logo} alt="Taylance CRM Logo" sx={{ width: 36, height: 36, borderRadius: 2, mr: 1 }} />
+            <Typography sx={{ color: '#fff', fontWeight: 700, fontSize: 22, fontFamily: 'Urbanist, sans-serif' }}>CRM</Typography>
+          </Box>
+          <IconButton onClick={handleDrawerClose} sx={{ color: '#fff' }}>
+            <MenuIcon />
           </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-            PaperProps={{ sx: { mt: 1.5, minWidth: 180, borderRadius: 2, bgcolor: '#232946', color: '#fff', boxShadow: 6 } }}
-          >
-            <Box sx={{ px: 2, py: 1, borderBottom: '1px solid #4f8cff', textAlign: 'center' }}>
-              <Avatar src={profilePic} alt={fullname || 'User'} sx={{ width: 48, height: 48, mx: 'auto', mb: 1 }} />
-              <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#fff', fontFamily: 'Urbanist, sans-serif' }}>{fullname}</Typography>
-            </Box>
-            <MenuItem component={RouterLink} to="/user" onClick={handleMenuClose} sx={{ color: '#fff', fontFamily: 'Urbanist, sans-serif' }}>Profile</MenuItem>
-            <MenuItem component={RouterLink} to="/settings" onClick={handleMenuClose} sx={{ color: '#fff', fontFamily: 'Urbanist, sans-serif' }}>Settings</MenuItem>
-            <MenuItem onClick={handleLogout} sx={{ color: '#fff', fontFamily: 'Urbanist, sans-serif' }}>Logout</MenuItem>
-          </Menu>
         </Box>
-      </Toolbar>
-    </AppBar>
+        <Divider sx={{ borderColor: '#4f8cff', opacity: 0.2 }} />
+        <List>
+          <ListItem sx={{ px: 2, py: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+              <IconButton sx={{ color: '#fff', mr: 1 }}>
+                <SearchIcon />
+              </IconButton>
+              <InputBase placeholder="Search..." sx={{ color: '#fff', background: '#232946', borderRadius: 2, px: 1.5, flex: 1, fontFamily: 'Raleway, sans-serif', border: '1px solid #4f8cff', height: 36 }} />
+            </Box>
+          </ListItem>
+          {navItems.map((item) => (
+            <Tooltip title={item.text} placement="right" key={item.text} disableHoverListener>
+              <ListItem
+                button
+                key={item.text}
+                component={RouterLink}
+                to={item.path}
+                onClick={handleDrawerClose}
+                sx={{
+                  color: '#fff',
+                  borderRadius: 2,
+                  my: 0.5,
+                  mx: 1,
+                  '&:hover': { background: '#4f8cff', color: '#fff' },
+                  minHeight: 48,
+                  px: 2,
+                }}
+              >
+                <ListItemIcon sx={{ color: '#fff', minWidth: 0, mr: 2, justifyContent: 'center' }}>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText primary={item.text} sx={{ fontFamily: 'Urbanist, sans-serif' }} />
+              </ListItem>
+            </Tooltip>
+          ))}
+        </List>
+        <Box sx={{ flexGrow: 1 }} />
+        <Box sx={{ pb: 2, px: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Avatar src={profilePic} alt="User" sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: '#fff' }} />
+            <Typography sx={{ color: '#fff', fontWeight: 700, fontSize: 15, whiteSpace: 'nowrap', fontFamily: 'Urbanist, sans-serif' }}>{fullname}</Typography>
+          </Box>
+          <IconButton onClick={() => { handleLogout(); handleDrawerClose(); }} sx={{ color: '#fff', ml: 1 }}>
+            <LogoutIcon />
+          </IconButton>
+        </Box>
+      </Drawer>
+    </>
   );
 };
 
