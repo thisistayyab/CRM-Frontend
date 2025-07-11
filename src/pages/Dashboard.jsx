@@ -21,7 +21,7 @@ import ReportAreaChart from '../Components/dashboard/ReportAreaChart.jsx';
 import UniqueVisitorCard from '../Components/dashboard/UniqueVisitorCard.jsx';
 import SaleReportCard from '../Components/dashboard/SaleReportCard.jsx';
 import OrdersTable from '../Components/dashboard/OrdersTable.jsx';
-import MIUIAlert from '../components/MIUIAlert.jsx';
+import MIUIAlert from '../Components/MIUIAlert.jsx'
 import MIUILoader from '../Components/MIUILoader.jsx';
 
 // assets
