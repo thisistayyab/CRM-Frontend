@@ -65,13 +65,13 @@ const Navbar = () => {
 
   return (
     <AppBar position="static" color="default" elevation={2} sx={{ background: '#181c2a', color: '#fff', fontFamily: 'Urbanist, sans-serif' }}>
-      <Toolbar sx={{ justifyContent: 'space-between', maxWidth: 1200, width: '100%', mx: 'auto', position: 'relative' }}>
+      <Toolbar>
         {/* Left: Empty for spacing */}
         <Box sx={{ flex: 1 }} />
         {/* Center: Logo and Brand Name */}
         <Box sx={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', display: 'flex', alignItems: 'center', textDecoration: 'none' }} component={RouterLink} to="/">
           <Box component="img" src={logo} alt="Taylance CRM Logo" sx={{ width: 40, height: 40, borderRadius: 2, mr: 1, background: '#232946', p: 0.5, boxShadow: 1 }} />
-          <Typography variant="h6" sx={{ color: '#fff', fontWeight: 700, letterSpacing: 1, fontFamily: 'Urbanist, sans-serif', fontSize: 26 }}>
+          <Typography variant="h6" sx={{ color: '#fff', fontWeight: 700, letterSpacing: 1, fontFamily: 'Urbanist, sans-serif', fontSize: 26,display: { xs: 'none', sm: 'block' } }}>
             Taylance CRM
           </Typography>
         </Box>

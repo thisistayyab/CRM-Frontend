@@ -299,7 +299,7 @@ export default function Products() {
           </Link>
         </div>
       </div>
-      <Box paddingLeft={2} paddingRight={2} sx={{ height: '70%', width: '100%' }}>
+      <Box paddingLeft={2} paddingRight={2} sx={{ height: '70%',}}>
         <DataGrid
           rows={rows}
           columns={columns}

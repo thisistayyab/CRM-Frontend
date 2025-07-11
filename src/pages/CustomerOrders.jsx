@@ -155,7 +155,7 @@ export default function CustomerOrders() {
         onClose={handleAlertClose}
         alertKey={alertKey}
       />
-      <Box paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 180px)', width: '100%', background: '#fff', overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
+      <Box paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 70px)', background: '#fff', overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
         <h2>Orders for Customer (Phone: {phoneNumber})</h2>
         <DataGrid
           rows={rows}
