@@ -45,6 +45,7 @@ const Home = () => {
   const [user, setUser] = useState({ name: '', profilepic: avatar });
   const navigate = useNavigate();
   const location = useLocation();
+  const [sidebarSearch, setSidebarSearch] = useState("");
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -87,6 +88,17 @@ const Home = () => {
         setAlertKey((k) => k + 1);
     }
     navigate("/login-signup");
+  };
+
+  const handleSidebarSearch = (e) => {
+    if (e.key === 'Enter' && sidebarSearch.trim()) {
+      navigate(`/orders?search=${encodeURIComponent(sidebarSearch.trim())}`);
+    }
+  };
+  const handleSidebarSearchIcon = () => {
+    if (sidebarSearch.trim()) {
+      navigate(`/orders?search=${encodeURIComponent(sidebarSearch.trim())}`);
+    }
   };
 
   return (
@@ -143,7 +155,12 @@ const Home = () => {
                   <SearchIcon />
                 </IconButton>
                 {isOpen && (
-                  <InputBase placeholder="Search..." sx={{ color: '#fff', background: '#232946', borderRadius: 2, px: 1.5, flex: 1, fontFamily: 'Raleway, sans-serif', border: '1px solid #4f8cff', height: 36 }} />
+                  <InputBase placeholder="Search..."
+                   sx={{ color: '#fff', background: '#232946', borderRadius: 2, px: 1.5, flex: 1, fontFamily: 'Raleway, sans-serif', border: '1px solid #4f8cff', height: 36 }}
+                   value={sidebarSearch}
+                   onChange={e => setSidebarSearch(e.target.value)}
+                   onKeyDown={handleSidebarSearch}
+                 />
                 )}
               </Box>
             </ListItem>

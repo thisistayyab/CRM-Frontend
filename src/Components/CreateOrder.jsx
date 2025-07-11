@@ -15,6 +15,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import MIUIAlert from './MIUIAlert';
+import MIUILoader from './MIUILoader';
 import { api } from '../server';
 
 const CreateOrder = () => {
@@ -101,7 +102,7 @@ const CreateOrder = () => {
     setLoading(true);
     setSuccess(false);
     // Validate required fields
-    if (!form.orderId || !form.customerName || !form.phoneNumber || !form.customerAddress) {
+    if (!form.orderId.trim() || !form.customerName.trim() || !form.phoneNumber.trim() || !form.customerAddress.trim()) {
       setAlert({ open: true, type: 'warning', message: 'All required fields must be filled.' });
       setAlertKey((k) => k + 1);
       setLoading(false);
@@ -171,7 +172,8 @@ const CreateOrder = () => {
         onClose={handleAlertClose}
         alertKey={alertKey}
       />
-      <Box sx={{ maxWidth: 700, mx: 'auto' }}>
+      <Box sx={{ maxWidth: 700, mx: 'auto', position: 'relative' }}>
+        {loading && <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', bgcolor: 'rgba(255,255,255,0.7)', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MIUILoader message="Creating order..." /></Box>}
         <Typography variant="h4" fontWeight="bold" gutterBottom>
           📝 Create Order
         </Typography>
@@ -235,7 +237,7 @@ const CreateOrder = () => {
           </FormControl>
           <Paper sx={{ p: 2, my: 2 }}>
             <Typography variant="h6">Select Products</Typography>
-            {productLoading && <Typography color="text.secondary">Loading products...</Typography>}
+            {productLoading && <MIUILoader message="Loading products..." />}
             {productError && <Typography color="error.main">{productError}</Typography>}
             <FormControl fullWidth margin="normal">
               <InputLabel>Select Product</InputLabel>

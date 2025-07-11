@@ -21,7 +21,8 @@ import ReportAreaChart from '../Components/dashboard/ReportAreaChart.jsx';
 import UniqueVisitorCard from '../Components/dashboard/UniqueVisitorCard.jsx';
 import SaleReportCard from '../Components/dashboard/SaleReportCard.jsx';
 import OrdersTable from '../Components/dashboard/OrdersTable.jsx';
-import MIUIAlert from '../Components/MIUIAlert';
+import MIUIAlert from '../components/MIUIAlert.jsx';
+import MIUILoader from '../Components/MIUILoader.jsx';
 
 // assets
 import GiftOutlined from '@ant-design/icons/GiftOutlined';
@@ -72,6 +73,7 @@ export default function Dashboard() {
   const [weekIncome, setWeekIncome] = useState(0);
   const [period, setPeriod] = useState('today');
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState({ open: false, type: 'error', message: '' });
   const [alertKey, setAlertKey] = useState(0);
   const handleAlertClose = (event, reason) => {
@@ -110,6 +112,7 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
+    setLoading(true);
     fetch(`${api}/v1/api/product/orders`, { credentials: 'include' })
     // fetch('http://localhost:8000/v1/api/product/orders', { credentials: 'include' })
     // fetch('https://crm-backend-rho-weld.vercel.app/v1/api/product/orders', { credentials: 'include' })
@@ -138,10 +141,12 @@ export default function Dashboard() {
           setAlert({ open: true, type: 'error', message: data.message || 'Error loading dashboard data.' });
           setAlertKey((k) => k + 1);
         }
+        setLoading(false);
       })
       .catch(err => {
         setAlert({ open: true, type: 'error', message: 'Error loading dashboard data.' });
         setAlertKey((k) => k + 1);
+        setLoading(false);
       });
   }, []);
 
@@ -194,179 +199,185 @@ export default function Dashboard() {
         onClose={handleAlertClose}
         alertKey={alertKey}
       />
-      <Grid paddingTop={'30px'} marginLeft={'30px'} marginRight={'30px'} container rowSpacing={4.5} columnSpacing={2.75}>
-        {/* row 1 */}
-        <Grid sx={{ mb: -2.25, display: 'flex', alignItems: 'center', gap: 2 }} size={12}>
-          <Typography variant="h5">Dashboard</Typography>
-          <TextField
-            select
-            size="small"
-            value={period}
-            onChange={e => setPeriod(e.target.value)}
-            sx={{ minWidth: 180 }}
-          >
-            <MenuItem value="today">Today vs Yesterday</MenuItem>
-            <MenuItem value="week">This Week vs Last Week</MenuItem>
-            <MenuItem value="month">This Month vs Last Month</MenuItem>
-            <MenuItem value="year">This Year vs Last Year</MenuItem>
-          </TextField>
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <AnalyticEcommerce title="Total Customers" count={currentStats.users} prevCount={prevStats.users} percentage={Math.abs(userPercent).toFixed(1)} isLoss={getIsLoss(currentStats.users, prevStats.users)} color={getColor(currentStats.users, prevStats.users)} extra={currentStats.users} period={period} />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <AnalyticEcommerce title="Total Products" count={currentStats.products} prevCount={prevStats.products} percentage={Math.abs(productPercent).toFixed(1)} isLoss={getIsLoss(currentStats.products, prevStats.products)} color={getColor(currentStats.products, prevStats.products)} extra={currentStats.products} period={period} />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <AnalyticEcommerce title="Total Order" count={currentStats.orders} prevCount={prevStats.orders} percentage={Math.abs(orderPercent).toFixed(1)} isLoss={getIsLoss(currentStats.orders, prevStats.orders)} color={getColor(currentStats.orders, prevStats.orders)} extra={currentStats.orders} period={period} />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <AnalyticEcommerce title="Total Sales" count={currentStats.sales} prevCount={prevStats.sales} percentage={Math.abs(salesPercent).toFixed(1)} isLoss={getIsLoss(currentStats.sales, prevStats.sales)} color={getColor(currentStats.sales, prevStats.sales)} extra={currentStats.sales} period={period} />
-        </Grid>
-        <Grid sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} size={{ md: 8 }} />
-        {/* row 2 */}
-        <Grid size={{ xs: 12, md: 7, lg: 8 }}>
-          <UniqueVisitorCard />
-        </Grid>
-        <Grid size={{ xs: 12, md: 5, lg: 4 }}>
-          <Grid container alignItems="center" justifyContent="space-between">
-            <Grid>
-              <Typography variant="h5">Income Overview</Typography>
-            </Grid>
-            <Grid />
-          </Grid>
-          <MainCard sx={{ mt: 2 }} content={false}>
-            <Box sx={{ p: 3, pb: 0 }}>
-              <Stack sx={{ gap: 2 }}>
-                <Typography variant="h6" color="text.secondary">
-                  This Week Statistics
-                </Typography>
-                <Typography variant="h3">PKR {weekIncome.toLocaleString()}</Typography>
-              </Stack>
-            </Box>
-            <MonthlyBarChart />
-          </MainCard>
-        </Grid>
-        {/* row 3 */}
-        <Grid size={{ xs: 12, md: 7, lg: 8 }}>
-          <Grid container alignItems="center" justifyContent="space-between">
-            <Grid>
-              <Typography variant="h5">Recent Orders</Typography>
-            </Grid>
-            <Grid />
-          </Grid>
-          <MainCard sx={{ mt: 2 }} content={false}>
-            <OrdersTable />
-          </MainCard>
-        </Grid>
-        <Grid size={{ xs: 12, md: 5, lg: 4 }}>
-          <Grid container alignItems="center" justifyContent="space-between">
-            <Grid>
-              <Typography variant="h5">Analytics Report</Typography>
-            </Grid>
-            <Grid />
-          </Grid>
-          <MainCard sx={{ mt: 2 }} content={false}>
-            <List sx={{ p: 0, '& .MuiListItemButton-root': { py: 2 } }}>
-              <ListItemButton divider>
-                <ListItemText primary="Company Finance Growth" />
-                <Typography variant="h5">+45.14%</Typography>
-              </ListItemButton>
-              <ListItemButton divider>
-                <ListItemText primary="Company Expenses Ratio" />
-                <Typography variant="h5">0.58%</Typography>
-              </ListItemButton>
-              <ListItemButton>
-                <ListItemText primary="Business Risk Cases" />
-                <Typography variant="h5">Low</Typography>
-              </ListItemButton>
-            </List>
-            <ReportAreaChart />
-          </MainCard>
-        </Grid>
-        {/* row 4 */}
-        <Grid size={{ xs: 12, md: 7, lg: 8 }}>
-          <SaleReportCard />
-        </Grid>
-        <Grid size={{ xs: 12, md: 5, lg: 4 }}>
-          <Grid container alignItems="center" justifyContent="space-between">
-            <Grid>
-              <Typography variant="h5">Transaction History</Typography>
-            </Grid>
-            <Grid />
-          </Grid>
-          <MainCard sx={{ mt: 2 }} content={false}>
-            <List
-              component="nav"
-              sx={{
-                px: 0,
-                py: 0,
-                '& .MuiListItemButton-root': {
-                  py: 1.5,
-                  px: 2,
-                  '& .MuiAvatar-root': avatarSX,
-                  '& .MuiListItemSecondaryAction-root': { ...actionSX, position: 'relative' }
-                }
-              }}
+      {loading ? (
+        <Box sx={{ width: '100%', minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <MIUILoader message="Loading dashboard..." />
+        </Box>
+      ) : (
+        <Grid paddingTop={'30px'} marginLeft={'30px'} marginRight={'30px'} container rowSpacing={4.5} columnSpacing={2.75}>
+          {/* row 1 */}
+          <Grid sx={{ mb: -2.25, display: 'flex', alignItems: 'center', gap: 2 }} size={12}>
+            <Typography variant="h5">Dashboard</Typography>
+            <TextField
+              select
+              size="small"
+              value={period}
+              onChange={e => setPeriod(e.target.value)}
+              sx={{ minWidth: 180 }}
             >
-              {(orders.filter(o => o.status === 'complete')
-                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                .slice(0, 3)
-              ).map((order, idx) => (
-                <ListItem
-                  key={order._id}
-                  component={ListItemButton}
-                  divider={idx < 2}
-                  secondaryAction={
-                    <Stack sx={{ alignItems: 'flex-end' }}>
-                      <Typography variant="subtitle1" noWrap>
-                        PKR {order.totalPrice?.toLocaleString()}
+              <MenuItem value="today">Today vs Yesterday</MenuItem>
+              <MenuItem value="week">This Week vs Last Week</MenuItem>
+              <MenuItem value="month">This Month vs Last Month</MenuItem>
+              <MenuItem value="year">This Year vs Last Year</MenuItem>
+            </TextField>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+            <AnalyticEcommerce title="Total Customers" count={currentStats.users} prevCount={prevStats.users} percentage={Math.abs(userPercent).toFixed(1)} isLoss={getIsLoss(currentStats.users, prevStats.users)} color={getColor(currentStats.users, prevStats.users)} extra={currentStats.users} period={period} />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+            <AnalyticEcommerce title="Total Products" count={currentStats.products} prevCount={prevStats.products} percentage={Math.abs(productPercent).toFixed(1)} isLoss={getIsLoss(currentStats.products, prevStats.products)} color={getColor(currentStats.products, prevStats.products)} extra={currentStats.products} period={period} />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+            <AnalyticEcommerce title="Total Order" count={currentStats.orders} prevCount={prevStats.orders} percentage={Math.abs(orderPercent).toFixed(1)} isLoss={getIsLoss(currentStats.orders, prevStats.orders)} color={getColor(currentStats.orders, prevStats.orders)} extra={currentStats.orders} period={period} />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+            <AnalyticEcommerce title="Total Sales" count={currentStats.sales} prevCount={prevStats.sales} percentage={Math.abs(salesPercent).toFixed(1)} isLoss={getIsLoss(currentStats.sales, prevStats.sales)} color={getColor(currentStats.sales, prevStats.sales)} extra={currentStats.sales} period={period} />
+          </Grid>
+          <Grid sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} size={{ md: 8 }} />
+          {/* row 2 */}
+          <Grid size={{ xs: 12, md: 7, lg: 8 }}>
+            <UniqueVisitorCard />
+          </Grid>
+          <Grid size={{ xs: 12, md: 5, lg: 4 }}>
+            <Grid container alignItems="center" justifyContent="space-between">
+              <Grid>
+                <Typography variant="h5">Income Overview</Typography>
+              </Grid>
+              <Grid />
+            </Grid>
+            <MainCard sx={{ mt: 2 }} content={false}>
+              <Box sx={{ p: 3, pb: 0 }}>
+                <Stack sx={{ gap: 2 }}>
+                  <Typography variant="h6" color="text.secondary">
+                    This Week Statistics
+                  </Typography>
+                  <Typography variant="h3">PKR {weekIncome.toLocaleString()}</Typography>
+                </Stack>
+              </Box>
+              <MonthlyBarChart />
+            </MainCard>
+          </Grid>
+          {/* row 3 */}
+          <Grid size={{ xs: 12, md: 7, lg: 8 }}>
+            <Grid container alignItems="center" justifyContent="space-between">
+              <Grid>
+                <Typography variant="h5">Recent Orders</Typography>
+              </Grid>
+              <Grid />
+            </Grid>
+            <MainCard sx={{ mt: 2 }} content={false}>
+              <OrdersTable />
+            </MainCard>
+          </Grid>
+          <Grid size={{ xs: 12, md: 5, lg: 4 }}>
+            <Grid container alignItems="center" justifyContent="space-between">
+              <Grid>
+                <Typography variant="h5">Analytics Report</Typography>
+              </Grid>
+              <Grid />
+            </Grid>
+            <MainCard sx={{ mt: 2 }} content={false}>
+              <List sx={{ p: 0, '& .MuiListItemButton-root': { py: 2 } }}>
+                <ListItemButton divider>
+                  <ListItemText primary="Company Finance Growth" />
+                  <Typography variant="h5">+45.14%</Typography>
+                </ListItemButton>
+                <ListItemButton divider>
+                  <ListItemText primary="Company Expenses Ratio" />
+                  <Typography variant="h5">0.58%</Typography>
+                </ListItemButton>
+                <ListItemButton>
+                  <ListItemText primary="Business Risk Cases" />
+                  <Typography variant="h5">Low</Typography>
+                </ListItemButton>
+              </List>
+              <ReportAreaChart />
+            </MainCard>
+          </Grid>
+          {/* row 4 */}
+          <Grid size={{ xs: 12, md: 7, lg: 8 }}>
+            <SaleReportCard />
+          </Grid>
+          <Grid size={{ xs: 12, md: 5, lg: 4 }}>
+            <Grid container alignItems="center" justifyContent="space-between">
+              <Grid>
+                <Typography variant="h5">Transaction History</Typography>
+              </Grid>
+              <Grid />
+            </Grid>
+            <MainCard sx={{ mt: 2 }} content={false}>
+              <List
+                component="nav"
+                sx={{
+                  px: 0,
+                  py: 0,
+                  '& .MuiListItemButton-root': {
+                    py: 1.5,
+                    px: 2,
+                    '& .MuiAvatar-root': avatarSX,
+                    '& .MuiListItemSecondaryAction-root': { ...actionSX, position: 'relative' }
+                  }
+                }}
+              >
+                {(orders.filter(o => o.status === 'complete')
+                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                  .slice(0, 3)
+                ).map((order, idx) => (
+                  <ListItem
+                    key={order._id}
+                    component={ListItemButton}
+                    divider={idx < 2}
+                    secondaryAction={
+                      <Stack sx={{ alignItems: 'flex-end' }}>
+                        <Typography variant="subtitle1" noWrap>
+                          PKR {order.totalPrice?.toLocaleString()}
+                        </Typography>
+                      </Stack>
+                    }
+                  >
+                    <ListItemAvatar>
+                      <Avatar sx={{ color: 'primary.main', bgcolor: 'primary.lighter' }}>
+                        <GiftOutlined />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={<Typography variant="subtitle1">Order #{order.orderId}</Typography>}
+                      secondary={order.createdAt ? new Date(order.createdAt).toLocaleString() : ''}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </MainCard>
+            <MainCard sx={{ mt: 2 }}>
+              <Stack sx={{ gap: 3 }}>
+                <Grid container justifyContent="space-between" alignItems="center">
+                  <Grid>
+                    <Stack>
+                      <Typography variant="h5" noWrap>
+                        Help & Support Chat
+                      </Typography>
+                      <Typography variant="caption" color="secondary" noWrap>
+                        Typical replay within 5 min
                       </Typography>
                     </Stack>
-                  }
-                >
-                  <ListItemAvatar>
-                    <Avatar sx={{ color: 'primary.main', bgcolor: 'primary.lighter' }}>
-                      <GiftOutlined />
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={<Typography variant="subtitle1">Order #{order.orderId}</Typography>}
-                    secondary={order.createdAt ? new Date(order.createdAt).toLocaleString() : ''}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </MainCard>
-          <MainCard sx={{ mt: 2 }}>
-            <Stack sx={{ gap: 3 }}>
-              <Grid container justifyContent="space-between" alignItems="center">
-                <Grid>
-                  <Stack>
-                    <Typography variant="h5" noWrap>
-                      Help & Support Chat
-                    </Typography>
-                    <Typography variant="caption" color="secondary" noWrap>
-                      Typical replay within 5 min
-                    </Typography>
-                  </Stack>
+                  </Grid>
+                  <Grid>
+                    <AvatarGroup sx={{ '& .MuiAvatar-root': { width: 32, height: 32 } }}>
+                      <Avatar alt="Remy Sharp" src={avatar1} />
+                      <Avatar alt="Travis Howard" src={avatar2} />
+                      <Avatar alt="Cindy Baker" src={avatar3} />
+                      <Avatar alt="Agnes Walker" src={avatar4} />
+                    </AvatarGroup>
+                  </Grid>
                 </Grid>
-                <Grid>
-                  <AvatarGroup sx={{ '& .MuiAvatar-root': { width: 32, height: 32 } }}>
-                    <Avatar alt="Remy Sharp" src={avatar1} />
-                    <Avatar alt="Travis Howard" src={avatar2} />
-                    <Avatar alt="Cindy Baker" src={avatar3} />
-                    <Avatar alt="Agnes Walker" src={avatar4} />
-                  </AvatarGroup>
-                </Grid>
-              </Grid>
-              <Button size="small" variant="contained" sx={{ textTransform: 'capitalize' }}>
-                Need Help?
-              </Button>
-            </Stack>
-          </MainCard>
+                <Button size="small" variant="contained" sx={{ textTransform: 'capitalize' }}>
+                  Need Help?
+                </Button>
+              </Stack>
+            </MainCard>
+          </Grid>
         </Grid>
-      </Grid>
+      )}
     </>
   );
 }

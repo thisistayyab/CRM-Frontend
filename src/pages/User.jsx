@@ -10,6 +10,7 @@ import {
   Button,
 } from '@mui/material';
 import MIUIAlert from '../Components/MIUIAlert';
+import MIUILoader from '../Components/MIUILoader';
 import { api } from '../server';
 
 const API_URL = `${api}/v1/api/user`
@@ -60,7 +61,7 @@ const User = () => {
   }, [navigate]);
 
   if (loading) {
-    return <Box sx={{ p: 4, textAlign: 'center' }}>Loading user...</Box>;
+    return <MIUILoader message="Loading user..." />;
   }
 
   if (!user) {

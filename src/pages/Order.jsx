@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Box, Typography, Button, TextField } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { Link as RouterLink, useNavigate, useLocation } from "react-router-dom";
 import '../assets/Stylesheets/Order.css'
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
@@ -14,6 +14,7 @@ import Popover from '@mui/material/Popover';
 import MIUIAlert from '../Components/MIUIAlert';
 import ConfirmDialog from '../Components/ConfirmDialog';
 import { api } from '../server';
+import MIUILoader from '../Components/MIUILoader';
 
 const API_URL =  `${api}/v1/api/product/orders`
 
@@ -216,6 +217,14 @@ export default function Orders() {
   const [pendingDeleteId, setPendingDeleteId] = React.useState(null);
   const [selectionModel, setSelectionModel] = React.useState([]);
   const [search, setSearch] = React.useState('');
+  const location = useLocation();
+
+  // Sync search state with query param
+  React.useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const q = params.get('search') || '';
+    setSearch(q);
+  }, [location.search]);
 
   // Filtered rows based on search
   const filteredRows = React.useMemo(() => {
@@ -225,10 +234,20 @@ export default function Orders() {
       const orderId = typeof row.orderId === 'string' ? row.orderId.toLowerCase() : '';
       const trackingNumber = typeof row.trackingNumber === 'string' ? row.trackingNumber.toLowerCase() : '';
       const phoneNumber = typeof row.phoneNumber === 'string' ? row.phoneNumber.toLowerCase() : (row.phoneNumber ? String(row.phoneNumber).toLowerCase() : '');
+      const customerName = typeof row.customerName === 'string' ? row.customerName.toLowerCase() : '';
+      const courierCompany = typeof row.courierCompany === 'string' ? row.courierCompany.toLowerCase() : '';
+      // Search product names in item array
+      let productNames = '';
+      if (Array.isArray(row.item)) {
+        productNames = row.item.map(i => (i.product?.productname || i.product?.name || '')).join(' ').toLowerCase();
+      }
       return (
         orderId.includes(q) ||
         trackingNumber.includes(q) ||
         phoneNumber.includes(q)
+        || customerName.includes(q)
+        || productNames.includes(q)
+        || courierCompany.includes(q)
       );
     });
   }, [rows, search]);
@@ -460,9 +479,19 @@ export default function Orders() {
         <TextField
           fullWidth
           size="small"
-          placeholder="Search by Order ID, Tracking Number, or Phone Number"
+          placeholder="Search by Order ID, Tracking Number, Phone, Customer, Product, Courier Company"
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={e => {
+            setSearch(e.target.value);
+            // Update URL query param
+            const params = new URLSearchParams(location.search);
+            if (e.target.value) {
+              params.set('search', e.target.value);
+            } else {
+              params.delete('search');
+            }
+            window.history.replaceState(null, '', `${location.pathname}?${params.toString()}`);
+          }}
           sx={{ minWidth: { sm: 300 }, flex: 1 }}
         />
 
@@ -487,42 +516,45 @@ export default function Orders() {
       </Box>
     </Box>
       <Box margin={2} paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 70px)', background: '#fff', overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
-        <DataGrid
-          rows={filteredRows}
-          columns={columns}
-          loading={loading}
-          getRowClassName={(params) =>
-            params.row.status === 'canceled' ? 'order-canceled-row' : params.row.status === 'returned' ? 'order-returned-row' : ''
-          }
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 50,
+        {loading ? (
+          <MIUILoader message="Loading orders..." />
+        ) : (
+          <DataGrid
+            rows={filteredRows}
+            columns={columns}
+            getRowClassName={(params) =>
+              params.row.status === 'canceled' ? 'order-canceled-row' : params.row.status === 'returned' ? 'order-returned-row' : ''
+            }
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 50,
+                },
               },
-            },
-          }}
-          pageSizeOptions={[5]}
-          checkboxSelection
-          disableRowSelectionOnClick
-          onRowSelectionModelChange={setSelectionModel}
-          selectionModel={selectionModel}
-          sx={{
-            '& .MuiDataGrid-virtualScroller': {
-              overflowX: 'auto',
-            },
-            '& .MuiDataGrid-main': {
-              background: '#fff',
-            },
-            border: 0,
-            '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
-              outline: 'none',
-              border: 'none',
-            },
-            '& .MuiDataGrid-row.Mui-selected, & .MuiDataGrid-row.Mui-selected:hover': {
-              backgroundColor: 'inherit',
-            },
-          }}
-        />
+            }}
+            pageSizeOptions={[5]}
+            checkboxSelection
+            disableRowSelectionOnClick
+            onRowSelectionModelChange={setSelectionModel}
+            selectionModel={selectionModel}
+            sx={{
+              '& .MuiDataGrid-virtualScroller': {
+                overflowX: 'auto',
+              },
+              '& .MuiDataGrid-main': {
+                background: '#fff',
+              },
+              border: 0,
+              '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+                outline: 'none',
+                border: 'none',
+              },
+              '& .MuiDataGrid-row.Mui-selected, & .MuiDataGrid-row.Mui-selected:hover': {
+                backgroundColor: 'inherit',
+              },
+            }}
+          />
+        )}
       </Box>
     </>
   );

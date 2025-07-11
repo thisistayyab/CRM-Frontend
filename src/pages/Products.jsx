@@ -17,6 +17,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import MIUIAlert from '../Components/MIUIAlert';
 import ConfirmDialog from '../Components/ConfirmDialog';
 import { api } from '../server';
+import MIUILoader from '../Components/MIUILoader';
 
 const API_URL = `${api}/v1/api/product`;
 // const API_URL = "http://localhost:8000/v1/api/product";
@@ -138,6 +139,7 @@ export default function Products() {
   const [alertKey, setAlertKey] = React.useState(0); // for force remount
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
+  const [search, setSearch] = useState("");
 
   // MIUI-style alert close handler
   const handleAlertClose = (event, reason) => {
@@ -288,50 +290,70 @@ export default function Products() {
     }
   };
 
+  // Filtered rows based on search
+  const filteredRows = React.useMemo(() => {
+    if (!search.trim()) return rows;
+    const q = search.trim().toLowerCase();
+    return rows.filter(row => {
+      const productName = (row.productname || row.name || '').toLowerCase();
+      return productName.includes(q);
+    });
+  }, [rows, search]);
+
   return (
     <>
       <Box sx={{ px: 2, py: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        Products
-      </Typography>
-
-      <Box>
-        <Button
-          component={RouterLink}
-          to="/addproduct"
-          variant="contained"
-          color="primary"
-          sx={{ width: { xs: '100%', sm: 'auto' } }}
-        >
-          Add Product
-        </Button>
+        <Typography variant="h4" gutterBottom>
+          Products
+        </Typography>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, alignItems: { sm: 'center' }, width: '100%' }}>
+          <TextField
+            fullWidth
+            size="small"
+            placeholder="Search by Product Name"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            sx={{ minWidth: { sm: 300 }, flex: 1 }}
+          />
+          <Button
+            component={RouterLink}
+            to="/addproduct"
+            variant="contained"
+            color="primary"
+            sx={{ width: { xs: '100%', sm: 'auto' } }}
+          >
+            Add Product
+          </Button>
+        </Box>
       </Box>
-    </Box>
-      <Box paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 70px)', background: '#fff', overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          loading={loading}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 50,
+      <Box margin={2} paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 70px)', background: '#fff', overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
+        {loading ? (
+          <MIUILoader message="Loading products..." />
+        ) : (
+          <DataGrid
+            rows={filteredRows}
+            columns={columns}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 50,
+                },
               },
-            },
-          }}
-          pageSizeOptions={[5]}
-          checkboxSelection
-          disableRowSelectionOnClick
-          sx={{
-            '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
-              outline: 'none',
-              border: 'none',
-            },
-            '& .MuiDataGrid-row.Mui-selected, & .MuiDataGrid-row.Mui-selected:hover': {
-              backgroundColor: 'inherit',
-            },
-          }}
-        />
+            }}
+            pageSizeOptions={[5]}
+            checkboxSelection
+            disableRowSelectionOnClick
+            sx={{
+              '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+                outline: 'none',
+                border: 'none',
+              },
+              '& .MuiDataGrid-row.Mui-selected, & .MuiDataGrid-row.Mui-selected:hover': {
+                backgroundColor: 'inherit',
+              },
+            }}
+          />
+        )}
       </Box>
       <Dialog open={!!editProduct} onClose={() => setEditProduct(null)}>
         <DialogTitle>Edit Product</DialogTitle>

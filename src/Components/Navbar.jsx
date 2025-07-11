@@ -6,7 +6,7 @@ import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Avatar from '@mui/material/Avatar';
-import Box from '@mui/material/Box';
+import {Box, Button} from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import logo from '../assets/images/logo.png';
 import avatar from '../assets/images/users/avatar.jpg';
@@ -28,6 +28,9 @@ import PieChartIcon from '@mui/icons-material/PieChart';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { useColorScheme } from '@mui/material/styles';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import ColorModeSelect from './login/theme/ColorModeSelect.jsx';
 
 const API_URL = `${api}/v1/api/user`;
 
@@ -39,6 +42,8 @@ const Navbar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showMobileNavbar, setShowMobileNavbar] = useState(true);
   const lastScrollY = useRef(window.scrollY);
+  const [drawerSearch, setDrawerSearch] = useState("");
+  const { mode, setMode } = useColorScheme();
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -49,6 +54,31 @@ const Navbar = () => {
 
   const handleDrawerOpen = () => setDrawerOpen(true);
   const handleDrawerClose = () => setDrawerOpen(false);
+
+  // Add handler for search
+  const handleDrawerSearch = (e) => {
+    if (e.key === 'Enter' && drawerSearch.trim()) {
+      handleDrawerSearchNavigate();
+      setDrawerOpen(false);
+    }
+  };
+  const handleDrawerSearchIcon = () => {
+    if (drawerSearch.trim()) {
+      handleDrawerSearchNavigate();
+      setDrawerOpen(false);
+    }
+  };
+  const handleDrawerSearchNavigate = () => {
+    const q = drawerSearch.trim();
+    if (location.pathname.startsWith('/products') || isLikelyProductName(q)) {
+      navigate(`/products?search=${encodeURIComponent(q)}`);
+    } else {
+      navigate(`/orders?search=${encodeURIComponent(q)}`);
+    }
+  };
+  function isLikelyProductName(q) {
+    return /[a-zA-Z]/.test(q);
+  }
 
   useEffect(() => {
     const fetchProfilePic = async () => {
@@ -131,7 +161,7 @@ const Navbar = () => {
               <MenuIcon />
             </IconButton>
           </Box>
-          {/* Left: Empty for spacing (hidden on mobile) */}
+          {/* Left: Empty for spacing (hidden on mobile, replaced by search bar on desktop) */}
           <Box sx={{ flex: 1, display: { xs: 'none', md: 'block' } }} />
           {/* Center: Logo and Brand Name */}
           <Box sx={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', display: 'flex', alignItems: 'center', textDecoration: 'none' }} component={RouterLink} to="/">
@@ -163,6 +193,14 @@ const Navbar = () => {
               <MenuItem component={RouterLink} to="/user" onClick={handleMenuClose} sx={{ color: '#fff', fontFamily: 'Urbanist, sans-serif' }}>Profile</MenuItem>
               <MenuItem component={RouterLink} to="/settings" onClick={handleMenuClose} sx={{ color: '#fff', fontFamily: 'Urbanist, sans-serif' }}>Settings</MenuItem>
               <MenuItem onClick={handleLogout} sx={{ color: '#fff', fontFamily: 'Urbanist, sans-serif' }}>Logout</MenuItem>
+              <Divider sx={{ my: 1, bgcolor: 'rgba(255,255,255,0.1)' }} />
+              <MenuItem sx={{ color: '#fff', fontFamily: 'Urbanist, sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Brightness4Icon />
+                  Theme
+                </Box>
+                <ColorModeSelect size="small" sx={{ mt: 1, minWidth: 120, bgcolor: '#232946', color: '#fff', borderRadius: 1, border: '1px solid #4f8cff' }} />
+              </MenuItem>
             </Menu>
           </Box>
         </Toolbar>
@@ -189,10 +227,16 @@ const Navbar = () => {
         <List>
           <ListItem sx={{ px: 2, py: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-              <IconButton sx={{ color: '#fff', mr: 1 }}>
+              <IconButton sx={{ color: '#fff', mr: 1 }} onClick={handleDrawerSearchIcon}>
                 <SearchIcon />
               </IconButton>
-              <InputBase placeholder="Search..." sx={{ color: '#fff', background: '#232946', borderRadius: 2, px: 1.5, flex: 1, fontFamily: 'Raleway, sans-serif', border: '1px solid #4f8cff', height: 36 }} />
+              <InputBase
+                placeholder="Search by Tracking #, Customer, Phone, Product, Order ID, Courier..."
+                sx={{ color: '#fff', background: '#232946', borderRadius: 2, px: 1.5, flex: 1, fontFamily: 'Raleway, sans-serif', border: '1px solid #4f8cff', height: 36 }}
+                value={drawerSearch}
+                onChange={e => setDrawerSearch(e.target.value)}
+                onKeyDown={handleDrawerSearch}
+              />
             </Box>
           </ListItem>
           {navItems.map((item) => (

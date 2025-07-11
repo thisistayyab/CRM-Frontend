@@ -7,6 +7,7 @@ import Link from '@mui/material/Link';
 import { Link as RouterLink } from 'react-router-dom';
 import Popover from '@mui/material/Popover';
 import MIUIAlert from '../Components/MIUIAlert';
+import MIUILoader from '../Components/MIUILoader';
 import { api } from '../server';
 
 // const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product/orders";
@@ -157,37 +158,40 @@ export default function CustomerOrders() {
         />
       <Box paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 70px)', background: '#fff', overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
         <h2>Orders for Customer (Phone: {phoneNumber})</h2>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          loading={loading}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 50,
+        {loading ? (
+          <MIUILoader message="Loading customer orders..." />
+        ) : (
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 50,
+                },
               },
-            },
-          }}
-          pageSizeOptions={[5]}
-          checkboxSelection
-          disableRowSelectionOnClick
-          sx={{
-            '& .MuiDataGrid-virtualScroller': {
-              overflowX: 'auto',
-            },
-            '& .MuiDataGrid-main': {
-              background: '#fff',
-            },
-            border: 0,
-            '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
-              outline: 'none',
-              border: 'none',
-            },
-            '& .MuiDataGrid-row.Mui-selected, & .MuiDataGrid-row.Mui-selected:hover': {
-              backgroundColor: 'inherit',
-            },
-          }}
-        />
+            }}
+            pageSizeOptions={[5]}
+            checkboxSelection
+            disableRowSelectionOnClick
+            sx={{
+              '& .MuiDataGrid-virtualScroller': {
+                overflowX: 'auto',
+              },
+              '& .MuiDataGrid-main': {
+                background: '#fff',
+              },
+              border: 0,
+              '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+                outline: 'none',
+                border: 'none',
+              },
+              '& .MuiDataGrid-row.Mui-selected, & .MuiDataGrid-row.Mui-selected:hover': {
+                backgroundColor: 'inherit',
+              },
+            }}
+          />
+        )}
       </Box>
     </>
   );

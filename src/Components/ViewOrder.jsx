@@ -6,6 +6,7 @@ import { useParams, Link as RouterLink } from 'react-router-dom';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import MIUIAlert from './MIUIAlert';
+import MIUILoader from './MIUILoader';
 import { api } from '../server';
 
 const statusColors = {
@@ -46,7 +47,7 @@ const ViewOrder = () => {
       });
   }, [id]);
 
-  if (!order) return <Typography>Loading order...</Typography>;
+  if (!order) return <MIUILoader message="Loading order..." />;
 
   const subtotal = order.item.reduce((sum, i) => sum + (i.salePrice || i.price) * i.quantity, 0);
   const total = subtotal + order.shippingCharges;

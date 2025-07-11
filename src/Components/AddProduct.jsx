@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import MIUIAlert from './MIUIAlert';
+import MIUILoader from './MIUILoader';
 import { api } from '../server';
 
 const API_URL = `${api}/v1/api/product`;
@@ -99,7 +100,8 @@ const AddProduct = () => {
         onClose={handleAlertClose}
         alertKey={alertKey}
       />
-      <Paper elevation={3} sx={{ p: 4, maxWidth: 600, mx: 'auto', borderRadius: '20px' }}>
+      <Paper elevation={3} sx={{ p: 4, maxWidth: 600, mx: 'auto', borderRadius: '20px', position: 'relative' }}>
+        {loading && <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', bgcolor: 'rgba(255,255,255,0.7)', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MIUILoader message="Adding product..." /></Box>}
         <Typography variant="h4" gutterBottom align="center" fontWeight="bold">
           Add Product
         </Typography>
