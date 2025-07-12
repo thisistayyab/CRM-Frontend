@@ -23,6 +23,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PersonIcon from '@mui/icons-material/Person';
+import StoreIcon from '@mui/icons-material/Store';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -132,7 +133,7 @@ const Navbar = () => {
 
   const navItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-    { text: 'User', icon: <PersonIcon />, path: '/user' },
+    { text: 'Store', icon: <StoreIcon />, path: '/store' },
     { text: 'Products', icon: <ShoppingBagIcon />, path: '/products' },
     { text: 'Analytics', icon: <PieChartIcon />, path: '/analytics' },
     { text: 'Order', icon: <ShoppingCartIcon />, path: '/orders' },

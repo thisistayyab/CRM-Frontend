@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Box, Grid, Typography, Paper, Divider, Avatar, Link, Chip
 } from '@mui/material';
@@ -8,6 +8,7 @@ import Button from '@mui/material/Button';
 import MIUIAlert from './MIUIAlert';
 import MIUILoader from './MIUILoader';
 import { api } from '../server';
+import PrintIcon from '@mui/icons-material/Print';
 
 const statusColors = {
   active: 'success',
@@ -19,10 +20,14 @@ const statusColors = {
 const ViewOrder = () => {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
+  const [store, setStore] = useState({ name: 'Taylance CRM' });
+  const [storeLoading, setStoreLoading] = useState(true);
   const [comments, setComments] = useState([]);
   const [commentInput, setCommentInput] = useState('');
   const [alert, setAlert] = useState({ open: false, type: 'error', message: '' });
   const [alertKey, setAlertKey] = useState(0);
+  const printRef = useRef();
+  
   const handleAlertClose = (event, reason) => {
     if (reason === 'clickaway') return;
     setAlert((a) => ({ ...a, open: false }));
@@ -47,14 +52,180 @@ const ViewOrder = () => {
       });
   }, [id]);
 
-  if (!order) return <MIUILoader message="Loading order..." />;
+  // Fetch store information
+  useEffect(() => {
+    const fetchStore = async () => {
+      setStoreLoading(true);
+      try {
+        const res = await fetch(`${api}/v1/api/store/get-store`, {
+          method: 'GET',
+          credentials: 'include',
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.data) {
+            setStore(data.data);
+          } else {
+            // Store not found or other error, keep default
+          }
+        } else if (res.status === 404) {
+          // Store doesn't exist yet, keep default name
+        } else {
+          // Other HTTP errors, keep default
+        }
+      } catch (err) {
+        // Network errors, keep default store name
+      }
+      setStoreLoading(false);
+    };
+    fetchStore();
+  }, []);
+
+  if (!order || storeLoading) return <MIUILoader message="Loading order and store info..." />;
 
   const subtotal = order.item.reduce((sum, i) => sum + (i.salePrice || i.price) * i.quantity, 0);
   const total = subtotal + order.shippingCharges;
   const netProfit = order.netProfit;
 
+  const handlePrintBill = () => {
+    const printWindow = window.open('', '_blank');
+    const billHtml = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Bill - Order #${order.orderId}</title>
+          <style>
+            @media print {
+              body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+              .no-print { display: none !important; }
+              .bill-header { display: flex; align-items: center; justify-content: flex-start; margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 20px; }
+              .bill-logo { flex: 0 0 auto; margin-right: 24px; }
+              .bill-logo img { max-width: 90px; max-height: 90px; border-radius: 8px; }
+              .bill-info-block { flex: 1 1 auto; text-align: left; }
+              .bill-title { font-size: 24px; font-weight: bold; margin-bottom: 6px; }
+              .bill-subtitle { font-size: 16px; color: #666; margin-bottom: 10px; }
+              .store-contact { font-size: 14px; color: #333; margin-bottom: 0; }
+              .bill-info { display: flex; justify-content: space-between; margin-bottom: 30px; }
+              .customer-info, .order-info { flex: 1; }
+              .customer-info h3, .order-info h3 { margin-bottom: 10px; font-size: 18px; }
+              .products-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+              .products-table th, .products-table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+              .products-table th { background-color: #f5f5f5; font-weight: bold; }
+              .summary { margin-top: 30px; }
+              .summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+              .summary-total { font-weight: bold; font-size: 18px; border-top: 2px solid #000; padding-top: 10px; margin-top: 10px; }
+              .footer { margin-top: 40px; text-align: center; font-size: 14px; color: #666; }
+            }
+            @media screen {
+              body { font-family: Arial, sans-serif; padding: 20px; }
+              .bill-header { display: flex; align-items: center; justify-content: flex-start; margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 20px; }
+              .bill-logo { flex: 0 0 auto; margin-right: 24px; }
+              .bill-logo img { max-width: 90px; max-height: 90px; border-radius: 8px; }
+              .bill-info-block { flex: 1 1 auto; text-align: left; }
+              .bill-title { font-size: 24px; font-weight: bold; margin-bottom: 6px; }
+              .bill-subtitle { font-size: 16px; color: #666; margin-bottom: 10px; }
+              .store-contact { font-size: 14px; color: #333; margin-bottom: 0; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="bill-header">
+            <div class="bill-logo">
+              ${store?.logo ? `<img id="storeLogo" src="${store.logo}" alt="Store Logo" />` : ''}
+            </div>
+            <div class="bill-info-block">
+              <div class="bill-title">${store?.name || 'Taylance CRM'}</div>
+              <div class="store-contact">
+                ${store?.address ? `<div><strong>Address:</strong> ${store.address}</div>` : ''}
+                ${store?.phone ? `<div><strong>Phone:</strong> ${store.phone}</div>` : ''}
+                ${store?.email ? `<div><strong>Email:</strong> ${store.email}</div>` : ''}
+              </div>
+            </div>
+          </div>
+          <div class="bill-info">
+            <div class="customer-info">
+              <h3>Customer Information</h3>
+              <p><strong>Name:</strong> ${order.customerName}</p>
+              <p><strong>Phone:</strong> ${order.phoneNumber || 'N/A'}</p>
+              <p><strong>Address:</strong> ${order.customerAddress}</p>
+            </div>
+            <div class="order-info">
+              <h3>Order Information</h3>
+              <p><strong>Order ID:</strong> ${order.orderId}</p>
+              <p><strong>Date:</strong> ${order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}</p>
+            </div>
+          </div>
+          <table class="products-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.item.map((i, idx) => {
+                const prod = i.product || {};
+                return `
+                  <tr>
+                    <td>${prod.productname || 'Product'}</td>
+                    <td>Rs ${i.salePrice || i.price}</td>
+                    <td>${i.quantity}</td>
+                    <td>Rs ${(i.salePrice || i.price) * i.quantity}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+          <div class="summary">
+            <div class="summary-row">
+              <span>Subtotal:</span>
+              <span>Rs ${subtotal}</span>
+            </div>
+            <div class="summary-row">
+              <span>Shipping Charges:</span>
+              <span>Rs ${order.shippingCharges}</span>
+            </div>
+            <div class="summary-row summary-total">
+              <span>Total Amount:</span>
+              <span>Rs ${total}</span>
+            </div>
+          </div>
+          <div class="footer">
+            <p>Thank you for shopping!</p>
+            <p>Generated on ${new Date().toLocaleString()}</p>
+          </div>
+        </body>
+      </html>
+    `;
+    printWindow.document.write(billHtml);
+    printWindow.document.close();
+
+    // Wait for logo to load before printing
+    if (store?.logo) {
+      const tryPrint = () => {
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+      };
+      const img = printWindow.document.getElementById('storeLogo');
+      if (img) {
+        img.onload = tryPrint;
+        img.onerror = tryPrint;
+      } else {
+        tryPrint();
+      }
+    } else {
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    }
+  };
+
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, maxWidth: 900, mx: 'auto' }}>
+    <Box ref={printRef} sx={{ p: { xs: 1, sm: 2, md: 3 }, maxWidth: 900, mx: 'auto' }}>
       <MIUIAlert
         open={alert.open}
         type={alert.type}
@@ -65,7 +236,7 @@ const ViewOrder = () => {
       {/* Order Header */}
       <Paper sx={{ p: { xs: 2, sm: 3 }, mb: 3, borderRadius: 3 }} elevation={2}>
         <Grid container spacing={2} alignItems="center" justifyContent="space-between">
-          <Grid item xs={12} sm={8}>
+          <Grid item xs={12} sm={6}>
             <Typography variant="h5" fontWeight="bold" gutterBottom>
               Order #{order.orderId}
             </Typography>
@@ -103,11 +274,34 @@ const ViewOrder = () => {
               {order.createdAt ? new Date(order.createdAt).toLocaleString() : ''}
             </Typography>
           </Grid>
-          <Grid item xs={12} sm={4} textAlign={{ xs: 'left', sm: 'right' }}>
-            <Typography variant="subtitle2" color="text.secondary">Net Profit</Typography>
-            <Typography variant="h6" fontWeight="bold" sx={{ color: netProfit < 0 ? 'error.main' : 'success.main' }}>
-              {netProfit < 0 ? '-' : ''}Rs {Math.abs(netProfit).toLocaleString()}
-            </Typography>
+          <Grid item xs={12} sm={6}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+              <Button
+                variant="contained"
+                startIcon={<PrintIcon />}
+                onClick={handlePrintBill}
+                sx={{
+                  bgcolor: '#4f8cff',
+                  color: '#fff',
+                  '&:hover': { bgcolor: '#3a7bd5' },
+                  fontWeight: 600,
+                  px: 3,
+                  py: 1,
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  boxShadow: 2
+                }}
+                disabled={storeLoading}
+              >
+                Print Bill
+              </Button>
+              <Box sx={{ textAlign: 'right' }}>
+                <Typography variant="subtitle2" color="text.secondary">Net Profit</Typography>
+                <Typography variant="h6" fontWeight="bold" sx={{ color: netProfit < 0 ? 'error.main' : 'success.main' }}>
+                  {netProfit < 0 ? '-' : ''}Rs {Math.abs(netProfit).toLocaleString()}
+                </Typography>
+              </Box>
+            </Box>
           </Grid>
         </Grid>
       </Paper>

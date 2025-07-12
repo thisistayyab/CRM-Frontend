@@ -5,6 +5,7 @@ import Signup from './pages/Signup';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import User from './pages/User';
+import Store from './pages/Store';
 import Products from './pages/Products';
 import AddProduct from './Components/AddProduct';
 import Order from './pages/Order';
@@ -38,6 +39,7 @@ function App() {
           {/* Nested Pages */}
           <Route index element={<Dashboard />} />
           <Route path="user" element={<User />} />
+          <Route path="store" element={<Store />} />
           <Route path="profile-edit" element={<EditProfile />} />
           <Route path="products" element={<Products />} />
           <Route path="addproduct" element={<AddProduct />} />
