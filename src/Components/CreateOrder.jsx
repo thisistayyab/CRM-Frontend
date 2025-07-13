@@ -17,8 +17,10 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import MIUIAlert from './MIUIAlert';
 import MIUILoader from './MIUILoader';
 import { api } from '../server';
+import { useTheme } from '@mui/material/styles';
 
 const CreateOrder = () => {
+  const theme = useTheme();
   const [form, setForm] = useState({
     orderId: '',
     customerName: '',
@@ -140,37 +142,50 @@ const CreateOrder = () => {
           otherExpenses: Number(form.otherExpenses || 0),
         })
       });
-      if (res.ok) {
-        setSuccess(true);
-        setAlert({ open: true, type: 'success', message: 'Order created successfully!' });
+      const data = await res.json();
+      if (res.status === 409) {
+        setAlert({ open: true, type: 'error', message: data.message || 'Order ID already exists. Please use a unique Order ID.' });
         setAlertKey((k) => k + 1);
-        setForm({ orderId: '', customerName: '', phoneNumber: '', customerAddress: '', shippingCharges: 0, trackingNumber: '', courierCompany: 'Custom' });
-        setSelectedProducts([]);
-      } else {
-        const errData = await res.json();
-        if (errData.message && errData.message.toLowerCase().includes('required')) {
-          setAlert({ open: true, type: 'warning', message: 'All required fields must be filled.' });
-        } else {
-          setAlert({ open: true, type: 'error', message: 'Error processing your request.' });
-        }
-        setAlertKey((k) => k + 1);
+        setLoading(false);
+        return;
       }
-    } catch (err) {
-      setAlert({ open: true, type: 'error', message: 'Error processing your request.' });
+      if (!res.ok) {
+        setAlert({ open: true, type: 'error', message: data.message || 'Failed to create order.' });
+        setAlertKey((k) => k + 1);
+        setLoading(false);
+        return;
+      }
+      setSuccess(true);
+      setAlert({ open: true, type: 'success', message: 'Order created successfully!' });
       setAlertKey((k) => k + 1);
-      console.log(err);
+      setForm({
+        orderId: '',
+        customerName: '',
+        phoneNumber: '',
+        customerAddress: '',
+        shippingCharges: 0,
+        trackingNumber: '',
+        courierCompany: 'Custom',
+        otherExpenses: 0,
+      });
+      setSelectedProducts([]);
+    } catch (err) {
+      setAlert({ open: true, type: 'error', message: 'An error occurred while creating the order.' });
+      setAlertKey((k) => k + 1);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
-    <Box sx={{ p: 4, backgroundColor: '#f4f6fc', minHeight: '100vh' }}>
+    <Box sx={{ p: 4, backgroundColor: theme.palette.background.default, minHeight: '100vh' }}>
       <MIUIAlert
         open={alert.open}
         type={alert.type}
         message={alert.message}
         onClose={handleAlertClose}
         alertKey={alertKey}
+        mode={theme.palette.mode}
       />
       <Box sx={{ maxWidth: 700, mx: 'auto', position: 'relative' }}>
         {loading && <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', bgcolor: 'rgba(255,255,255,0.7)', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MIUILoader message="Creating order..." /></Box>}

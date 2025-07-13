@@ -57,8 +57,8 @@ export default function Palette(mode, presetColor) {
       divider: paletteColor.grey[200],
       background: mode === 'dark'
         ? {
-            paper: '#232946',
-            default: '#181c2a'
+            paper: 'hsl(220, 30%, 7%)',
+            default: 'hsl(220, 35%, 3%)'
           }
         : {
             paper: paletteColor.grey[0],

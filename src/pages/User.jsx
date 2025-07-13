@@ -12,6 +12,7 @@ import {
 import MIUIAlert from '../Components/MIUIAlert';
 import MIUILoader from '../Components/MIUILoader';
 import { api } from '../server';
+import { useTheme } from '@mui/material/styles';
 
 const API_URL = `${api}/v1/api/user`
 // const API_URL = "http://localhost:8000/v1/api/user"
@@ -27,6 +28,7 @@ const User = () => {
     setAlert((a) => ({ ...a, open: false }));
   };
   const navigate = useNavigate();
+  const theme = useTheme();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -76,6 +78,7 @@ const User = () => {
         message={alert.message}
         onClose={handleAlertClose}
         alertKey={alertKey}
+        mode={theme.palette.mode}
       />
       <Box
         sx={{

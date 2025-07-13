@@ -151,6 +151,12 @@ const columns = [
             open={open}
             onClose={handleClose}
             anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+            sx={theme => ({
+              '& .MuiPaper-root': {
+                backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.paper : '#fff',
+                color: theme.palette.mode === 'dark' ? theme.palette.text.primary : 'inherit',
+              },
+            })}
           >
             <MenuItem
               onClick={() => {
@@ -158,7 +164,7 @@ const columns = [
                 params.row.onDelete(params.row.id);
               }}
               disabled={params.row.status !== 'canceled'}
-              sx={{ color: 'red' }}
+              sx={theme => ({ color: theme.palette.error.main })}
             >
               Delete
             </MenuItem>
@@ -168,7 +174,7 @@ const columns = [
                 params.row.onCancel(params.row.id);
               }}
               disabled={params.row.status === 'canceled'}
-              sx={{ color: 'red' }}
+              sx={theme => ({ color: theme.palette.error.main })}
             >
               Cancel
             </MenuItem>
@@ -178,7 +184,7 @@ const columns = [
                 params.row.onStatusChange(params.row.id, 'returned');
               }}
               disabled={params.row.status === 'returned'}
-              sx={{ color: 'darkorange' }}
+              sx={theme => ({ color: theme.palette.warning.main })}
             >
               Return
             </MenuItem>
@@ -187,7 +193,7 @@ const columns = [
                 handleClose();
                 params.row.onEdit(params.row);
               }}
-              sx={{ color: 'black' }}
+              sx={theme => ({ color: theme.palette.text.primary })}
             >
               Edit
             </MenuItem>
@@ -197,7 +203,7 @@ const columns = [
                 params.row.onComplete(params.row.id);
               }}
               disabled={params.row.status === 'complete'}
-              sx={{ color: 'blue' }}
+              sx={theme => ({ color: theme.palette.primary.main })}
             >
               Complete
             </MenuItem>
@@ -452,8 +458,7 @@ export default function Orders() {
         message={alert.message}
         onClose={handleAlertClose}
         alertKey={alertKey}
-        autoHideDuration={5000}
-        transitionProps={{ timeout: 500 }}
+        mode={theme.palette.mode}
       />
       <ConfirmDialog
         open={confirmOpen}

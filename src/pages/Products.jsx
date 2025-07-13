@@ -105,13 +105,19 @@ const columns = [
             open={open}
             onClose={handleClose}
             anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+            sx={theme => ({
+              '& .MuiPaper-root': {
+                backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.paper : '#fff',
+                color: theme.palette.mode === 'dark' ? theme.palette.text.primary : 'inherit',
+              },
+            })}
           >
             <MenuItem
               onClick={() => {
                 handleClose();
                 params.row.onEdit(params.row);
               }}
-              sx={{ color: 'black' }}
+              sx={theme => ({ color: theme.palette.text.primary })}
             >
               Edit
             </MenuItem>
@@ -120,7 +126,7 @@ const columns = [
                 handleClose();
                 params.row.onDelete(params.row.id);
               }}
-              sx={{ color: 'red' }}
+              sx={theme => ({ color: theme.palette.error.main })}
             >
               Delete
             </MenuItem>
@@ -463,6 +469,7 @@ export default function Products() {
         message={alert.message}
         onClose={handleAlertClose}
         alertKey={alertKey}
+        mode={theme.palette.mode}
       />
       <ConfirmDialog
         open={confirmOpen}

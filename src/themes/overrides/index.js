@@ -25,6 +25,7 @@ import TableRow from './TableRow';
 import Tabs from './Tabs';
 import Tooltip from './Tooltip';
 import Typography from './Typography';
+import Menu from './Menu';
 
 // ==============================|| OVERRIDES - MAIN ||============================== //
 
@@ -52,6 +53,7 @@ export default function ComponentsOverrides(theme) {
     TableRow(),
     Tabs(),
     Tooltip(theme),
-    Typography()
+    Typography(),
+    Menu(theme)
   );
 }

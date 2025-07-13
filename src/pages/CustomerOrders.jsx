@@ -158,7 +158,8 @@ export default function CustomerOrders() {
         message={alert.message}
         onClose={handleAlertClose}
         alertKey={alertKey}
-        />
+        mode={theme.palette.mode}
+      />
       <Box paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 70px)', background: theme.palette.mode === 'dark' ? '#121212' : theme.palette.background.paper, color: theme.palette.text.primary, overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
         <h2>Orders for Customer (Phone: {phoneNumber})</h2>
         {loading ? (

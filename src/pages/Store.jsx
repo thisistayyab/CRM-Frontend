@@ -28,6 +28,7 @@ import {
 import MIUIAlert from '../Components/MIUIAlert';
 import MIUILoader from '../Components/MIUILoader';
 import { api } from '../server';
+import { useTheme } from '@mui/material/styles';
 
 const API_URL = `${api}/v1/api/store`;
 
@@ -52,6 +53,7 @@ const Store = () => {
   const [alert, setAlert] = useState({ open: false, type: 'error', message: '' });
   const [alertKey, setAlertKey] = useState(0);
   const [logoPreview, setLogoPreview] = useState('');
+  const theme = useTheme();
 
   const handleAlertClose = (event, reason) => {
     if (reason === 'clickaway') return;
@@ -164,6 +166,7 @@ const Store = () => {
         message={alert.message}
         onClose={handleAlertClose}
         alertKey={alertKey}
+        mode={theme.palette.mode}
       />
       <Box
         sx={{

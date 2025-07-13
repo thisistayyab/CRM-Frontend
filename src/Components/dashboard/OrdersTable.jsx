@@ -84,13 +84,20 @@ const headCells = [
 function OrderTableHead({ order, orderBy }) {
   return (
     <TableHead>
-      <TableRow>
+      <TableRow sx={theme => ({
+        backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.paper : '#fff',
+      })}>
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
             align={headCell.align}
             padding={headCell.disablePadding ? 'none' : 'normal'}
             sortDirection={orderBy === headCell.id ? order : false}
+            sx={theme => ({
+              color: theme.palette.text.secondary,
+              fontWeight: 700,
+              backgroundColor: 'inherit',
+            })}
           >
             {headCell.label}
           </TableCell>

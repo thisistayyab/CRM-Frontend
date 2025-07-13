@@ -168,7 +168,7 @@ const Home = () => {
             {navItems.map((item) => (
               <Tooltip title={item.text} placement="right" key={item.text} disableHoverListener={isOpen}>
                 <ListItem
-                  button
+                  button={true}
                   key={item.text}
                   component={Link}
                   to={item.path}

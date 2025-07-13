@@ -55,6 +55,7 @@ const actionSX = {
 
 import { useEffect, useState } from 'react';
 import { api } from '../server.js';
+import { useTheme } from '@mui/material/styles';
 
 function getLast7DaysExcludingToday() {
   const today = new Date();
@@ -69,6 +70,7 @@ function getLast7DaysExcludingToday() {
 }
 
 export default function Dashboard() {
+  const theme = useTheme();
   const [stats, setStats] = useState(null);
   const [weekIncome, setWeekIncome] = useState(0);
   const [period, setPeriod] = useState('today');
@@ -198,6 +200,7 @@ export default function Dashboard() {
         message={alert.message}
         onClose={handleAlertClose}
         alertKey={alertKey}
+        mode={theme.palette.mode}
       />
       {loading ? (
         <Box sx={{ width: '100%', minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
