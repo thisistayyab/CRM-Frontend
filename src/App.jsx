@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -21,6 +21,7 @@ import './App.css'
 
 function App() {
   return (
+    <>
     <Router>
       <Routes>
         {/* Public Routes */}
@@ -35,7 +36,7 @@ function App() {
               <Home />
             </ProtectedRoute>
           }
-        >
+          >
           {/* Nested Pages */}
           <Route index element={<Dashboard />} />
           <Route path="user" element={<User />} />
@@ -56,6 +57,7 @@ function App() {
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
+    </>
   );
 }
 
