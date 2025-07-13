@@ -2,7 +2,7 @@
 
 export default function Typography(fontFamily) {
   return {
-    htmlFontSize: 16,
+    htmlFontSize: 17, // was 16
     fontFamily,
     fontWeightLight: 300,
     fontWeightRegular: 400,
@@ -10,54 +10,54 @@ export default function Typography(fontFamily) {
     fontWeightBold: 600,
     h1: {
       fontWeight: 600,
-      fontSize: '2.375rem',
+      fontSize: '2.5rem', // was 2.375rem
       lineHeight: 1.21
     },
     h2: {
       fontWeight: 600,
-      fontSize: '1.875rem',
+      fontSize: '2rem', // was 1.875rem
       lineHeight: 1.27
     },
     h3: {
       fontWeight: 600,
-      fontSize: '1.5rem',
+      fontSize: '1.625rem', // was 1.5rem
       lineHeight: 1.33
     },
     h4: {
       fontWeight: 600,
-      fontSize: '1.25rem',
+      fontSize: '1.35rem', // was 1.25rem
       lineHeight: 1.4
     },
     h5: {
       fontWeight: 600,
-      fontSize: '1rem',
+      fontSize: '1.1rem', // was 1rem
       lineHeight: 1.5
     },
     h6: {
       fontWeight: 400,
-      fontSize: '0.875rem',
+      fontSize: '1rem', // was 0.875rem
       lineHeight: 1.57
     },
     caption: {
       fontWeight: 400,
-      fontSize: '0.75rem',
+      fontSize: '0.85rem', // was 0.75rem
       lineHeight: 1.66
     },
     body1: {
-      fontSize: '0.875rem',
+      fontSize: '1rem', // was 0.875rem
       lineHeight: 1.57
     },
     body2: {
-      fontSize: '0.75rem',
+      fontSize: '0.85rem', // was 0.75rem
       lineHeight: 1.66
     },
     subtitle1: {
-      fontSize: '0.875rem',
+      fontSize: '1rem', // was 0.875rem
       fontWeight: 600,
       lineHeight: 1.57
     },
     subtitle2: {
-      fontSize: '0.75rem',
+      fontSize: '0.85rem', // was 0.75rem
       fontWeight: 500,
       lineHeight: 1.66
     },

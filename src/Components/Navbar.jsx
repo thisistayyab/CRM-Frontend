@@ -22,7 +22,6 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import PersonIcon from '@mui/icons-material/Person';
 import StoreIcon from '@mui/icons-material/Store';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import PieChartIcon from '@mui/icons-material/PieChart';
@@ -31,7 +30,9 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useColorScheme } from '@mui/material/styles';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
-import ColorModeSelect from './login/theme/ColorModeSelect.jsx';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+import LaptopIcon from '@mui/icons-material/Laptop';
+import ColorModeSelect from '../themes/ColorModeSelect';
 
 const API_URL = `${api}/v1/api/user`;
 
@@ -195,12 +196,25 @@ const Navbar = () => {
               <MenuItem component={RouterLink} to="/settings" onClick={handleMenuClose} sx={{ color: '#fff', fontFamily: 'Urbanist, sans-serif' }}>Settings</MenuItem>
               <MenuItem onClick={handleLogout} sx={{ color: '#fff', fontFamily: 'Urbanist, sans-serif' }}>Logout</MenuItem>
               <Divider sx={{ my: 1, bgcolor: 'rgba(255,255,255,0.1)' }} />
-              <MenuItem sx={{ color: '#fff', fontFamily: 'Urbanist, sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 1 }}>
+              <MenuItem sx={{ color: 'inherit', fontFamily: 'Urbanist, sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Brightness4Icon />
+                  {mode === 'dark' ? <Brightness4Icon /> : mode === 'light' ? <Brightness7Icon /> : <LaptopIcon />}
                   Theme
+                  <Box component="span" sx={{ fontSize: 12, ml: 1, color: 'text.secondary' }}>
+                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                  </Box>
                 </Box>
-                <ColorModeSelect size="small" sx={{ mt: 1, minWidth: 120, bgcolor: '#232946', color: '#fff', borderRadius: 1, border: '1px solid #4f8cff' }} />
+                <ColorModeSelect
+                  size="small"
+                  sx={{ mt: 1, minWidth: 120, bgcolor: 'background.paper', color: 'text.primary', borderRadius: 1, border: '1px solid', borderColor: 'divider' }}
+                  
+                  renderValue={value => (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {value === 'dark' ? <Brightness4Icon fontSize="small" /> : value === 'light' ? <Brightness7Icon fontSize="small" /> : <LaptopIcon fontSize="small" />}
+                      {value.charAt(0).toUpperCase() + value.slice(1)}
+                    </Box>
+                  )}
+                />
               </MenuItem>
             </Menu>
           </Box>

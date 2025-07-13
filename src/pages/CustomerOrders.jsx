@@ -9,6 +9,7 @@ import Popover from '@mui/material/Popover';
 import MIUIAlert from '../Components/MIUIAlert';
 import MIUILoader from '../Components/MIUILoader';
 import { api } from '../server';
+import { useTheme } from '@mui/material/styles';
 
 // const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product/orders";
 // const API_URL = "http://localhost:8000/v1/api/product/orders";
@@ -120,6 +121,8 @@ export default function CustomerOrders() {
     setAlert((a) => ({ ...a, open: false }));
   };
 
+  const theme = useTheme();
+
   useEffect(() => {
     setLoading(true);
     fetch(API_URL, { credentials: 'include' })
@@ -156,7 +159,7 @@ export default function CustomerOrders() {
         onClose={handleAlertClose}
         alertKey={alertKey}
         />
-      <Box paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 70px)', background: '#fff', overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
+      <Box paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 70px)', background: theme.palette.mode === 'dark' ? '#121212' : theme.palette.background.paper, color: theme.palette.text.primary, overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
         <h2>Orders for Customer (Phone: {phoneNumber})</h2>
         {loading ? (
           <MIUILoader message="Loading customer orders..." />
@@ -175,19 +178,52 @@ export default function CustomerOrders() {
             checkboxSelection
             disableRowSelectionOnClick
             sx={{
-              '& .MuiDataGrid-virtualScroller': {
-                overflowX: 'auto',
+              border: '1px solid',
+              borderColor: theme.palette.mode === 'dark' ? '#333' : 'divider',
+              color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
+              backgroundColor: theme.palette.mode === 'dark' ? '#121212' : theme.palette.background.paper,
+              '& .MuiDataGrid-cell': {
+                borderBottom: theme.palette.mode === 'dark' ? '1px solid #444' : undefined,
+                color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
               },
-              '& .MuiDataGrid-main': {
-                background: '#fff',
+              '& .MuiDataGrid-columnHeaders': {
+                backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : theme.palette.background.default,
+                borderBottom: theme.palette.mode === 'dark' ? '1px solid #444' : undefined,
+                color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
               },
-              border: 0,
+              '& .MuiDataGrid-footerContainer': {
+                backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : theme.palette.background.default,
+                borderTop: theme.palette.mode === 'dark' ? '1px solid #444' : undefined,
+                color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
+              },
+              '& .MuiDataGrid-row': {
+                backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#fff',
+              },
+              '& .MuiDataGrid-row:hover': {
+                backgroundColor: theme.palette.mode === 'dark' ? '#232946' : '#f5f5f5',
+              },
+              '& .MuiDataGrid-row.Mui-selected, & .MuiDataGrid-row.Mui-selected:hover': {
+                backgroundColor: theme.palette.mode === 'dark' ? '#232946' : '#e0e0e0',
+              },
               '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
                 outline: 'none',
                 border: 'none',
               },
-              '& .MuiDataGrid-row.Mui-selected, & .MuiDataGrid-row.Mui-selected:hover': {
-                backgroundColor: 'inherit',
+              '& .MuiDataGrid-virtualScroller': {
+                '&::-webkit-scrollbar': {
+                  width: 8,
+                  backgroundColor: theme.palette.mode === 'dark' ? '#000' : '#f5f5f5',
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  backgroundColor: theme.palette.mode === 'dark' ? '#000' : '#c1c1c1',
+                  borderRadius: 4,
+                },
+                '&::-webkit-scrollbar-thumb:hover': {
+                  backgroundColor: theme.palette.mode === 'dark' ? '#222' : '#b0b0b0',
+                },
+                scrollbarColor: theme.palette.mode === 'dark'
+                  ? '#000 #000'
+                  : '#c1c1c1 #f5f5f5',
               },
             }}
           />

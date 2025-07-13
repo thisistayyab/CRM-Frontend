@@ -10,7 +10,7 @@ import ThemeOption from './theme/index.js';
 // ==============================|| DEFAULT THEME - PALETTE ||============================== //
 
 export default function Palette(mode, presetColor) {
-  const colors = presetPalettes;
+  const colors = mode === 'dark' ? presetDarkPalettes : presetPalettes;
 
   let greyPrimary = [
     '#ffffff',
@@ -40,19 +40,30 @@ export default function Palette(mode, presetColor) {
         white: '#fff'
       },
       ...paletteColor,
-      text: {
-        primary: paletteColor.grey[700],
-        secondary: paletteColor.grey[500],
-        disabled: paletteColor.grey[400]
-      },
+      text: mode === 'dark'
+        ? {
+            primary: '#fff',
+            secondary: '#b0b0b0',
+            disabled: '#888'
+          }
+        : {
+            primary: paletteColor.grey[700],
+            secondary: paletteColor.grey[500],
+            disabled: paletteColor.grey[400]
+          },
       action: {
         disabled: paletteColor.grey[300]
       },
       divider: paletteColor.grey[200],
-      background: {
-        paper: paletteColor.grey[0],
-        default: paletteColor.grey.A50
-      }
+      background: mode === 'dark'
+        ? {
+            paper: '#232946',
+            default: '#181c2a'
+          }
+        : {
+            paper: paletteColor.grey[0],
+            default: paletteColor.grey.A50
+          }
     }
   });
 }
