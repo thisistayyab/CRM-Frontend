@@ -13,6 +13,7 @@ import MIUIAlert from '../Components/MIUIAlert';
 import MIUILoader from '../Components/MIUILoader';
 import { api } from '../server';
 import { useTheme } from '@mui/material/styles';
+import { motion } from 'framer-motion';
 
 const API_URL = `${api}/v1/api/user`
 // const API_URL = "http://localhost:8000/v1/api/user"
@@ -80,60 +81,66 @@ const User = () => {
         alertKey={alertKey}
         mode={theme.palette.mode}
       />
-      <Box
-        sx={{
-          p: { xs: 2, md: 4 },
-          minHeight: '100vh',
-          ml: { xs: 0, md: '80px' }, // Sidebar adjustment
-        }}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: 'easeOut' }}
       >
-        <Box sx={{ maxWidth: 800, mx: 'auto' }}>
-          <Typography variant="h4" fontWeight="bold" gutterBottom>
-            👤 User Profile
-          </Typography>
+        <Box
+          sx={{
+            p: { xs: 2, md: 4 },
+            minHeight: '100vh',
+            ml: { xs: 0, md: '80px' }, // Sidebar adjustment
+          }}
+        >
+          <Box sx={{ maxWidth: 800, mx: 'auto' }}>
+            <Typography variant="h4" fontWeight="bold" gutterBottom>
+              👤 User Profile
+            </Typography>
 
-          <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
-            {/* Profile Section */}
-            <Box display="flex" alignItems="center" gap={3} flexWrap="wrap">
-              <Avatar
-                sx={{ width: 80, height: 80, fontSize: 32, bgcolor: 'primary.main' }}
-                src={user.profilepic || ''}
-              >
-                {user.fullname ? user.fullname.charAt(0) : '?'}
-              </Avatar>
-              <Box>
-                <Typography variant="h5" fontWeight="bold">{user.fullname || user.name || 'No Name'}</Typography>
-                <Typography variant="body1" color="text.secondary">{user.email}</Typography>
-                <Typography variant="body2" color="primary.main">{user.role || 'User'}</Typography>
+            <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
+              {/* Profile Section */}
+              <Box display="flex" alignItems="center" gap={3} flexWrap="wrap">
+                <Avatar
+                  sx={{ width: 80, height: 80, fontSize: 32, bgcolor: 'primary.main' }}
+                  src={user.profilepic || ''}
+                >
+                  {user.fullname ? user.fullname.charAt(0) : '?'}
+                </Avatar>
+                <Box>
+                  <Typography variant="h5" fontWeight="bold">{user.fullname || user.name || 'No Name'}</Typography>
+                  <Typography variant="body1" color="text.secondary">{user.email}</Typography>
+                  <Typography variant="body2" color="primary.main">{user.role || 'User'}</Typography>
+                </Box>
               </Box>
-            </Box>
 
-            <Divider sx={{ my: 3 }} />
+              <Divider sx={{ my: 3 }} />
 
-            {/* Account Details */}
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" color="text.secondary">Phone</Typography>
-                <Typography variant="body1">{user.phone || 'N/A'}</Typography>
+              {/* Account Details */}
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="subtitle2" color="text.secondary">Phone</Typography>
+                  <Typography variant="body1">{user.phone || 'N/A'}</Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="subtitle2" color="text.secondary">Address</Typography>
+                  <Typography variant="body1">{user.address || 'N/A'}</Typography>
+                </Grid>
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" color="text.secondary">Address</Typography>
-                <Typography variant="body1">{user.address || 'N/A'}</Typography>
-              </Grid>
-            </Grid>
 
-            <Divider sx={{ my: 3 }} />
+              <Divider sx={{ my: 3 }} />
 
-            {/* Actions */}
-            <Box display="flex" gap={2}>
-              <Link to='/profile-edit'>
-                <Button variant="contained" color="primary">Edit Profile</Button>
-              </Link>
-              <Button variant="outlined" color="error">Deactivate</Button>
-            </Box>
-          </Paper>
+              {/* Actions */}
+              <Box display="flex" gap={2}>
+                <Link to='/profile-edit'>
+                  <Button variant="contained" color="primary">Edit Profile</Button>
+                </Link>
+                <Button variant="outlined" color="error">Deactivate</Button>
+              </Box>
+            </Paper>
+          </Box>
         </Box>
-      </Box>
+      </motion.div>
     </>
   );
 };

@@ -19,6 +19,7 @@ import ConfirmDialog from '../Components/ConfirmDialog';
 import { api } from '../server';
 import MIUILoader from '../Components/MIUILoader';
 import { useTheme } from '@mui/material/styles';
+import { motion } from 'framer-motion';
 
 const API_URL = `${api}/v1/api/product`;
 // const API_URL = "http://localhost:8000/v1/api/product";
@@ -311,8 +312,8 @@ export default function Products() {
   return (
     <>
       <Box sx={{ px: 2, py: 3 }}>
-        <Typography variant="h4" gutterBottom>
-          Products
+        <Typography variant="h4" fontWeight="bold" gutterBottom>
+          🛒 Products
         </Typography>
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, alignItems: { sm: 'center' }, width: '100%' }}>
           <TextField
@@ -334,75 +335,81 @@ export default function Products() {
           </Button>
         </Box>
       </Box>
-      <Box margin={2} paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 70px)', background: theme.palette.mode === 'dark' ? '#121212' : theme.palette.background.paper, color: theme.palette.text.primary, overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
-        {loading ? (
-          <MIUILoader message="Loading products..." />
-        ) : (
-          <DataGrid
-            rows={filteredRows}
-            columns={columns}
-            initialState={{
-              pagination: {
-                paginationModel: {
-                  pageSize: 50,
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: 'easeOut' }}
+      >
+        <Box margin={2} paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 70px)', background: theme.palette.mode === 'dark' ? '#121212' : theme.palette.background.paper, color: theme.palette.text.primary, overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
+          {loading ? (
+            <MIUILoader message="Loading products..." />
+          ) : (
+            <DataGrid
+              rows={filteredRows}
+              columns={columns}
+              initialState={{
+                pagination: {
+                  paginationModel: {
+                    pageSize: 50,
+                  },
                 },
-              },
-            }}
-            pageSizeOptions={[5]}
-            checkboxSelection
-            disableRowSelectionOnClick
-            sx={{
-              border: '1px solid',
-              borderColor: theme.palette.mode === 'dark' ? '#333' : 'divider',
-              color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
-              backgroundColor: theme.palette.mode === 'dark' ? '#121212' : theme.palette.background.paper,
-              '& .MuiDataGrid-cell': {
-                borderBottom: theme.palette.mode === 'dark' ? '1px solid #444' : undefined,
+              }}
+              pageSizeOptions={[5]}
+              checkboxSelection
+              disableRowSelectionOnClick
+              sx={{
+                border: '1px solid',
+                borderColor: theme.palette.mode === 'dark' ? '#333' : 'divider',
                 color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
-              },
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : theme.palette.background.default,
-                borderBottom: theme.palette.mode === 'dark' ? '1px solid #444' : undefined,
-                color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
-              },
-              '& .MuiDataGrid-footerContainer': {
-                backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : theme.palette.background.default,
-                borderTop: theme.palette.mode === 'dark' ? '1px solid #444' : undefined,
-                color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
-              },
-              '& .MuiDataGrid-row': {
-                backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#fff',
-              },
-              '& .MuiDataGrid-row:hover': {
-                backgroundColor: theme.palette.mode === 'dark' ? '#232946' : '#f5f5f5',
-              },
-              '& .MuiDataGrid-row.Mui-selected, & .MuiDataGrid-row.Mui-selected:hover': {
-                backgroundColor: theme.palette.mode === 'dark' ? '#232946' : '#e0e0e0',
-              },
-              '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
-                outline: 'none',
-                border: 'none',
-              },
-              '& .MuiDataGrid-virtualScroller': {
-                '&::-webkit-scrollbar': {
-                  width: 8,
-                  backgroundColor: theme.palette.mode === 'dark' ? '#000' : '#f5f5f5',
+                backgroundColor: theme.palette.mode === 'dark' ? '#121212' : theme.palette.background.paper,
+                '& .MuiDataGrid-cell': {
+                  borderBottom: theme.palette.mode === 'dark' ? '1px solid #444' : undefined,
+                  color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
                 },
-                '&::-webkit-scrollbar-thumb': {
-                  backgroundColor: theme.palette.mode === 'dark' ? '#000' : '#c1c1c1',
-                  borderRadius: 4,
+                '& .MuiDataGrid-columnHeaders': {
+                  backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : theme.palette.background.default,
+                  borderBottom: theme.palette.mode === 'dark' ? '1px solid #444' : undefined,
+                  color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
                 },
-                '&::-webkit-scrollbar-thumb:hover': {
-                  backgroundColor: theme.palette.mode === 'dark' ? '#222' : '#b0b0b0',
+                '& .MuiDataGrid-footerContainer': {
+                  backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : theme.palette.background.default,
+                  borderTop: theme.palette.mode === 'dark' ? '1px solid #444' : undefined,
+                  color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
                 },
-                scrollbarColor: theme.palette.mode === 'dark'
-                  ? '#000 #000'
-                  : '#c1c1c1 #f5f5f5',
-              },
-            }}
-          />
-        )}
-      </Box>
+                '& .MuiDataGrid-row': {
+                  backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#fff',
+                },
+                '& .MuiDataGrid-row:hover': {
+                  backgroundColor: theme.palette.mode === 'dark' ? '#232946' : '#f5f5f5',
+                },
+                '& .MuiDataGrid-row.Mui-selected, & .MuiDataGrid-row.Mui-selected:hover': {
+                  backgroundColor: theme.palette.mode === 'dark' ? '#232946' : '#e0e0e0',
+                },
+                '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+                  outline: 'none',
+                  border: 'none',
+                },
+                '& .MuiDataGrid-virtualScroller': {
+                  '&::-webkit-scrollbar': {
+                    width: 8,
+                    backgroundColor: theme.palette.mode === 'dark' ? '#000' : '#f5f5f5',
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    backgroundColor: theme.palette.mode === 'dark' ? '#000' : '#c1c1c1',
+                    borderRadius: 4,
+                  },
+                  '&::-webkit-scrollbar-thumb:hover': {
+                    backgroundColor: theme.palette.mode === 'dark' ? '#222' : '#b0b0b0',
+                  },
+                  scrollbarColor: theme.palette.mode === 'dark'
+                    ? '#000 #000'
+                    : '#c1c1c1 #f5f5f5',
+                },
+              }}
+            />
+          )}
+        </Box>
+      </motion.div>
       <Dialog open={!!editProduct} onClose={() => setEditProduct(null)}>
         <DialogTitle>Edit Product</DialogTitle>
         <DialogContent>

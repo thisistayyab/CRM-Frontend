@@ -16,6 +16,7 @@ import ConfirmDialog from '../Components/ConfirmDialog';
 import { api } from '../server';
 import MIUILoader from '../Components/MIUILoader';
 import { useTheme } from '@mui/material/styles';
+import { motion } from 'framer-motion';
 
 const API_URL =  `${api}/v1/api/product/orders`
 
@@ -473,7 +474,11 @@ export default function Orders() {
       <Typography variant="h4" gutterBottom>
         Orders
       </Typography>
-
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, ease: 'easeOut' }}
+    >
       <Box
         sx={{
           display: 'flex',
@@ -521,7 +526,8 @@ export default function Orders() {
           Export
         </Button>
       </Box>
-    </Box>
+    </motion.div>
+      </Box>
       <Box margin={2} paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 70px)', background: theme.palette.mode === 'dark' ? '#121212' : theme.palette.background.paper, color: theme.palette.text.primary, overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
         {loading ? (
           <MIUILoader message="Loading orders..." />

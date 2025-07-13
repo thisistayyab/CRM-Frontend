@@ -29,6 +29,7 @@ import MIUIAlert from '../Components/MIUIAlert';
 import MIUILoader from '../Components/MIUILoader';
 import { api } from '../server';
 import { useTheme } from '@mui/material/styles';
+import { motion } from 'framer-motion';
 
 const API_URL = `${api}/v1/api/store`;
 
