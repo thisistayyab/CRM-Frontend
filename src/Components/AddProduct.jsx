@@ -119,7 +119,7 @@ const AddProduct = () => {
       <form id="add-product-form" onSubmit={handleSubmit} autoComplete="off">
         <Grid container spacing={2} alignItems="flex-start">
           {/* Left Column: Main Info */}
-          <Grid item xs={12} md={8} sx={{ width: '100%', order: { xs: 1, md: 1 }, mb: { xs: 2, md: 0 } }}>
+          <Grid item sx={{ width: { xs: '100%', md: '69%' } }}>
             <Paper elevation={2} sx={{ p: 3, borderRadius: 4, mb: 2, background: theme.palette.background.paper, color: theme.palette.text.primary, boxShadow: 6 }}>
               {/* First row: General Information (Product Name) */}
               <Typography variant="h6" fontWeight={700} mb={1.5}>General Information</Typography>
@@ -183,7 +183,7 @@ const AddProduct = () => {
             </Paper>
           </Grid>
           {/* Right Column: Image & Category (right on md+, below on sm/xs) */}
-          <Grid item xs={12} md={4} sx={{ width: '100%', order: { xs: 2, md: 2 } }}>
+          <Grid item sx={{ width: { xs: '100%', md: '29%' } }}>
             <Paper elevation={2} sx={{ p: 3, borderRadius: 4, mb: 2, background: theme.palette.background.paper, color: theme.palette.text.primary, boxShadow: 6 }}>
               <Typography variant="h6" fontWeight={700} mb={1.5}>Upload Img</Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
@@ -222,10 +222,10 @@ const AddProduct = () => {
         <Button type="submit" form="add-product-form" variant="contained" size="large"
           sx={{
             borderRadius: 99,
-            fontWeight: 500,
-            px: 4,
-            py: 1.5,
-            bgcolor: isDark ? '#6DD400' : '#6DD400',
+            fontWeight: 300,
+            px: 3,
+            py: 1,
+            bgcolor: isDark ? '#6DD400' : '#396f00ff',
             color: '#fff',
             boxShadow: 8,
             fontSize: 18,

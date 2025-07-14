@@ -231,21 +231,29 @@ export default function Dashboard() {
               </TextField>
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-              <AnalyticEcommerce title="Total Customers" count={currentStats.users} prevCount={prevStats.users} percentage={Math.abs(userPercent).toFixed(1)} isLoss={getIsLoss(currentStats.users, prevStats.users)} color={getColor(currentStats.users, prevStats.users)} extra={currentStats.users} period={period} />
+              {loading ? <MIUILoader message="Loading..." /> : (
+                <AnalyticEcommerce title="Total Customers" count={currentStats.users} prevCount={prevStats.users} percentage={Math.abs(userPercent).toFixed(1)} isLoss={getIsLoss(currentStats.users, prevStats.users)} color={getColor(currentStats.users, prevStats.users)} extra={currentStats.users} period={period} />
+              )}
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-              <AnalyticEcommerce title="Total Products" count={currentStats.products} prevCount={prevStats.products} percentage={Math.abs(productPercent).toFixed(1)} isLoss={getIsLoss(currentStats.products, prevStats.products)} color={getColor(currentStats.products, prevStats.products)} extra={currentStats.products} period={period} />
+              {loading ? <MIUILoader message="Loading..." /> : (
+                <AnalyticEcommerce title="Total Products" count={currentStats.products} prevCount={prevStats.products} percentage={Math.abs(productPercent).toFixed(1)} isLoss={getIsLoss(currentStats.products, prevStats.products)} color={getColor(currentStats.products, prevStats.products)} extra={currentStats.products} period={period} />
+              )}
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-              <AnalyticEcommerce title="Total Order" count={currentStats.orders} prevCount={prevStats.orders} percentage={Math.abs(orderPercent).toFixed(1)} isLoss={getIsLoss(currentStats.orders, prevStats.orders)} color={getColor(currentStats.orders, prevStats.orders)} extra={currentStats.orders} period={period} />
+              {loading ? <MIUILoader message="Loading..." /> : (
+                <AnalyticEcommerce title="Total Order" count={currentStats.orders} prevCount={prevStats.orders} percentage={Math.abs(orderPercent).toFixed(1)} isLoss={getIsLoss(currentStats.orders, prevStats.orders)} color={getColor(currentStats.orders, prevStats.orders)} extra={currentStats.orders} period={period} />
+              )}
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-              <AnalyticEcommerce title="Total Sales" count={currentStats.sales} prevCount={prevStats.sales} percentage={Math.abs(salesPercent).toFixed(1)} isLoss={getIsLoss(currentStats.sales, prevStats.sales)} color={getColor(currentStats.sales, prevStats.sales)} extra={currentStats.sales} period={period} />
+              {loading ? <MIUILoader message="Loading..." /> : (
+                <AnalyticEcommerce title="Total Sales" count={currentStats.sales} prevCount={prevStats.sales} percentage={Math.abs(salesPercent).toFixed(1)} isLoss={getIsLoss(currentStats.sales, prevStats.sales)} color={getColor(currentStats.sales, prevStats.sales)} extra={currentStats.sales} period={period} />
+              )}
             </Grid>
             <Grid sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} size={{ md: 8 }} />
             {/* row 2 */}
             <Grid size={{ xs: 12, md: 7, lg: 8 }}>
-              <UniqueVisitorCard />
+              {loading ? <MIUILoader message="Loading..." /> : <UniqueVisitorCard />}
             </Grid>
             <Grid size={{ xs: 12, md: 5, lg: 4 }}>
               <Grid container alignItems="center" justifyContent="space-between">
@@ -255,15 +263,19 @@ export default function Dashboard() {
                 <Grid />
               </Grid>
               <MainCard sx={{ mt: 2 }} content={false}>
-                <Box sx={{ p: 3, pb: 0 }}>
-                  <Stack sx={{ gap: 2 }}>
-                    <Typography variant="h6" color="text.secondary">
-                      This Week Statistics
-                    </Typography>
-                    <Typography variant="h3">PKR {weekIncome.toLocaleString()}</Typography>
-                  </Stack>
-                </Box>
-                <MonthlyBarChart />
+                {loading ? <MIUILoader message="Loading..." /> : (
+                  <>
+                    <Box sx={{ p: 3, pb: 0 }}>
+                      <Stack sx={{ gap: 2 }}>
+                        <Typography variant="h6" color="text.secondary">
+                          This Week Statistics
+                        </Typography>
+                        <Typography variant="h3">PKR {weekIncome.toLocaleString()}</Typography>
+                      </Stack>
+                    </Box>
+                    <MonthlyBarChart />
+                  </>
+                )}
               </MainCard>
             </Grid>
             {/* row 3 */}
@@ -275,7 +287,7 @@ export default function Dashboard() {
                 <Grid />
               </Grid>
               <MainCard sx={{ mt: 2 }} content={false}>
-                <OrdersTable />
+                {loading ? <MIUILoader message="Loading..." /> : <OrdersTable />}
               </MainCard>
             </Grid>
             <Grid size={{ xs: 12, md: 5, lg: 4 }}>
@@ -286,26 +298,30 @@ export default function Dashboard() {
                 <Grid />
               </Grid>
               <MainCard sx={{ mt: 2 }} content={false}>
-                <List sx={{ p: 0, '& .MuiListItemButton-root': { py: 2 } }}>
-                  <ListItemButton divider>
-                    <ListItemText primary="Company Finance Growth" />
-                    <Typography variant="h5">+45.14%</Typography>
-                  </ListItemButton>
-                  <ListItemButton divider>
-                    <ListItemText primary="Company Expenses Ratio" />
-                    <Typography variant="h5">0.58%</Typography>
-                  </ListItemButton>
-                  <ListItemButton>
-                    <ListItemText primary="Business Risk Cases" />
-                    <Typography variant="h5">Low</Typography>
-                  </ListItemButton>
-                </List>
-                <ReportAreaChart />
+                {loading ? <MIUILoader message="Loading..." /> : (
+                  <>
+                    <List sx={{ p: 0, '& .MuiListItemButton-root': { py: 2 } }}>
+                      <ListItemButton divider>
+                        <ListItemText primary="Company Finance Growth" />
+                        <Typography variant="h5">+45.14%</Typography>
+                      </ListItemButton>
+                      <ListItemButton divider>
+                        <ListItemText primary="Company Expenses Ratio" />
+                        <Typography variant="h5">0.58%</Typography>
+                      </ListItemButton>
+                      <ListItemButton>
+                        <ListItemText primary="Business Risk Cases" />
+                        <Typography variant="h5">Low</Typography>
+                      </ListItemButton>
+                    </List>
+                    <ReportAreaChart />
+                  </>
+                )}
               </MainCard>
             </Grid>
             {/* row 4 */}
             <Grid size={{ xs: 12, md: 7, lg: 8 }}>
-              <SaleReportCard />
+              {loading ? <MIUILoader message="Loading..." /> : <SaleReportCard />}
             </Grid>
             <Grid size={{ xs: 12, md: 5, lg: 4 }}>
               <Grid container alignItems="center" justifyContent="space-between">
@@ -315,47 +331,49 @@ export default function Dashboard() {
                 <Grid />
               </Grid>
               <MainCard sx={{ mt: 2 }} content={false}>
-                <List
-                  component="nav"
-                  sx={{
-                    px: 0,
-                    py: 0,
-                    '& .MuiListItemButton-root': {
-                      py: 1.5,
-                      px: 2,
-                      '& .MuiAvatar-root': avatarSX,
-                      '& .MuiListItemSecondaryAction-root': { ...actionSX, position: 'relative' }
-                    }
-                  }}
-                >
-                  {(orders.filter(o => o.status === 'complete')
-                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                    .slice(0, 3)
-                  ).map((order, idx) => (
-                    <ListItem
-                      key={order._id}
-                      component={ListItemButton}
-                      divider={idx < 2}
-                      secondaryAction={
-                        <Stack sx={{ alignItems: 'flex-end' }}>
-                          <Typography variant="subtitle1" noWrap>
-                            PKR {order.totalPrice?.toLocaleString()}
-                          </Typography>
-                        </Stack>
+                {loading ? <MIUILoader message="Loading..." /> : (
+                  <List
+                    component="nav"
+                    sx={{
+                      px: 0,
+                      py: 0,
+                      '& .MuiListItemButton-root': {
+                        py: 1.5,
+                        px: 2,
+                        '& .MuiAvatar-root': avatarSX,
+                        '& .MuiListItemSecondaryAction-root': { ...actionSX, position: 'relative' }
                       }
-                    >
-                      <ListItemAvatar>
-                        <Avatar sx={{ color: 'primary.main', bgcolor: 'primary.lighter' }}>
-                          <GiftOutlined />
-                        </Avatar>
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={<Typography variant="subtitle1">Order #{order.orderId}</Typography>}
-                        secondary={order.createdAt ? new Date(order.createdAt).toLocaleString() : ''}
-                      />
-                    </ListItem>
-                  ))}
-                </List>
+                    }}
+                  >
+                    {(orders.filter(o => o.status === 'complete')
+                      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                      .slice(0, 3)
+                    ).map((order, idx) => (
+                      <ListItem
+                        key={order._id}
+                        component={ListItemButton}
+                        divider={idx < 2}
+                        secondaryAction={
+                          <Stack sx={{ alignItems: 'flex-end' }}>
+                            <Typography variant="subtitle1" noWrap>
+                              PKR {order.totalPrice?.toLocaleString()}
+                            </Typography>
+                          </Stack>
+                        }
+                      >
+                        <ListItemAvatar>
+                          <Avatar sx={{ color: 'primary.main', bgcolor: 'primary.lighter' }}>
+                            <GiftOutlined />
+                          </Avatar>
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={<Typography variant="subtitle1">Order #{order.orderId}</Typography>}
+                          secondary={order.createdAt ? new Date(order.createdAt).toLocaleString() : ''}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
               </MainCard>
               <MainCard sx={{ mt: 2 }}>
                 <Stack sx={{ gap: 3 }}>

@@ -10,6 +10,7 @@ import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import StarIcon from '@mui/icons-material/Star';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from 'recharts';
 import { api } from '../server';
+import { useTheme } from '@mui/material/styles';
 
 const COLORS = ['#1976d2', '#ff9800', '#43a047', '#e91e63'];
 
@@ -17,6 +18,7 @@ const Analytics = () => {
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState(null);
   const [error, setError] = useState(false);
+  const theme = useTheme();
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
@@ -119,7 +121,7 @@ const Analytics = () => {
           <CardContent>
             <Box sx={{ height: 220 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={analytics.salesTrend.map((v, i) => ({ month: `M${i+1}`, sales: v }))}>
+                <BarChart data={analytics.salesTrend}>
                   <XAxis dataKey="month" />
                   <YAxis />
                   <Tooltip />
@@ -130,8 +132,8 @@ const Analytics = () => {
           </CardContent>
         </Card>
         {/* Revenue & Orders Row */}
-        <Grid container spacing={3} mb={4}>
-          <Grid item xs={12} md={6}>
+        <Grid container gap={'2%'} mb={4} rowGap={4} flexWrap="wrap" >
+          <Grid item sx={{ width: { xs: '100%', md: '49%' } }}>
             <Card elevation={3} sx={{ borderRadius: 3 }}>
               <CardHeader
                 title={<Typography variant="h6" fontWeight="bold">Revenue Breakdown</Typography>}
@@ -154,7 +156,7 @@ const Analytics = () => {
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item sx={{ width: { xs: '100%', md: '49%' } }}>
             <Card elevation={3} sx={{ borderRadius: 3 }}>
               <CardHeader
                 title={<Typography variant="h6" fontWeight="bold">Order Trends</Typography>}
@@ -187,7 +189,16 @@ const Analytics = () => {
             <Grid container spacing={2}>
               {analytics.topProducts.map((prod, idx) => (
                 <Grid item xs={12} sm={6} md={3} key={prod.name}>
-                  <Card sx={{ borderRadius: 2, bgcolor: '#f8fafc', p: 2, textAlign: 'center' }}>
+                  <Card
+                    sx={{
+                      borderRadius: 2,
+                      bgcolor: theme.palette.mode === 'dark' ? '#232946' : '#f8fafc',
+                      color: theme.palette.mode === 'dark' ? theme.palette.text.primary : 'inherit',
+                      p: 2,
+                      textAlign: 'center',
+                      boxShadow: theme.palette.mode === 'dark' ? 3 : 1,
+                    }}
+                  >
                     <Avatar sx={{ width: 56, height: 56, mx: 'auto', mb: 1, bgcolor: 'primary.light' }}>
                       <ShoppingCartIcon fontSize="large" />
                     </Avatar>
@@ -208,8 +219,8 @@ const Analytics = () => {
           />
           <Divider />
           <CardContent>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
+            <Grid container gap={'2%'} mb={4} rowGap={4} flexWrap="wrap" >
+              <Grid item sx={{ width: { xs: '100%', md: '49%' } }}>
                 <Box sx={{ height: 120 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={analytics.customerRetention.map((v, i) => ({ week: `W${i+1}`, retention: v }))}>
@@ -222,7 +233,7 @@ const Analytics = () => {
                 </Box>
                 <Typography align="center" variant="body2" color="text.secondary">Customer Retention</Typography>
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid item sx={{ width: { xs: '100%', md: '49%' } }}>
                 <Box sx={{ height: 120 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={analytics.customerEngagement.map((v, i) => ({ week: `W${i+1}`, engagement: v }))}>

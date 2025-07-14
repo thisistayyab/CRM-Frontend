@@ -306,9 +306,9 @@ const ViewOrder = () => {
         </Grid>
       </Paper>
 
-      <Grid container spacing={3}>
+      <Grid container gap={'2%'} rowGap={4} flexWrap="wrap">
         {/* Left: Product List & Payment Summary */}
-        <Grid item xs={12} md={7}>
+        <Grid item sx={{ width: { xs: '100%', md: '59%' } }}>
           {/* Product List */}
           <Paper sx={{ p: { xs: 2, sm: 3 }, mb: 3, borderRadius: 3 }} elevation={1}>
             <Typography variant="h6" fontWeight="bold" gutterBottom>Products</Typography>
@@ -367,7 +367,7 @@ const ViewOrder = () => {
         </Grid>
 
         {/* Right: Customer Info */}
-        <Grid item xs={12} md={5}>
+        <Grid item sx={{ width: { xs: '100%', md: '39%' } }}>
           <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 3, mb: 3 }} elevation={1}>
             <Typography variant="h6" fontWeight="bold" gutterBottom>Customer</Typography>
             <Divider sx={{ mb: 2 }} />

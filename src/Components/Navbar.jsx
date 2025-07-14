@@ -146,7 +146,7 @@ const Navbar = () => {
       <AppBar
         position="fixed"
         color="default"
-        elevation={2}
+        elevation={3}
         sx={{
           background: '#181c2a',
           color: '#fff',
@@ -186,7 +186,7 @@ const Navbar = () => {
               onClose={handleMenuClose}
               anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
               transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-              PaperProps={{ sx: { mt: 1.5, minWidth: 180, borderRadius: 2, bgcolor: '#232946', color: '#fff', boxShadow: 6 } }}
+              slotProps={{ paper:{sx: { mt: 1.5, minWidth: 180, borderRadius: 2, bgcolor: '#181c2a', color: '#fff', boxShadow: 6} } }}
             >
               <Box sx={{ px: 2, py: 1, borderBottom: '1px solid #4f8cff', textAlign: 'center' }}>
                 <Avatar src={profilePic} alt={fullname || 'User'} sx={{ width: 48, height: 48, mx: 'auto', mb: 1 }} />

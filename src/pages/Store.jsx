@@ -193,7 +193,7 @@ const Store = () => {
 
           <Grid container spacing={3}>
             {/* Store Logo and Basic Info */}
-            <Grid item xs={12} md={4}>
+            <Grid item width={'100%'}>
               <Paper elevation={3} sx={{ p: 3, borderRadius: 3, textAlign: 'center' }}>
                 <Box sx={{ mb: 3 }}>
                   <Avatar

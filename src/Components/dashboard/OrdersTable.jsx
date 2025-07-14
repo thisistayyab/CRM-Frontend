@@ -171,53 +171,62 @@ export default function OrderTable() {
           position: 'relative',
           display: 'block',
           maxWidth: '100%',
+          height:'550px',
           '& td, & th': { whiteSpace: 'nowrap' }
         }}
       >
         <Table aria-labelledby="tableTitle">
           <OrderTableHead order={order} orderBy={orderBy} />
           <TableBody>
-            {rows.map((row, index) => {
-              const labelId = `enhanced-table-checkbox-${index}`;
-              const productNames = Array.isArray(row.item)
-                ? row.item.map(i => (i.product?.productname || i.product?.name || 'Product')).join(', ')
-                : '';
-              return (
-                <TableRow
-                  hover
-                  role="checkbox"
-                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                  tabIndex={-1}
-                  key={row._id}
-                >
-                  <TableCell component="th" id={labelId} scope="row">
-                    <Link color="secondary" href={
-                      row.courierCompany === 'TCS'
-                        ? `https://www.tcsexpress.com/track/${row.trackingNumber}`
-                        : row.courierCompany === 'Leopard'
-                        ? `https://www.leopardscourier.com/shipment_tracking?cn_number=${row.trackingNumber}`
-                        : undefined
-                    } target={row.courierCompany === 'TCS' || row.courierCompany === 'Leopard' ? '_blank' : undefined} rel="noopener noreferrer">
-                      {row.trackingNumber || '—'}
-                    </Link>
-                  </TableCell>
-                  <TableCell style={{paddingLeft: 16, paddingRight: 16, maxWidth: 340, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>
-                    {productNames}
-                  </TableCell>
-                  <TableCell align="right">
-                    <Link component={RouterLink} to={`/vieworder/${row._id}`} underline="hover" color="primary">
-                      {row.orderId}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <OrderStatus status={row.status} />
-                  </TableCell>
-                  <TableCell align="right">
-                    <NumericFormat value={row.totalPrice} displayType="text" thousandSeparator prefix="PKR " />
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+            {rows.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} align="center">
+                  No data to display
+                </TableCell>
+              </TableRow>
+            ) : (
+              rows.map((row, index) => {
+                const labelId = `enhanced-table-checkbox-${index}`;
+                const productNames = Array.isArray(row.item)
+                  ? row.item.map(i => (i.product?.productname || i.product?.name || 'Product')).join(', ')
+                  : '';
+                return (
+                  <TableRow
+                    hover
+                    role="checkbox"
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    tabIndex={-1}
+                    key={row._id}
+                  >
+                    <TableCell component="th" id={labelId} scope="row">
+                      <Link color="secondary" href={
+                        row.courierCompany === 'TCS'
+                          ? `https://www.tcsexpress.com/track/${row.trackingNumber}`
+                          : row.courierCompany === 'Leopard'
+                          ? `https://www.leopardscourier.com/shipment_tracking?cn_number=${row.trackingNumber}`
+                          : undefined
+                      } target={row.courierCompany === 'TCS' || row.courierCompany === 'Leopard' ? '_blank' : undefined} rel="noopener noreferrer">
+                        {row.trackingNumber || '—'}
+                      </Link>
+                    </TableCell>
+                    <TableCell style={{paddingLeft: 16, paddingRight: 16, maxWidth: 340, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>
+                      {productNames}
+                    </TableCell>
+                    <TableCell align="right">
+                      <Link component={RouterLink} to={`/vieworder/${row._id}`} underline="hover" color="primary">
+                        {row.orderId}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <OrderStatus status={row.status} />
+                    </TableCell>
+                    <TableCell align="right">
+                      <NumericFormat value={row.totalPrice} displayType="text" thousandSeparator prefix="PKR " />
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
           </TableBody>
         </Table>
       </TableContainer>
