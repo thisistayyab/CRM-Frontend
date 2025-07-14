@@ -33,6 +33,7 @@ import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import LaptopIcon from '@mui/icons-material/Laptop';
 import ColorModeSelect from '../themes/ColorModeSelect';
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 
 const API_URL = `${api}/v1/api/user`;
 
@@ -136,6 +137,7 @@ const Navbar = () => {
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
     { text: 'Store', icon: <StoreIcon />, path: '/store' },
     { text: 'Products', icon: <ShoppingBagIcon />, path: '/products' },
+    { text: 'Inventory', icon: <Inventory2OutlinedIcon />, path: '/inventory' },
     { text: 'Analytics', icon: <PieChartIcon />, path: '/analytics' },
     { text: 'Order', icon: <ShoppingCartIcon />, path: '/orders' },
     { text: 'Setting', icon: <SettingsIcon />, path: '/settings' },

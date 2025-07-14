@@ -27,6 +27,8 @@ import PieChartIcon from '@mui/icons-material/PieChart';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import ListItemButton from '@mui/material/ListItemButton';
 
 const drawerWidth = 240;
 
@@ -34,6 +36,7 @@ const navItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
   { text: 'Store', icon: <StoreIcon />, path: '/store' },
   { text: 'Products', icon: <ShoppingBagIcon />, path: '/products' },
+  { text: 'Inventory', icon: <Inventory2OutlinedIcon />, path: '/inventory' },
   { text: 'Analytics', icon: <PieChartIcon />, path: '/analytics' },
   { text: 'Order', icon: <ShoppingCartIcon />, path: '/orders' },
   { text: 'Setting', icon: <SettingsIcon />, path: '/settings' },
@@ -166,31 +169,28 @@ const Home = () => {
               </Box>
             </ListItem>
             {navItems.map((item) => (
-              <Tooltip title={item.text} placement="right" key={item.text} disableHoverListener={isOpen}>
-                <ListItem
-                  button={true}
-                  key={item.text}
-                  component={Link}
-                  to={item.path}
-                  selected={location.pathname === item.path}
-                  sx={{
-                    color: '#fff',
-                    borderRadius: 2,
-                    my: 0.5,
-                    mx: 1,
-                    background: location.pathname === item.path ? '#4f8cff' : 'transparent',
-                    '&:hover': { background: '#4f8cff', color: '#fff' },
-                    minHeight: 48,
-                    justifyContent: isOpen ? 'initial' : 'center',
-                    px: 2,
-                  }}
-                >
-                  <ListItemIcon sx={{ color: '#fff', minWidth: 0, mr: isOpen ? 2 : 'auto', justifyContent: 'center' }}>
-                    {item.icon}
-                  </ListItemIcon>
-                  {isOpen && <ListItemText primary={item.text} sx={{ opacity: isOpen ? 1 : 0, fontFamily: 'Urbanist, sans-serif' }} />}
-                </ListItem>
-              </Tooltip>
+              <ListItemButton
+                key={item.text}
+                component={Link}
+                to={item.path}
+                selected={location.pathname === item.path}
+                sx={{
+                  color: '#fff',
+                  borderRadius: 2,
+                  my: 0.5,
+                  mx: 1,
+                  background: location.pathname === item.path ? '#4f8cff' : 'transparent',
+                  '&:hover': { background: '#4f8cff', color: '#fff' },
+                  minHeight: 48,
+                  justifyContent: isOpen ? 'initial' : 'center',
+                  px: 2,
+                }}
+              >
+                <ListItemIcon sx={{ color: '#fff', minWidth: 0, mr: isOpen ? 2 : 'auto', justifyContent: 'center' }}>
+                  {item.icon}
+                </ListItemIcon>
+                {isOpen && <ListItemText primary={item.text} sx={{ opacity: isOpen ? 1 : 0, fontFamily: 'Urbanist, sans-serif' }} />}
+              </ListItemButton>
             ))}
           </List>
           <Box sx={{ flexGrow: 1 }} />

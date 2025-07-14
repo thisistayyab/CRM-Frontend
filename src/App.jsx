@@ -17,6 +17,7 @@ import Analytics from './pages/Analytics';
 import EditOrder from './Components/EditOrder';
 import ViewOrder from './Components/ViewOrder';
 import CustomerOrders from './pages/CustomerOrders';
+import Inventory from './pages/Inventory';
 import './App.css'
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
           <Route path="store" element={<Store />} />
           <Route path="profile-edit" element={<EditProfile />} />
           <Route path="products" element={<Products />} />
+          <Route path="inventory" element={<Inventory />} />
           <Route path="addproduct" element={<AddProduct />} />
           <Route path="orders" element={<Order />} />
           <Route path="createorder" element={<CreateOrder />} />

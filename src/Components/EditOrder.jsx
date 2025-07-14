@@ -8,8 +8,10 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import MIUIAlert from './MIUIAlert';
 import { api } from '../server';
+import { useTheme } from '@mui/material/styles';
 
 const EditOrder = () => {
+  const theme = useTheme();
   const { id } = useParams(); // used for editing
   const [form, setForm] = useState({
     orderId: '',
@@ -171,7 +173,7 @@ const EditOrder = () => {
   };
 
   return (
-    <Box sx={{ p: 4, backgroundColor: '#f4f6fc', minHeight: '100vh' }}>
+    <Box sx={{ p: 4, backgroundColor: theme.palette.background.default, minHeight: '100vh', color: theme.palette.text.primary }}>
       <MIUIAlert
         open={alert.open}
         type={alert.type}
@@ -208,7 +210,7 @@ const EditOrder = () => {
             <Grid item xs={12}><TextField fullWidth label="Other Expenses" name="otherExpenses" value={form.otherExpenses || ''} onChange={handleChange} type="number" /></Grid>
           </Grid>
 
-          <Paper sx={{ p: 2, my: 2 }}>
+          <Paper sx={{ p: 2, my: 2, backgroundColor: theme.palette.background.paper, color: theme.palette.text.primary }}>
             <Typography variant="h6">Select Products</Typography>
             {productLoading && <Typography>Loading products...</Typography>}
             {productError && <Typography color="error">{productError}</Typography>}

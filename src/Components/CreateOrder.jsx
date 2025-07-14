@@ -269,7 +269,7 @@ const CreateOrder = () => {
               >
                 {Array.isArray(products) && products.map(product => (
                   <MenuItem key={product._id} value={product._id}>
-                    {product.productname} (Rs {product.salePrice || product.price})
+                    {product.productname} (Rs {product.salePrice || product.price}) — {product.quantity} left
                   </MenuItem>
                 ))}
               </Select>
