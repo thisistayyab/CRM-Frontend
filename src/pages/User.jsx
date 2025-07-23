@@ -16,8 +16,6 @@ import { useTheme } from '@mui/material/styles';
 import { motion } from 'framer-motion';
 
 const API_URL = `${api}/v1/api/user`
-// const API_URL = "http://localhost:8000/v1/api/user"
-// const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/user"
 
 const User = () => {
   const [user, setUser] = useState(null);
