@@ -8,6 +8,7 @@ import Button from '@mui/material/Button';
 import MIUIAlert from './MIUIAlert';
 import MIUILoader from './MIUILoader';
 import { api } from '../server';
+import { useTheme } from '@mui/material/styles';
 import PrintIcon from '@mui/icons-material/Print';
 
 const statusColors = {
@@ -18,6 +19,7 @@ const statusColors = {
 };
 
 const ViewOrder = () => {
+  const theme = useTheme();
   const { id } = useParams();
   const [order, setOrder] = useState(null);
   const [store, setStore] = useState({ name: 'Taylance CRM' });
@@ -435,7 +437,10 @@ const ViewOrder = () => {
               <Typography color="text.secondary">No comments yet.</Typography>
             ) : (
               comments.slice().reverse().map((c, idx) => (
-                <Box key={idx} sx={{ mb: 1.5, p: 1, borderRadius: 2, bgcolor: '#f7f7fa' }}>
+                <Box key={idx} sx={{
+                  mb: 1.5, p: 1, borderRadius: 2,
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.06)' : '#f7f7fa'
+                }}>
                   <Typography variant="body2">{c.text}</Typography>
                   <Typography variant="caption" color="text.secondary">
                     {c.date ? new Date(c.date).toLocaleString() : ''}

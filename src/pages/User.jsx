@@ -40,7 +40,7 @@ const User = () => {
         });
         if (res.status === 401 || res.status === 403) {
           // Unauthorized or token expired
-          navigate('/login-signup');
+          navigate('/login');
           return;
         }
         if (!res.ok) {

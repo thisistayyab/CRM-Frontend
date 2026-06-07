@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Box, Typography, Card, CardContent, CardHeader, Divider, Grid, Avatar, Chip, CircularProgress } from '@mui/material';
 import InsightsIcon from '@mui/icons-material/Insights';
@@ -61,54 +62,31 @@ const Analytics = () => {
         </Box>
         {/* Performance Cards Row */}
         <Grid container spacing={3} mb={3}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card elevation={3} sx={{ borderRadius: 3, bgcolor: 'primary.light', color: 'primary.contrastText' }}>
+          {[
+            { color: 'primary', icon: <MonetizationOnIcon sx={{ fontSize: 32, mr: 1 }} />, title: 'Revenue', value: `Rs ${analytics.revenue.toLocaleString()}`, sub: 'This Month' },
+            { color: 'success', icon: <TrendingUpIcon sx={{ fontSize: 32, mr: 1 }} />, title: 'Orders', value: analytics.orders, sub: 'Total Orders' },
+            { color: 'warning', icon: <PeopleIcon sx={{ fontSize: 32, mr: 1 }} />, title: 'Customers', value: analytics.customers, sub: 'Active' },
+            { color: 'info', icon: <StarIcon sx={{ fontSize: 32, mr: 1 }} />, title: 'Top Product', value: analytics.topProduct.name, sub: 'Best Seller', valueVariant: 'h5' }
+          ].map((stat) => (
+          <Grid item xs={12} sm={6} md={3} key={stat.title}>
+            <Card elevation={3} sx={{
+              borderRadius: 3,
+              bgcolor: 'background.paper',
+              borderTop: 3,
+              borderColor: `${stat.color}.main`,
+              color: 'text.primary'
+            }}>
               <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <MonetizationOnIcon sx={{ fontSize: 32, mr: 1 }} />
-                  <Typography variant="h6">Revenue</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, color: `${stat.color}.main` }}>
+                  {stat.icon}
+                  <Typography variant="h6" color="text.primary">{stat.title}</Typography>
                 </Box>
-                <Typography variant="h4" fontWeight="bold">Rs {analytics.revenue.toLocaleString()}</Typography>
-                <Typography variant="body2">This Month</Typography>
+                <Typography variant={stat.valueVariant || 'h4'} fontWeight="bold">{stat.value}</Typography>
+                <Typography variant="body2" color="text.secondary">{stat.sub}</Typography>
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card elevation={3} sx={{ borderRadius: 3, bgcolor: 'success.light', color: 'success.contrastText' }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <TrendingUpIcon sx={{ fontSize: 32, mr: 1 }} />
-                  <Typography variant="h6">Orders</Typography>
-                </Box>
-                <Typography variant="h4" fontWeight="bold">{analytics.orders}</Typography>
-                <Typography variant="body2">Total Orders</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card elevation={3} sx={{ borderRadius: 3, bgcolor: 'warning.light', color: 'warning.contrastText' }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <PeopleIcon sx={{ fontSize: 32, mr: 1 }} />
-                  <Typography variant="h6">Customers</Typography>
-                </Box>
-                <Typography variant="h4" fontWeight="bold">{analytics.customers}</Typography>
-                <Typography variant="body2">Active</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card elevation={3} sx={{ borderRadius: 3, bgcolor: 'info.light', color: 'info.contrastText' }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <StarIcon sx={{ fontSize: 32, mr: 1 }} />
-                  <Typography variant="h6">Top Product</Typography>
-                </Box>
-                <Typography variant="h5" fontWeight="bold">{analytics.topProduct.name}</Typography>
-                <Typography variant="body2">Best Seller</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+          ))}
         </Grid>
         {/* Sales Overview Section */}
         <Card elevation={3} sx={{ borderRadius: 3, mb: 4 }}>
@@ -192,8 +170,8 @@ const Analytics = () => {
                   <Card
                     sx={{
                       borderRadius: 2,
-                      bgcolor: theme.palette.mode === 'dark' ? '#232946' : '#f8fafc',
-                      color: theme.palette.mode === 'dark' ? theme.palette.text.primary : 'inherit',
+                      bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc',
+                      color: 'text.primary',
                       p: 2,
                       textAlign: 'center',
                       boxShadow: theme.palette.mode === 'dark' ? 3 : 1,
@@ -250,7 +228,10 @@ const Analytics = () => {
           </CardContent>
         </Card>
         <Box sx={{ textAlign: 'center', mt: 6, color: 'text.secondary' }}>
-          <Typography variant="body2">More analytics coming soon...</Typography>
+          <Typography variant="body2">
+            Data refreshes on each visit. View detailed customer segments on the{' '}
+            <Link to="/customers" style={{ color: theme.palette.primary.main }}>Customers</Link> page.
+          </Typography>
         </Box>
       </Box>
     </motion.div>

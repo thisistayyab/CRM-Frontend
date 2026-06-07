@@ -250,7 +250,7 @@ const CreateOrder = () => {
               <MenuItem value="Custom">Custom</MenuItem>
             </Select>
           </FormControl>
-          <Paper sx={{ p: 2, my: 2 }}>
+          <Paper sx={{ p: 2, my: 2, bgcolor: 'background.paper', color: 'text.primary' }}>
             <Typography variant="h6">Select Products</Typography>
             {productLoading && <MIUILoader message="Loading products..." />}
             {productError && <Typography color="error.main">{productError}</Typography>}

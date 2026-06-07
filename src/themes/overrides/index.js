@@ -5,6 +5,7 @@ import { merge } from 'lodash-es';
 import Badge from './Badge';
 import Button from './Button';
 import ButtonBase from './ButtonBase';
+import Card from './Card';
 import CardContent from './CardContent';
 import Checkbox from './Checkbox';
 import Chip from './Chip';
@@ -17,6 +18,7 @@ import Link from './Link';
 import ListItemButton from './ListItemButton';
 import ListItemIcon from './ListItemIcon';
 import OutlinedInput from './OutlinedInput';
+import Paper from './Paper';
 import Tab from './Tab';
 import TableBody from './TableBody';
 import TableCell from './TableCell';
@@ -34,6 +36,7 @@ export default function ComponentsOverrides(theme) {
     Badge(theme),
     Button(theme),
     ButtonBase(),
+    Card(theme),
     CardContent(),
     Checkbox(theme),
     Chip(theme),
@@ -46,6 +49,7 @@ export default function ComponentsOverrides(theme) {
     ListItemButton(theme),
     ListItemIcon(theme),
     OutlinedInput(theme),
+    Paper(theme),
     Tab(theme),
     TableBody(theme),
     TableCell(theme),

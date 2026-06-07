@@ -34,6 +34,7 @@ import Brightness7Icon from '@mui/icons-material/Brightness7';
 import LaptopIcon from '@mui/icons-material/Laptop';
 import ColorModeSelect from '../themes/ColorModeSelect';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import PeopleIcon from '@mui/icons-material/People';
 
 const API_URL = `${api}/v1/api/user`;
 
@@ -130,17 +131,18 @@ const Navbar = () => {
       console.log(error);
     }
     handleMenuClose();
-    navigate('/login-signup');
+    navigate('/login');
   };
 
   const navItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
+    { text: 'Customers', icon: <PeopleIcon />, path: '/customers' },
     { text: 'Store', icon: <StoreIcon />, path: '/store' },
     { text: 'Products', icon: <ShoppingBagIcon />, path: '/products' },
     { text: 'Inventory', icon: <Inventory2OutlinedIcon />, path: '/inventory' },
     { text: 'Analytics', icon: <PieChartIcon />, path: '/analytics' },
-    { text: 'Order', icon: <ShoppingCartIcon />, path: '/orders' },
-    { text: 'Setting', icon: <SettingsIcon />, path: '/settings' },
+    { text: 'Orders', icon: <ShoppingCartIcon />, path: '/orders' },
+    { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
   ];
 
   return (

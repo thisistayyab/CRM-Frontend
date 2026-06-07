@@ -11,10 +11,12 @@ import {
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import MIUIAlert from './MIUIAlert';
 import { api } from "../server";
+import { useTheme } from '@mui/material/styles';
 
 const API_URL = `${api}/v1/api/user`;
 
 const ProfileEdit = () => {
+  const theme = useTheme();
   const [profilePic, setProfilePic] = useState(null);
   const [profilePicFile, setProfilePicFile] = useState(null);
   const [name, setName] = useState("");
@@ -69,7 +71,7 @@ const ProfileEdit = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        backgroundColor: "#f5f5f5",
+        backgroundColor: theme.palette.background.default,
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -90,7 +92,8 @@ const ProfileEdit = () => {
           width: "100%",
           maxWidth: 420,
           borderRadius: 4,
-          backgroundColor: "white",
+          backgroundColor: theme.palette.background.paper,
+          color: theme.palette.text.primary,
         }}
       >
         <Typography variant="h5" fontWeight="bold" align="center" mb={3}>

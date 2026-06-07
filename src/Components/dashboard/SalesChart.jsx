@@ -32,7 +32,6 @@ export default function SalesChart({ period = 'today' }) {
       .then(data => {
         if (data.data) {
           setOrders(data.data);
-          console.log('Fetched orders:', data.data);
         }
       });
   }, []);
@@ -88,7 +87,6 @@ export default function SalesChart({ period = 'today' }) {
 
   // Aggregate data for chart
   const filteredOrders = filterOrdersByPeriod(orders, period);
-  console.log('Filtered orders:', filteredOrders, 'Period:', period);
   let income = 0, costOfSales = 0, netProfit = 0;
   let chartLabels = [], incomeData = [], costData = [];
   if (period === 'year') {
@@ -187,10 +185,6 @@ export default function SalesChart({ period = 'today' }) {
       netProfit += hourProfit;
     }
   }
-
-  console.log('Chart labels:', chartLabels);
-  console.log('Income data:', incomeData);
-  console.log('Cost data:', costData);
 
   const valueFormatter = (value) => `PKR ${value.toLocaleString()}`;
   const primaryColor = theme.palette.primary.main;

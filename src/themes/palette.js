@@ -43,7 +43,7 @@ export default function Palette(mode, presetColor) {
       text: mode === 'dark'
         ? {
             primary: '#fff',
-            secondary: '#b0b0b0',
+            secondary: 'rgba(255, 255, 255, 0.7)',
             disabled: '#888'
           }
         : {
@@ -51,10 +51,20 @@ export default function Palette(mode, presetColor) {
             secondary: paletteColor.grey[500],
             disabled: paletteColor.grey[400]
           },
-      action: {
-        disabled: paletteColor.grey[300]
-      },
-      divider: paletteColor.grey[200],
+      action: mode === 'dark'
+        ? {
+            hover: 'rgba(255, 255, 255, 0.08)',
+            selected: 'rgba(255, 255, 255, 0.16)',
+            disabled: 'rgba(255, 255, 255, 0.3)',
+            disabledBackground: 'rgba(255, 255, 255, 0.12)'
+          }
+        : {
+            hover: 'rgba(0, 0, 0, 0.04)',
+            selected: 'rgba(0, 0, 0, 0.08)',
+            disabled: paletteColor.grey[300],
+            disabledBackground: paletteColor.grey[200]
+          },
+      divider: mode === 'dark' ? 'rgba(255, 255, 255, 0.12)' : paletteColor.grey[200],
       background: mode === 'dark'
         ? {
             paper: 'hsl(220, 30%, 7%)',

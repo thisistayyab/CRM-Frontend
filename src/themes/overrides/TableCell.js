@@ -50,6 +50,8 @@ export default function TableCell(theme) {
           fontSize: '0.75rem',
           fontWeight: 700,
           textTransform: 'uppercase',
+          color: theme.palette.text.primary,
+          backgroundColor: 'inherit',
           ...commonCell
         },
         footer: {

@@ -38,7 +38,8 @@ export default function MainCard({
           position: 'relative',
           border: border ? '1px solid' : 'none',
           borderRadius: 1,
-          borderColor: 'grey.A800',
+          borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'grey.A800',
+          bgcolor: 'background.paper',
           boxShadow: boxShadow && !border ? shadow || theme.customShadows.z1 : 'inherit',
           ':hover': {
             boxShadow: boxShadow ? shadow || theme.customShadows.z1 : 'inherit'

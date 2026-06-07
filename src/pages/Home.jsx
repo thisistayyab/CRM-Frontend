@@ -28,18 +28,20 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import PeopleIcon from '@mui/icons-material/People';
 import ListItemButton from '@mui/material/ListItemButton';
 
 const drawerWidth = 240;
 
 const navItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
+  { text: 'Customers', icon: <PeopleIcon />, path: '/customers' },
   { text: 'Store', icon: <StoreIcon />, path: '/store' },
   { text: 'Products', icon: <ShoppingBagIcon />, path: '/products' },
   { text: 'Inventory', icon: <Inventory2OutlinedIcon />, path: '/inventory' },
   { text: 'Analytics', icon: <PieChartIcon />, path: '/analytics' },
-  { text: 'Order', icon: <ShoppingCartIcon />, path: '/orders' },
-  { text: 'Setting', icon: <SettingsIcon />, path: '/settings' },
+  { text: 'Orders', icon: <ShoppingCartIcon />, path: '/orders' },
+  { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
 ];
 
 const Home = () => {
@@ -91,18 +93,24 @@ const Home = () => {
         setAlert({ open: true, type: 'error', message: 'Logout failed.' });
         setAlertKey((k) => k + 1);
     }
-    navigate("/login-signup");
+    navigate("/login");
   };
 
-  const handleSidebarSearch = (e) => {
-    if (e.key === 'Enter' && sidebarSearch.trim()) {
-      navigate(`/orders?search=${encodeURIComponent(sidebarSearch.trim())}`);
+  const handleSidebarSearchNavigate = () => {
+    const q = sidebarSearch.trim();
+    if (/^\d{7,}$/.test(q)) {
+      navigate(`/customer-orders/${q}`);
+    } else if (/[a-zA-Z]/.test(q)) {
+      navigate(`/customers?search=${encodeURIComponent(q)}`);
+    } else {
+      navigate(`/orders?search=${encodeURIComponent(q)}`);
     }
   };
+  const handleSidebarSearch = (e) => {
+    if (e.key === 'Enter' && sidebarSearch.trim()) handleSidebarSearchNavigate();
+  };
   const handleSidebarSearchIcon = () => {
-    if (sidebarSearch.trim()) {
-      navigate(`/orders?search=${encodeURIComponent(sidebarSearch.trim())}`);
-    }
+    if (sidebarSearch.trim()) handleSidebarSearchNavigate();
   };
 
   return (

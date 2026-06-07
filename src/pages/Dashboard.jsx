@@ -1,6 +1,5 @@
 // material-ui
 import Avatar from '@mui/material/Avatar';
-import AvatarGroup from '@mui/material/AvatarGroup';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import List from '@mui/material/List';
@@ -26,13 +25,6 @@ import MIUILoader from '../Components/MIUILoader.jsx';
 
 // assets
 import GiftOutlined from '@ant-design/icons/GiftOutlined';
-import MessageOutlined from '@ant-design/icons/MessageOutlined';
-import SettingOutlined from '@ant-design/icons/SettingOutlined';
-
-import avatar1 from '../assets/images/users/avatar-1.png';
-import avatar2 from '../assets/images/users/avatar-2.png';
-import avatar3 from '../assets/images/users/avatar-3.png';
-import avatar4 from '../assets/images/users/avatar-4.png';
 
 // avatar style
 const avatarSX = {
@@ -72,10 +64,12 @@ function getLast7DaysExcludingToday() {
 
 export default function Dashboard() {
   const theme = useTheme();
-  const [stats, setStats] = useState(null);
   const [weekIncome, setWeekIncome] = useState(0);
   const [period, setPeriod] = useState('today');
   const [orders, setOrders] = useState([]);
+  const [insights, setInsights] = useState(null);
+  const [salesTrend, setSalesTrend] = useState([]);
+  const [customerEngagement, setCustomerEngagement] = useState([]);
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState({ open: false, type: 'error', message: '' });
   const [alertKey, setAlertKey] = useState(0);
@@ -116,14 +110,14 @@ export default function Dashboard() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`${api}/v1/api/product/orders`, { credentials: 'include' })
-    // fetch('http://localhost:8000/v1/api/product/orders', { credentials: 'include' })
-    // fetch('https://crm-backend-rho-weld.vercel.app/v1/api/product/orders', { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => {
-        if (data.data) {
-          setOrders(data.data);
-          // Calculate this week's income (Monday to Sunday)
+    Promise.all([
+      fetch(`${api}/v1/api/product/orders`, { credentials: 'include' }).then(r => r.json()),
+      fetch(`${api}/v1/api/analytics/overview`, { credentials: 'include' }).then(r => r.json()),
+      fetch(`${api}/v1/api/analytics/dashboard`, { credentials: 'include' }).then(r => r.json())
+    ])
+      .then(([ordersRes, analyticsRes, insightsRes]) => {
+        if (ordersRes.data) {
+          setOrders(ordersRes.data);
           const today = new Date();
           const dayOfWeek = today.getDay();
           const monday = new Date(today);
@@ -132,7 +126,7 @@ export default function Dashboard() {
           const sunday = new Date(monday);
           sunday.setDate(monday.getDate() + 6);
           sunday.setHours(23, 59, 59, 999);
-          const weekTotal = data.data
+          const weekTotal = ordersRes.data
             .filter(order => order.status === 'complete' && order.createdAt && order.totalPrice)
             .filter(order => {
               const d = new Date(order.createdAt);
@@ -140,13 +134,19 @@ export default function Dashboard() {
             })
             .reduce((sum, o) => sum + (o.totalPrice || 0), 0);
           setWeekIncome(weekTotal);
-        } else {
-          setAlert({ open: true, type: 'error', message: data.message || 'Error loading dashboard data.' });
+        }
+        if (analyticsRes.salesTrend) {
+          setSalesTrend(analyticsRes.salesTrend.map(s => s.sales));
+          setCustomerEngagement(analyticsRes.customerEngagement || []);
+        }
+        if (insightsRes.data) setInsights(insightsRes.data);
+        if (!ordersRes.data) {
+          setAlert({ open: true, type: 'error', message: ordersRes.message || 'Error loading dashboard data.' });
           setAlertKey((k) => k + 1);
         }
         setLoading(false);
       })
-      .catch(err => {
+      .catch(() => {
         setAlert({ open: true, type: 'error', message: 'Error loading dashboard data.' });
         setAlertKey((k) => k + 1);
         setLoading(false);
@@ -253,7 +253,9 @@ export default function Dashboard() {
             <Grid sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} size={{ md: 8 }} />
             {/* row 2 */}
             <Grid size={{ xs: 12, md: 7, lg: 8 }}>
-              {loading ? <MIUILoader message="Loading..." /> : <UniqueVisitorCard />}
+              {loading ? <MIUILoader message="Loading..." /> : (
+                <UniqueVisitorCard salesData={salesTrend} engagementData={customerEngagement} />
+              )}
             </Grid>
             <Grid size={{ xs: 12, md: 5, lg: 4 }}>
               <Grid container alignItems="center" justifyContent="space-between">
@@ -302,19 +304,33 @@ export default function Dashboard() {
                   <>
                     <List sx={{ p: 0, '& .MuiListItemButton-root': { py: 2 } }}>
                       <ListItemButton divider>
-                        <ListItemText primary="Company Finance Growth" />
-                        <Typography variant="h5">+45.14%</Typography>
+                        <ListItemText primary="Profit Growth (This Month)" />
+                        <Typography variant="h5" color={insights?.profitGrowth >= 0 ? 'success.main' : 'error.main'}>
+                          {insights ? `${insights.profitGrowth >= 0 ? '+' : ''}${insights.profitGrowth}%` : '—'}
+                        </Typography>
                       </ListItemButton>
                       <ListItemButton divider>
-                        <ListItemText primary="Company Expenses Ratio" />
-                        <Typography variant="h5">0.58%</Typography>
+                        <ListItemText primary="Expense Ratio" />
+                        <Typography variant="h5">{insights ? `${insights.expenseRatio}%` : '—'}</Typography>
+                      </ListItemButton>
+                      <ListItemButton divider>
+                        <ListItemText primary="Cancel/Return Rate" />
+                        <Typography variant="h5">{insights ? `${insights.cancelRate}%` : '—'}</Typography>
                       </ListItemButton>
                       <ListItemButton>
-                        <ListItemText primary="Business Risk Cases" />
-                        <Typography variant="h5">Low</Typography>
+                        <ListItemText primary="Business Risk" />
+                        <Typography variant="h5" color={
+                          insights?.riskLevel === 'High' ? 'error.main' :
+                          insights?.riskLevel === 'Medium' ? 'warning.main' : 'success.main'
+                        }>
+                          {insights?.riskLevel || '—'}
+                        </Typography>
                       </ListItemButton>
                     </List>
-                    <ReportAreaChart />
+                    <ReportAreaChart
+                      data={insights?.profitTrend?.map(p => p.value) || []}
+                      labels={insights?.profitTrend?.map(p => p.label) || []}
+                    />
                   </>
                 )}
               </MainCard>
@@ -376,29 +392,23 @@ export default function Dashboard() {
                 )}
               </MainCard>
               <MainCard sx={{ mt: 2 }}>
-                <Stack sx={{ gap: 3 }}>
-                  <Grid container justifyContent="space-between" alignItems="center">
-                    <Grid>
-                      <Stack>
-                        <Typography variant="h5" noWrap>
-                          Help & Support Chat
-                        </Typography>
-                        <Typography variant="caption" color="secondary" noWrap>
-                          Typical replay within 5 min
+                <Stack sx={{ gap: 2 }}>
+                  <Typography variant="h5">Low Stock Alerts</Typography>
+                  {insights?.lowStockItems?.length > 0 ? (
+                    insights.lowStockItems.map((item, idx) => (
+                      <Stack key={idx} direction="row" justifyContent="space-between" alignItems="center">
+                        <Typography variant="body2" noWrap sx={{ maxWidth: '60%' }}>{item.productName}</Typography>
+                        <Typography variant="body2" color="error.main" fontWeight="bold">
+                          {item.quantity} / {item.minStock}
                         </Typography>
                       </Stack>
-                    </Grid>
-                    <Grid>
-                      <AvatarGroup sx={{ '& .MuiAvatar-root': { width: 32, height: 32 } }}>
-                        <Avatar alt="Remy Sharp" src={avatar1} />
-                        <Avatar alt="Travis Howard" src={avatar2} />
-                        <Avatar alt="Cindy Baker" src={avatar3} />
-                        <Avatar alt="Agnes Walker" src={avatar4} />
-                      </AvatarGroup>
-                    </Grid>
-                  </Grid>
-                  <Button size="small" variant="contained" sx={{ textTransform: 'capitalize' }}>
-                    Need Help?
+                    ))
+                  ) : (
+                    <Typography variant="body2" color="text.secondary">All stock levels are healthy.</Typography>
+                  )}
+                  <Button size="small" variant="contained" href="mailto:taylance@gmail.com"
+                    sx={{ textTransform: 'capitalize', mt: 1 }}>
+                    Contact Support
                   </Button>
                 </Stack>
               </MainCard>

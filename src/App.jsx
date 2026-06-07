@@ -18,6 +18,7 @@ import EditOrder from './Components/EditOrder';
 import ViewOrder from './Components/ViewOrder';
 import CustomerOrders from './pages/CustomerOrders';
 import Inventory from './pages/Inventory';
+import Customers from './pages/Customers';
 import './App.css'
 
 function App() {
@@ -53,6 +54,7 @@ function App() {
           <Route path="vieworder/:id" element={<ViewOrder />} />
           <Route path="settings" element={<Setting />} />
           <Route path="analytics" element={<Analytics/>} />
+          <Route path="customers" element={<Customers />} />
           <Route path="customer-orders/:phoneNumber" element={<CustomerOrders />} />
         </Route>
         {/* Catch-all: redirect unknown routes to login */}
