@@ -40,9 +40,9 @@ export default function MainCard({
           borderRadius: 1,
           borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'grey.A800',
           bgcolor: 'background.paper',
-          boxShadow: boxShadow && !border ? shadow || theme.customShadows.z1 : 'inherit',
+          boxShadow: boxShadow && !border ? shadow || theme.customShadows.z1 : 'none',
           ':hover': {
-            boxShadow: boxShadow ? shadow || theme.customShadows.z1 : 'inherit'
+            boxShadow: boxShadow && !border ? shadow || theme.customShadows.z1 : 'none',
           },
           ...(modal && {
             position: 'absolute',

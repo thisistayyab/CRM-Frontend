@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   Box,
   TextField,
-  Button,
   Typography,
   Avatar,
   Stack,
@@ -10,6 +9,7 @@ import {
 } from "@mui/material";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import MIUIAlert from './MIUIAlert';
+import LoadingButton from './LoadingButton';
 import { api } from "../server";
 import { useTheme } from '@mui/material/styles';
 
@@ -25,6 +25,7 @@ const ProfileEdit = () => {
   const [address, setAddress] = useState("");
   const [alert, setAlert] = useState({ open: false, type: 'error', message: '' });
   const [alertKey, setAlertKey] = useState(0);
+  const [saving, setSaving] = useState(false);
   const handleAlertClose = (event, reason) => {
     if (reason === 'clickaway') return;
     setAlert((a) => ({ ...a, open: false }));
@@ -46,6 +47,7 @@ const ProfileEdit = () => {
     formData.append("email", email);
     formData.append("phone", phone);
     formData.append("address", address);
+    setSaving(true);
     try {
       const res = await fetch(`${API_URL}/update-account`, {
         method: "PATCH",
@@ -64,6 +66,8 @@ const ProfileEdit = () => {
     } catch (err) {
       setAlert({ open: true, type: 'error', message: err.message || "Error updating profile" });
       setAlertKey((k) => k + 1);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -165,14 +169,16 @@ const ProfileEdit = () => {
             />
 
             {/* Submit */}
-            <Button
+            <LoadingButton
               type="submit"
               variant="contained"
+              color="primary"
               fullWidth
+              loading={saving}
               sx={{ mt: 1, py: 1 }}
             >
               Save Changes
-            </Button>
+            </LoadingButton>
           </Stack>
         </Box>
       </Paper>

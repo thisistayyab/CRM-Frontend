@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import LoadingButton from '../Components/LoadingButton';
 import {
   Box,
   Paper,
@@ -169,13 +170,7 @@ const Store = () => {
         alertKey={alertKey}
         mode={theme.palette.mode}
       />
-      <Box
-        sx={{
-          p: { xs: 2, md: 4 },
-          minHeight: '100vh',
-          ml: { xs: 0, md: '80px' },
-        }}
-      >
+      <Box sx={{ p: { xs: 2, md: 4 } }}>
         <Box sx={{ maxWidth: 1000, mx: 'auto' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
             <Typography variant="h4" fontWeight="bold">
@@ -409,14 +404,15 @@ const Store = () => {
                     >
                       Cancel
                     </Button>
-                    <Button
+                    <LoadingButton
                       variant="contained"
+                      color="primary"
                       onClick={handleSave}
-                      disabled={saving}
+                      loading={saving}
                       startIcon={<SaveIcon />}
                     >
-                      {saving ? 'Saving...' : 'Save Changes'}
-                    </Button>
+                      Save Changes
+                    </LoadingButton>
                   </Box>
                 )}
               </Paper>

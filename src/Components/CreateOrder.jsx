@@ -15,6 +15,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import MIUIAlert from './MIUIAlert';
+import LoadingButton from './LoadingButton';
 import MIUILoader from './MIUILoader';
 import { api } from '../server';
 import { useTheme } from '@mui/material/styles';
@@ -29,6 +30,7 @@ const CreateOrder = () => {
     shippingCharges: 0,
     trackingNumber: '',
     courierCompany: 'Custom',
+    orderSource: 'other',
   });
   const [selectedProducts, setSelectedProducts] = useState([]); // [{productId, quantity}]
   const [products, setProducts] = useState([]);
@@ -47,11 +49,6 @@ const CreateOrder = () => {
   const ORDER_API_URL = `${api}/v1/api/product/orders`;
   const API_URL = `${api}/v1/api/product`;
 
-  // const API_URL = "http://localhost:8000/v1/api/product;
-  // const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product;
-  // const ORDER_API_URL = "http://localhost:8000/v1/api/product/orders";
-  // const ORDER_API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product/orders";
-
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -65,9 +62,8 @@ const CreateOrder = () => {
       if (res.ok && data.data) {
         setProducts(data.data);
       }
-    } catch (err) {
+    } catch {
       setProductError('Failed to load products');
-      console.log(err);
     }
     setProductLoading(false);
   };
@@ -140,6 +136,7 @@ const CreateOrder = () => {
           trackingNumber: form.trackingNumber,
           courierCompany: form.courierCompany,
           otherExpenses: Number(form.otherExpenses || 0),
+          orderSource: form.orderSource,
         })
       });
       const data = await res.json();
@@ -167,6 +164,7 @@ const CreateOrder = () => {
         trackingNumber: '',
         courierCompany: 'Custom',
         otherExpenses: 0,
+        orderSource: 'other',
       });
       setSelectedProducts([]);
     } catch (err) {
@@ -178,7 +176,7 @@ const CreateOrder = () => {
   };
 
   return (
-    <Box sx={{ p: 4, backgroundColor: theme.palette.background.default, minHeight: '100vh' }}>
+    <Box sx={{ p: 4, backgroundColor: theme.palette.background.default }}>
       <MIUIAlert
         open={alert.open}
         type={alert.type}
@@ -188,7 +186,7 @@ const CreateOrder = () => {
         mode={theme.palette.mode}
       />
       <Box sx={{ maxWidth: 700, mx: 'auto', position: 'relative' }}>
-        {loading && <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', bgcolor: 'rgba(255,255,255,0.7)', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MIUILoader message="Creating order..." /></Box>}
+        {loading && <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', bgcolor: 'action.disabledBackground', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MIUILoader message="Creating order..." /></Box>}
         <Typography variant="h4" fontWeight="bold" gutterBottom>
           📝 Create Order
         </Typography>
@@ -248,6 +246,17 @@ const CreateOrder = () => {
               <MenuItem value="TCS">TCS</MenuItem>
               <MenuItem value="Leopard">Leopard</MenuItem>
               <MenuItem value="Custom">Custom</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Order Source</InputLabel>
+            <Select name="orderSource" value={form.orderSource} label="Order Source" onChange={handleChange}>
+              <MenuItem value="facebook">Facebook</MenuItem>
+              <MenuItem value="instagram">Instagram</MenuItem>
+              <MenuItem value="whatsapp">WhatsApp</MenuItem>
+              <MenuItem value="phone">Phone Call</MenuItem>
+              <MenuItem value="walk-in">Walk-in</MenuItem>
+              <MenuItem value="other">Other</MenuItem>
             </Select>
           </FormControl>
           <Paper sx={{ p: 2, my: 2, bgcolor: 'background.paper', color: 'text.primary' }}>
@@ -320,16 +329,16 @@ const CreateOrder = () => {
             type="number"
           />
           <Typography variant="h6" sx={{ mt: 2 }}>Total: Rs {totalPrice}</Typography>
-          <Button
+          <LoadingButton
             type="submit"
             variant="contained"
             color="primary"
             fullWidth
             sx={{ mt: 2 }}
-            disabled={loading}
+            loading={loading}
           >
-            {loading ? 'Creating...' : 'Create Order'}
-          </Button>
+            Create Order
+          </LoadingButton>
           {success && <Typography color="success.main" sx={{ mt: 2 }}>Order created successfully!</Typography>}
         </form>
       </Box>

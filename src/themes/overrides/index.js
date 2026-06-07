@@ -1,8 +1,4 @@
-// third-party
 import { merge } from 'lodash-es';
-
-// project imports
-import Badge from './Badge';
 import Button from './Button';
 import ButtonBase from './ButtonBase';
 import Card from './Card';
@@ -13,51 +9,52 @@ import Drawer from './Drawer';
 import FormHelperText from './FormHelperText';
 import IconButton from './IconButton';
 import InputLabel from './InputLabel';
-import LinearProgress from './LinearProgress';
+import InputBase from './InputBase';
 import Link from './Link';
 import ListItemButton from './ListItemButton';
 import ListItemIcon from './ListItemIcon';
 import OutlinedInput from './OutlinedInput';
 import Paper from './Paper';
-import Tab from './Tab';
 import TableBody from './TableBody';
 import TableCell from './TableCell';
 import TableHead from './TableHead';
 import TableRow from './TableRow';
-import Tabs from './Tabs';
-import Tooltip from './Tooltip';
 import Typography from './Typography';
 import Menu from './Menu';
-
-// ==============================|| OVERRIDES - MAIN ||============================== //
+import MenuItem from './MenuItem';
+import Select from './Select';
+import Popover from './Popover';
+import Dialog from './Dialog';
+import Alert from './Alert';
 
 export default function ComponentsOverrides(theme) {
   return merge(
-    Badge(theme),
     Button(theme),
-    ButtonBase(),
+    ButtonBase(theme),
     Card(theme),
     CardContent(),
     Checkbox(theme),
     Chip(theme),
     Drawer(),
-    FormHelperText(),
+    FormHelperText(theme),
     IconButton(theme),
     InputLabel(theme),
-    LinearProgress(),
+    InputBase(theme),
     Link(),
     ListItemButton(theme),
     ListItemIcon(theme),
     OutlinedInput(theme),
     Paper(theme),
-    Tab(theme),
     TableBody(theme),
     TableCell(theme),
     TableHead(theme),
     TableRow(),
-    Tabs(),
-    Tooltip(theme),
     Typography(),
-    Menu(theme)
+    Menu(theme),
+    MenuItem(theme),
+    Select(theme),
+    Popover(theme),
+    Dialog(theme),
+    Alert(theme)
   );
 }

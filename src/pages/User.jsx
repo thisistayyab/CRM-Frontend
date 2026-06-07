@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Box,
   Paper,
@@ -84,13 +84,7 @@ const User = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: 'easeOut' }}
       >
-        <Box
-          sx={{
-            p: { xs: 2, md: 4 },
-            minHeight: '100vh',
-            ml: { xs: 0, md: '80px' }, // Sidebar adjustment
-          }}
-        >
+        <Box sx={{ p: { xs: 2, md: 4 } }}>
           <Box sx={{ maxWidth: 800, mx: 'auto' }}>
             <Typography variant="h4" fontWeight="bold" gutterBottom>
               👤 User Profile
@@ -133,7 +127,6 @@ const User = () => {
                 <Link to='/profile-edit'>
                   <Button variant="contained" color="primary">Edit Profile</Button>
                 </Link>
-                <Button variant="outlined" color="error">Deactivate</Button>
               </Box>
             </Paper>
           </Box>

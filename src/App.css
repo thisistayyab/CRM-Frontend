@@ -1,15 +1,26 @@
-*{
+*,
+*::before,
+*::after {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
     font-family: 'Urbanist', sans-serif;
 }
 
-html, body {
+html, body, #root {
     width: 100%;
-    /* overflow-x: hidden; */
+    height: 100%;
+    overflow: hidden;
 }
 
-/* Use Poppins for all MUI DataGrid and table content */
-.MuiDataGrid-root, .MuiDataGrid-cell, .MuiDataGrid-columnHeader, .MuiTable-root, .MuiTableCell-root, .MuiTableRow-root {
-    font-family: 'Poppins', sans-serif !important;
+.MuiDataGrid-root, .MuiDataGrid-cell, .MuiDataGrid-columnHeader,
+.MuiTable-root, .MuiTableCell-root, .MuiTableRow-root {
+    font-family: 'Urbanist', sans-serif !important;
+}
+
+.home-section {
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
 }

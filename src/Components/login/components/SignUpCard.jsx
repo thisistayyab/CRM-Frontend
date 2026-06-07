@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import {
   Box,
-  Button,
   Card as MuiCard,
-  Divider,
   FormControl,
   FormLabel,
   Link,
@@ -11,13 +9,14 @@ import {
   Typography,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { GoogleIcon, FacebookIcon } from './CustomIcons';
 import logo from '../../../assets/images/logo.png';
 import { useNavigate } from 'react-router-dom';
 import MIUIAlert from '../../MIUIAlert';
 import { api } from '../../../server';
 import { useColorScheme } from '@mui/material/styles';
 import VerificationCard from './VerificationCard';
+import LoadingButton from '../../LoadingButton';
+import { PRODUCT_NAME } from '../../../constants/brand';
 
 const API_URL = `${api}/v1/api/user`;
 
@@ -42,14 +41,17 @@ const Card = styled(MuiCard)(({ theme }) => ({
 export default function SignupCard() {
   const [signupData, setSignupData] = useState({
     fullname: '',
+    storeName: '',
+    phone: '',
     email: '',
-    username: '',
     password: '',
   });
   const [fullnameError, setFullnameError] = useState(false);
   const [fullnameErrorMessage, setFullnameErrorMessage] = useState('');
-  const [usernameError, setUsernameError] = useState(false);
-  const [usernameErrorMessage, setUsernameErrorMessage] = useState('');
+  const [storeNameError, setStoreNameError] = useState(false);
+  const [storeNameErrorMessage, setStoreNameErrorMessage] = useState('');
+  const [phoneError, setPhoneError] = useState(false);
+  const [phoneErrorMessage, setPhoneErrorMessage] = useState('');
   const [emailError, setEmailError] = useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
   const [passwordError, setPasswordError] = useState(false);
@@ -58,8 +60,9 @@ export default function SignupCard() {
   const [alertKey, setAlertKey] = useState(0);
   const navigate = useNavigate();
   const { mode, systemMode } = useColorScheme();
-  const resolvedMode = mode === 'system' ? systemMode : mode;
+  const resolvedMode = mode === 'system' ? systemMode || 'light' : mode || 'light';
   const [pendingVerification, setPendingVerification] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleAlertClose = (_, reason) => {
     if (reason !== 'clickaway') setAlert((a) => ({ ...a, open: false }));
@@ -67,15 +70,18 @@ export default function SignupCard() {
 
   const handleChange = (e) => {
     setSignupData({ ...signupData, [e.target.name]: e.target.value });
-    // Clear error and message for the field being edited
     switch (e.target.name) {
       case 'fullname':
         setFullnameError(false);
         setFullnameErrorMessage('');
         break;
-      case 'username':
-        setUsernameError(false);
-        setUsernameErrorMessage('');
+      case 'storeName':
+        setStoreNameError(false);
+        setStoreNameErrorMessage('');
+        break;
+      case 'phone':
+        setPhoneError(false);
+        setPhoneErrorMessage('');
         break;
       case 'email':
         setEmailError(false);
@@ -94,19 +100,28 @@ export default function SignupCard() {
     let isValid = true;
     if (!signupData.fullname.trim()) {
       setFullnameError(true);
-      setFullnameErrorMessage('Full name is required.');
+      setFullnameErrorMessage('Your name is required.');
       isValid = false;
     } else {
       setFullnameError(false);
       setFullnameErrorMessage('');
     }
-    if (!signupData.username.trim()) {
-      setUsernameError(true);
-      setUsernameErrorMessage('Username is required.');
+    if (!signupData.storeName.trim()) {
+      setStoreNameError(true);
+      setStoreNameErrorMessage('Store or business name is required.');
       isValid = false;
     } else {
-      setUsernameError(false);
-      setUsernameErrorMessage('');
+      setStoreNameError(false);
+      setStoreNameErrorMessage('');
+    }
+    const digits = signupData.phone.replace(/\D/g, '');
+    if (digits.length < 10) {
+      setPhoneError(true);
+      setPhoneErrorMessage('Enter a valid phone number (at least 10 digits).');
+      isValid = false;
+    } else {
+      setPhoneError(false);
+      setPhoneErrorMessage('');
     }
     if (!/\S+@\S+\.\S+/.test(signupData.email)) {
       setEmailError(true);
@@ -133,6 +148,7 @@ export default function SignupCard() {
 
     if (!validate()) return;
 
+    setSubmitting(true);
     try {
       const res = await fetch(`${API_URL}/register`, {
         method: 'POST',
@@ -148,10 +164,11 @@ export default function SignupCard() {
         setAlert({ open: true, type: 'error', message: data.message || 'Signup failed' });
         setAlertKey((k) => k + 1);
       }
-    } catch (err) {
-      console.log(err);
+    } catch {
       setAlert({ open: true, type: 'error', message: 'Signup failed' });
       setAlertKey((k) => k + 1);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -170,22 +187,29 @@ export default function SignupCard() {
       ) : (
       <Card variant="outlined">
         <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', justifyContent: 'center', mb: 1 }}>
-                <Box component="img" src={logo} alt="Taylance CRM Logo" sx={{ width: 40, height: 40, borderRadius: 2, mr: 1, background: '#232946', p: 0.5, boxShadow: 1 }} />
-                <Typography variant="h6" sx={{ color: '#4f8cff', fontWeight: 700, letterSpacing: 1, fontFamily: 'Urbanist, sans-serif', fontSize: 26 }}>
-                  Taylance CRM
+                <Box component="img" src={logo} alt={`${PRODUCT_NAME} logo`} sx={{ width: 40, height: 40, borderRadius: 2, mr: 1, background: 'background.default', p: 0.5, boxShadow: 1 }} />
+                <Typography variant="h6" className="text-gradient" sx={{ fontWeight: 700, letterSpacing: 0, fontSize: 26 }}>
+                  {PRODUCT_NAME}
                 </Typography>
               </Box>
         <Typography
           component="h1"
           variant="h4"
-          sx={{ fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
+          sx={{ width: '100%', fontSize: 'clamp(1.75rem, 4vw, 2.125rem)' }}
         >
-          Sign up
+          Create your account
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Set up your seller profile — we use your email to sign in, not a username.
         </Typography>
 
-        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+        >
           <FormControl>
-            <FormLabel htmlFor="fullname">Full Name</FormLabel>
+            <FormLabel htmlFor="fullname">Your full name</FormLabel>
             <TextField
               id="fullname"
               name="fullname"
@@ -193,22 +217,38 @@ export default function SignupCard() {
               onChange={handleChange}
               error={fullnameError}
               helperText={fullnameErrorMessage}
-              placeholder="John Doe"
+              placeholder="Ali Khan"
               fullWidth
               variant="outlined"
             />
           </FormControl>
 
           <FormControl>
-            <FormLabel htmlFor="username">Username</FormLabel>
+            <FormLabel htmlFor="storeName">Store / business name</FormLabel>
             <TextField
-              id="username"
-              name="username"
-              value={signupData.username}
+              id="storeName"
+              name="storeName"
+              value={signupData.storeName}
               onChange={handleChange}
-              error={usernameError}
-              helperText={usernameErrorMessage}
-              placeholder="john123"
+              error={storeNameError}
+              helperText={storeNameErrorMessage}
+              placeholder="Khan Fashion House"
+              fullWidth
+              variant="outlined"
+            />
+          </FormControl>
+
+          <FormControl>
+            <FormLabel htmlFor="phone">Business phone</FormLabel>
+            <TextField
+              id="phone"
+              name="phone"
+              value={signupData.phone}
+              onChange={handleChange}
+              error={phoneError}
+              helperText={phoneErrorMessage}
+              placeholder="03XX XXXXXXX"
+              inputProps={{ inputMode: 'tel' }}
               fullWidth
               variant="outlined"
             />
@@ -246,9 +286,9 @@ export default function SignupCard() {
             />
           </FormControl>
 
-          <Button type="submit" fullWidth variant="contained" color="primary">
+          <LoadingButton type="submit" fullWidth variant="contained" color="primary" loading={submitting}>
             Sign up
-          </Button>
+          </LoadingButton>
 
           <Typography sx={{ textAlign: 'center' }}>
             Already have an account?{' '}
@@ -258,22 +298,6 @@ export default function SignupCard() {
           </Typography>
         </Box>
 
-        <Divider>or</Divider>
-
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Button fullWidth variant="outlined" startIcon={<GoogleIcon />} onClick={() => {
-            setAlert({ open: true, type: 'info', message: 'This functionality is currently unavailable.' });
-            setAlertKey((k) => k + 1);
-          }}>
-            Sign up with Google
-          </Button>
-          <Button fullWidth variant="outlined" startIcon={<FacebookIcon />} onClick={() => {
-            setAlert({ open: true, type: 'info', message: 'This functionality is currently unavailable.' });
-            setAlertKey((k) => k + 1);
-          }}>
-            Sign up with Facebook
-          </Button>
-        </Box>
       </Card>
       )}
     </>

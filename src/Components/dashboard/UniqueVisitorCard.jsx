@@ -10,6 +10,19 @@ import IncomeAreaChart from './IncomeAreaChart.jsx';
 
 export default function UniqueVisitorCard({ salesData = [], engagementData = [] }) {
   const [view, setView] = useState('monthly');
+  const getViewButtonSx = (active) => ({
+    minWidth: 82,
+    borderRadius: 1,
+    fontWeight: 600,
+    color: active ? 'primary.main' : 'text.secondary',
+    borderColor: active ? 'primary.main' : 'transparent',
+    bgcolor: active ? 'transparent' : 'transparent',
+    '&:hover': {
+      color: active ? 'primary.main' : 'text.primary',
+      borderColor: active ? 'primary.main' : 'divider',
+      bgcolor: 'action.hover'
+    }
+  });
 
   return (
     <>
@@ -19,14 +32,20 @@ export default function UniqueVisitorCard({ salesData = [], engagementData = [] 
         </Grid>
         <Grid>
           <Stack direction="row" sx={{ alignItems: 'center' }}>
-            <Button size="small" onClick={() => setView('monthly')}
-              color={view === 'monthly' ? 'primary' : 'secondary'}
-              variant={view === 'monthly' ? 'outlined' : 'text'}>
+            <Button
+              size="small"
+              onClick={() => setView('monthly')}
+              variant={view === 'monthly' ? 'outlined' : 'text'}
+              sx={getViewButtonSx(view === 'monthly')}
+            >
               Month
             </Button>
-            <Button size="small" onClick={() => setView('weekly')}
-              color={view === 'weekly' ? 'primary' : 'secondary'}
-              variant={view === 'weekly' ? 'outlined' : 'text'}>
+            <Button
+              size="small"
+              onClick={() => setView('weekly')}
+              variant={view === 'weekly' ? 'outlined' : 'text'}
+              sx={getViewButtonSx(view === 'weekly')}
+            >
               Week
             </Button>
           </Stack>

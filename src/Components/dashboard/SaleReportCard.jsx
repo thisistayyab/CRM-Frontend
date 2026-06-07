@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 
 // material-ui
 import Grid from '@mui/material/Grid';
@@ -31,7 +32,7 @@ const status = [
 
 // ==============================|| DEFAULT - SALES REPORT ||============================== //
 
-export default function SaleReportCard() {
+export default function SaleReportCard({ orders = [] }) {
   const [value, setValue] = useState('today');
 
   return (
@@ -57,7 +58,9 @@ export default function SaleReportCard() {
           </TextField>
         </Grid>
       </Grid>
-      <SalesChart period={value} />
+      <SalesChart period={value} orders={orders} />
     </>
   );
 }
+
+SaleReportCard.propTypes = { orders: PropTypes.array };

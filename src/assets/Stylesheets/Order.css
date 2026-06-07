@@ -59,10 +59,10 @@
 
 .order-canceled-row .MuiDataGrid-cell {
   text-decoration: line-through;
-  color: #888;
+  opacity: 0.55;
 }
 
 .order-returned-row .MuiDataGrid-cell {
   text-decoration: line-through;
-  color: darkorange;
+  color: #f59e0b !important;
 }

@@ -1,64 +1,56 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { api } from '../server';
-
-const API_URL = `${api}/v1/api/user`;
-// const API_URL = "http://localhost:8000/v1/api/user";
-// const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/user";
+import { Navigate, useLocation } from 'react-router-dom';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import MIUILoader from './MIUILoader';
+import { checkSession } from '../utils/auth';
+import { PRODUCT_NAME } from '../constants/brand';
 
 const ProtectedRoute = ({ children }) => {
-  const [checking, setChecking] = useState(true);
-  const navigate = useNavigate();
+  const [status, setStatus] = useState('checking');
+  const location = useLocation();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch(`${API_URL}/get-user`, {
-          method: 'GET',
-          credentials: 'include',
-        });
-        
-        if (res.status === 401) {
-          // Try to refresh the token
-          try {
-            const refreshRes = await fetch(`${API_URL}/refresh-token`, {
-              method: 'POST',
-              credentials: 'include',
-            });
-            
-            if (refreshRes.ok) {
-              // Token refreshed successfully, try get-user again
-              const retryRes = await fetch(`${API_URL}/get-user`, {
-                method: 'GET',
-                credentials: 'include',
-              });
-              
-              if (retryRes.status !== 200) {
-                navigate('/login');
-              }
-            } else {
-              navigate('/login');
-            }
-          } catch (refreshError) {
-            console.error('Token refresh failed:', refreshError);
-            navigate('/login');
-          }
-        } else if (res.status !== 200) {
-          navigate('/login');
-        }
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        navigate('/login');
-      } finally {
-        setChecking(false);
-      }
-    };
-    checkAuth();
-  }, [navigate]);
+    let active = true;
 
-  if (checking) return null; // or a loading spinner
+    checkSession().then((ok) => {
+      if (active) setStatus(ok ? 'authenticated' : 'unauthenticated');
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (status === 'checking') {
+    return (
+      <Box
+        sx={{
+          minHeight: '100vh',
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bgcolor: 'background.default',
+          color: 'text.primary',
+          px: 2,
+        }}
+      >
+        <Box sx={{ textAlign: 'center' }}>
+          <Typography variant="h5" fontWeight={700} sx={{ mb: 0.5 }}>
+            {PRODUCT_NAME}
+          </Typography>
+          <MIUILoader size={42} message="Loading your workspace..." />
+        </Box>
+      </Box>
+    );
+  }
+
+  if (status === 'unauthenticated') {
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  }
 
   return children;
 };
 
-export default ProtectedRoute; 
+export default ProtectedRoute;

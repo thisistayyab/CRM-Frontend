@@ -1,62 +1,52 @@
-import * as React from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded';
-import ConstructionRoundedIcon from '@mui/icons-material/ConstructionRounded';
-import SettingsSuggestRoundedIcon from '@mui/icons-material/SettingsSuggestRounded';
-import ThumbUpAltRoundedIcon from '@mui/icons-material/ThumbUpAltRounded';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import ContentPasteIcon from '@mui/icons-material/ContentPaste';
+import PeopleIcon from '@mui/icons-material/People';
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import logo from '../../../assets/images/logo.png';
+import { PRODUCT_NAME } from '../../../constants/brand';
 
 const items = [
   {
-    icon: <SettingsSuggestRoundedIcon sx={{ color: 'text.secondary' }} />,
-    title: 'Adaptable performance',
-    description:
-      'Our product effortlessly adjusts to your needs, boosting efficiency and simplifying your tasks.',
+    icon: <FacebookIcon sx={{ color: '#1877F2' }} />,
+    title: 'Facebook inbox → orders',
+    description: 'Paste inbox messages and auto-fill customer details and products.',
   },
   {
-    icon: <ConstructionRoundedIcon sx={{ color: 'text.secondary' }} />,
-    title: 'Built to last',
-    description:
-      'Experience unmatched durability that goes above and beyond with lasting investment.',
+    icon: <ContentPasteIcon sx={{ color: 'text.secondary' }} />,
+    title: 'One order workspace',
+    description: 'Track Facebook, WhatsApp, and phone orders without spreadsheets.',
   },
   {
-    icon: <ThumbUpAltRoundedIcon sx={{ color: 'text.secondary' }} />,
-    title: 'Great user experience',
-    description:
-      'Integrate our product into your routine with an intuitive and easy-to-use interface.',
+    icon: <PeopleIcon sx={{ color: 'text.secondary' }} />,
+    title: 'Customer history',
+    description: 'See repeat buyers, VIPs, and full order history by phone number.',
   },
   {
-    icon: <AutoFixHighRoundedIcon sx={{ color: 'text.secondary' }} />,
-    title: 'Innovative functionality',
-    description:
-      'Stay ahead with features that set new standards, addressing your evolving needs better than the rest.',
+    icon: <Inventory2OutlinedIcon sx={{ color: 'text.secondary' }} />,
+    title: 'Live inventory',
+    description: 'Stock updates on completed orders with low-stock alerts.',
   },
 ];
 
 export default function Content() {
   return (
-    <Stack
-      sx={{ flexDirection: 'column', alignSelf: 'center', gap: 4, maxWidth: 450 }}
-    >
-      <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', mb: 1 }}>
-        <Box component="img" src={logo} alt="Taylance Logo" sx={{ width: 36, height: 36, mr: 1 }} />
-        <Typography variant="h5" sx={{ color: '#4f8cff', fontWeight: 700, fontFamily: 'Urbanist, sans-serif' }}>
-          Taylance CRM
+    <Stack sx={{ gap: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box component="img" src={logo} alt={`${PRODUCT_NAME} logo`} sx={{ width: 36, height: 36, mr: 1 }} />
+        <Typography variant="h5" className="text-gradient" sx={{ fontWeight: 700 }}>
+          {PRODUCT_NAME}
         </Typography>
       </Box>
       {items.map((item, index) => (
         <Stack key={index} direction="row" sx={{ gap: 2 }}>
           {item.icon}
-          <div>
-            <Typography gutterBottom sx={{ fontWeight: 'medium' }}>
-              {item.title}
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {item.description}
-            </Typography>
-          </div>
+          <Box>
+            <Typography gutterBottom sx={{ fontWeight: 500 }}>{item.title}</Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>{item.description}</Typography>
+          </Box>
         </Stack>
       ))}
     </Stack>

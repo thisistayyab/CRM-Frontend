@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Button, Card as MuiCard, TextField, Typography } from '@mui/material';
+import { Box, Card as MuiCard, TextField, Typography } from '@mui/material';
+import LoadingButton from '../../LoadingButton';
 import { styled } from '@mui/material/styles';
 import MIUIAlert from '../../MIUIAlert';
 import { api } from '../../../server';
@@ -31,8 +32,9 @@ export default function VerificationCard({ email, password, onVerified }) {
   const [alertKey, setAlertKey] = useState(0);
   const [loading, setLoading] = useState(false);
   const [resendDisabled, setResendDisabled] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const { mode, systemMode } = useColorScheme();
-  const resolvedMode = mode === 'system' ? systemMode : mode;
+  const resolvedMode = mode === 'system' ? systemMode || 'light' : mode || 'light';
   const navigate = useNavigate();
 
   const handleAlertClose = (_, reason) => {
@@ -64,12 +66,12 @@ export default function VerificationCard({ email, password, onVerified }) {
           const loginRes = await fetch(`${api}/v1/api/user/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, username: email, password }),
+            body: JSON.stringify({ email, password }),
             credentials: 'include',
           });
           const loginData = await loginRes.json();
           if (loginRes.ok && loginData.data && loginData.data.accessToken) {
-            navigate('/');
+            navigate('/', { replace: true });
             return;
           } else {
             setAlert({ open: true, type: 'error', message: loginData.message || 'Verification succeeded, but login failed. Please log in manually.' });
@@ -91,7 +93,8 @@ export default function VerificationCard({ email, password, onVerified }) {
 
   const handleResend = async () => {
     setResendDisabled(true);
-    setTimeout(() => setResendDisabled(false), 30000); // 30 seconds
+    setResendLoading(true);
+    setTimeout(() => setResendDisabled(false), 30000);
     try {
       const res = await fetch(`${api}/v1/api/user/resend-code`, {
         method: 'POST',
@@ -109,6 +112,8 @@ export default function VerificationCard({ email, password, onVerified }) {
     } catch (err) {
       setAlert({ open: true, type: 'error', message: 'Failed to resend code.' });
       setAlertKey((k) => k + 1);
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -139,12 +144,12 @@ export default function VerificationCard({ email, password, onVerified }) {
             fullWidth
             autoFocus
           />
-          <Button type="submit" variant="contained" color="primary" fullWidth disabled={loading}>
+          <LoadingButton type="submit" variant="contained" color="primary" fullWidth loading={loading}>
             Verify
-          </Button>
-          <Button variant="text" color="secondary" fullWidth onClick={handleResend} disabled={resendDisabled} sx={{ mt: 1 }}>
+          </LoadingButton>
+          <LoadingButton variant="text" color="secondary" fullWidth onClick={handleResend} disabled={resendDisabled} loading={resendLoading} sx={{ mt: 1 }}>
             Resend Code{resendDisabled ? ' (wait 30s)' : ''}
-          </Button>
+          </LoadingButton>
         </Box>
       </Card>
     </>

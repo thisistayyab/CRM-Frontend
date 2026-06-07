@@ -9,13 +9,10 @@ import Box from '@mui/material/Box';
 // project imports
 import MainCard from './MainCard.jsx';
 
-// assets
-import RiseOutlined from '@ant-design/icons/RiseOutlined';
-import FallOutlined from '@ant-design/icons/FallOutlined';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 
-const iconSX = { fontSize: '0.75rem', color: 'inherit', marginLeft: 0, marginRight: 0 };
-
-export default function AnalyticEcommerce({ color = 'primary', title, count, percentage, isLoss, extra, period = 'year', prevCount }) {
+export default function AnalyticEcommerce({ color = 'primary', title, count, percentage, isLoss, period = 'year', prevCount }) {
   // Dynamic period label
   let periodLabel = 'this year';
   if (period === 'today') periodLabel = 'today';
@@ -61,7 +58,9 @@ export default function AnalyticEcommerce({ color = 'primary', title, count, per
               <Chip
                 variant="combined"
                 color={color}
-                icon={isLoss ? <FallOutlined style={iconSX} /> : <RiseOutlined style={iconSX} />}
+                icon={isLoss
+                  ? <TrendingDownIcon sx={{ fontSize: '1rem !important' }} />
+                  : <TrendingUpIcon sx={{ fontSize: '1rem !important' }} />}
                 label={`${percentage}%`}
                 sx={{ ml: 1.25, pl: 1 }}
                 size="small"
@@ -85,5 +84,6 @@ AnalyticEcommerce.propTypes = {
   count: PropTypes.string,
   percentage: PropTypes.number,
   isLoss: PropTypes.bool,
-  extra: PropTypes.string
+  period: PropTypes.string,
+  prevCount: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
 };

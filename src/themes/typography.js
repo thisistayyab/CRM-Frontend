@@ -65,7 +65,8 @@ export default function Typography(fontFamily) {
       lineHeight: 1.66
     },
     button: {
-      textTransform: 'capitalize'
+      textTransform: 'none',
+      fontWeight: 600,
     }
   };
 }

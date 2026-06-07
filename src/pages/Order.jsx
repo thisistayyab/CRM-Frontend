@@ -1,16 +1,21 @@
 import * as React from 'react';
 import { Box, Typography, Button, TextField } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import DataGridTable from '../Components/DataGridTable';
+import OrderItemsCell from '../Components/OrderItemsCell';
+import OrderRowActionsMenu from '../Components/OrderRowActionsMenu';
+import {
+  getDataGridContainerSx,
+  getPageShellSx,
+  getPageToolbarSx,
+  getPageToolbarFieldSx,
+  getPageToolbarButtonSx,
+} from '../utils/dataGridStyles';
+import { EMPTY_ROW_SELECTION, getSelectedRowIds, hasRowSelection } from '../utils/gridSelection';
 import { Link as RouterLink, useNavigate, useLocation } from "react-router-dom";
 import '../assets/Stylesheets/Order.css'
 import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import Menu from '@mui/material/Menu';
-import IconButton from '@mui/material/IconButton';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Chip from '@mui/material/Chip';
 import Link from '@mui/material/Link';
-import Popover from '@mui/material/Popover';
 import MIUIAlert from '../Components/MIUIAlert';
 import ConfirmDialog from '../Components/ConfirmDialog';
 import { api } from '../server';
@@ -18,10 +23,7 @@ import MIUILoader from '../Components/MIUILoader';
 import { useTheme } from '@mui/material/styles';
 import { motion } from 'framer-motion';
 
-const API_URL =  `${api}/v1/api/product/orders`
-
-// const API_URL = "http://localhost:8000/v1/api/product/orders";
-// const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product/orders";
+const API_URL = `${api}/v1/api/product/orders`;
 
 const statusColors = {
   active: 'green',
@@ -34,7 +36,7 @@ const columns = [
   { field: 'trackingNumber', headerName: 'Tracking Number', width: 150, renderCell: (params) => {
     const tracking = params.value;
     const courier = params.row.courierCompany;
-    if (!tracking) return '—';
+    if (!tracking) return '-';
     if (courier === 'TCS') {
       return <Link href={`https://www.tcsexpress.com/track/${tracking}`} target="_blank" rel="noopener noreferrer">{tracking}</Link>;
     } else if (courier === 'Leopard') {
@@ -52,7 +54,7 @@ const columns = [
   { field: 'orderDate', headerName: 'Order Date', width: 160, renderCell: (params) => (
     params.row && params.row.createdAt
       ? new Date(params.row.createdAt).toLocaleString()
-      : '—'
+      : '-'
   ) },
   { field: 'phoneNumber', headerName: 'Phone', width: 130 },
   { field: 'customerAddress', headerName: 'Address', width: 180 },
@@ -63,46 +65,15 @@ const columns = [
     const value = params.value != null ? params.value : 0;
     return <span style={{ color: value < 0 ? 'red' : 'green', fontWeight: 'bold' }}>{value}</span>;
   } },
-  { field: 'items', headerName: 'Items', width: 150, renderCell: (params) => {
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const items = Array.isArray(params.row.item) ? params.row.item : [];
-    const totalQty = items.reduce((sum, i) => sum + (i.quantity || 0), 0);
-    const handleClick = (event) => setAnchorEl(event.currentTarget);
-    const handleClose = () => setAnchorEl(null);
-    if (!items.length) return '—';
-    return (
-      <>
-        <Link component="button" underline="hover" onClick={handleClick} sx={{ cursor: 'pointer' }}>
-          {totalQty} item{totalQty > 1 ? 's' : ''}
-        </Link>
-        <Popover
-          open={Boolean(anchorEl)}
-          anchorEl={anchorEl}
-          onClose={handleClose}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-        >
-          <Box sx={{ p: 1, minWidth: 140 }}>
-            {items.map((item, idx) => {
-              const prod = item.product;
-              const name = prod && (prod.productname || prod.name || 'Product');
-              return (
-                <Box key={idx} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5, borderBottom: idx !== items.length - 1 ? '1px solid #eee' : 'none' }}>
-                  <span>{name}</span>
-                  <span>&nbsp;x{item.quantity}</span>
-                </Box>
-              );
-            })}
-          </Box>
-        </Popover>
-      </>
-    );
-  } },
+  { field: 'items', headerName: 'Items', minWidth: 110, flex: 0.6, sortable: false, renderCell: (params) => (
+    <OrderItemsCell items={Array.isArray(params.row.item) ? params.row.item : []} />
+  ) },
   { field: 'orderCountForCustomer', headerName: 'Customer Order Count', width: 180, renderCell: (params) => (
     params.value && params.row.phoneNumber ? (
       <Link component={RouterLink} to={`/customer-orders/${params.row.phoneNumber}`} underline="hover" color="primary">
         {params.value} order{params.value > 1 ? 's' : ''}
       </Link>
-    ) : '—'
+    ) : '-'
   ) },
   { field: 'status', headerName: 'Status', width: 140, renderCell: (params) => (
     <Chip
@@ -124,94 +95,13 @@ const columns = [
   ) },
   {
     field: 'actions',
-    headerName: 'Actions',
-    width: 80,
-    renderCell: (params) => {
-      const [anchorEl, setAnchorEl] = React.useState(null);
-      const open = Boolean(anchorEl);
-      const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-      };
-      const handleClose = () => {
-        setAnchorEl(null);
-      };
-      return (
-        <>
-          <IconButton
-            aria-label="more"
-            aria-controls={`actions-menu-${params.row.id}`}
-            aria-haspopup="true"
-            onClick={handleClick}
-            size="small"
-          >
-            <MoreVertIcon />
-          </IconButton>
-          <Menu
-            id={`actions-menu-${params.row.id}`}
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-            sx={theme => ({
-              '& .MuiPaper-root': {
-                backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.paper : '#fff',
-                color: theme.palette.mode === 'dark' ? theme.palette.text.primary : 'inherit',
-              },
-            })}
-          >
-            <MenuItem
-              onClick={() => {
-                handleClose();
-                params.row.onDelete(params.row.id);
-              }}
-              disabled={params.row.status !== 'canceled'}
-              sx={theme => ({ color: theme.palette.error.main })}
-            >
-              Delete
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                handleClose();
-                params.row.onCancel(params.row.id);
-              }}
-              disabled={params.row.status === 'canceled'}
-              sx={theme => ({ color: theme.palette.error.main })}
-            >
-              Cancel
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                handleClose();
-                params.row.onStatusChange(params.row.id, 'returned');
-              }}
-              disabled={params.row.status === 'returned'}
-              sx={theme => ({ color: theme.palette.warning.main })}
-            >
-              Return
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                handleClose();
-                params.row.onEdit(params.row);
-              }}
-              sx={theme => ({ color: theme.palette.text.primary })}
-            >
-              Edit
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                handleClose();
-                params.row.onComplete(params.row.id);
-              }}
-              disabled={params.row.status === 'complete'}
-              sx={theme => ({ color: theme.palette.primary.main })}
-            >
-              Complete
-            </MenuItem>
-          </Menu>
-        </>
-      );
-    },
+    headerName: '',
+    width: 56,
+    minWidth: 56,
+    maxWidth: 56,
+    sortable: false,
+    disableColumnMenu: true,
+    renderCell: (params) => <OrderRowActionsMenu row={params.row} />,
   },
 ];
 
@@ -223,7 +113,8 @@ export default function Orders() {
   const [alertKey, setAlertKey] = React.useState(0);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [pendingDeleteId, setPendingDeleteId] = React.useState(null);
-  const [selectionModel, setSelectionModel] = React.useState([]);
+  const [deleteLoading, setDeleteLoading] = React.useState(false);
+  const [selectionModel, setSelectionModel] = React.useState(EMPTY_ROW_SELECTION);
   const [search, setSearch] = React.useState('');
   const location = useLocation();
   const theme = useTheme();
@@ -263,8 +154,9 @@ export default function Orders() {
 
   // CSV export helper
   const exportToCSV = () => {
-    const selectedRows = selectionModel.length > 0
-      ? rows.filter((row) => selectionModel.includes(row.id))
+    const selectedIds = getSelectedRowIds(rows, selectionModel);
+    const selectedRows = hasRowSelection(selectionModel)
+      ? rows.filter((row) => selectedIds.includes(row.id))
       : rows;
     if (selectedRows.length === 0) {
       setAlert({ open: true, type: 'info', message: 'No orders to export.' });
@@ -332,7 +224,6 @@ export default function Orders() {
         );
       }
     } catch (err) {
-      console.log(err)
     } finally {
       setLoading(false);
     }
@@ -350,7 +241,7 @@ export default function Orders() {
 
   const handleConfirmDelete = async () => {
     if (!pendingDeleteId) return;
-    setConfirmOpen(false);
+    setDeleteLoading(true);
     try {
       const res = await fetch(`${API_URL}/${pendingDeleteId}`, {
         method: 'DELETE',
@@ -369,11 +260,14 @@ export default function Orders() {
       setAlert({ open: true, type: 'error', message: 'Error deleting order.' });
       setAlertKey((k) => k + 1);
     } finally {
+      setDeleteLoading(false);
+      setConfirmOpen(false);
       setPendingDeleteId(null);
     }
   };
 
   const handleCancelDelete = () => {
+    if (deleteLoading) return;
     setConfirmOpen(false);
     setPendingDeleteId(null);
   };
@@ -469,138 +363,76 @@ export default function Orders() {
         onCancel={handleCancelDelete}
         confirmText="Delete"
         cancelText="Cancel"
+        confirmLoading={deleteLoading}
       />
-      <Box sx={{ px: 2, py: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        Orders
-      </Typography>
-    <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, ease: 'easeOut' }}
-    >
       <Box
-        sx={{
-          display: 'flex',
-          flexDirection: { xs: 'column', sm: 'row' },
-          gap: 2,
-          alignItems: { sm: 'center' },
-          width: '100%',
-        }}
+        component={motion.div}
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        sx={getPageShellSx()}
       >
-        <TextField
-          fullWidth
-          size="small"
-          placeholder="Search by Order ID, Tracking Number, Phone, Customer, Product, Courier Company"
-          value={search}
-          onChange={e => {
-            setSearch(e.target.value);
-            // Update URL query param
-            const params = new URLSearchParams(location.search);
-            if (e.target.value) {
-              params.set('search', e.target.value);
-            } else {
-              params.delete('search');
-            }
-            window.history.replaceState(null, '', `${location.pathname}?${params.toString()}`);
-          }}
-          sx={{ minWidth: { sm: 300 }, flex: 1 }}
-        />
-
-        <Button
-          component={RouterLink}
-          to="/createorder"
-          variant="contained"
-          color="primary"
-          sx={{ width: { xs: '100%', sm: 'auto' } }}
-        >
-          Create Order
-        </Button>
-
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={exportToCSV}
-          sx={{ width: { xs: '100%', sm: 'auto' } }}
-        >
-          Export
-        </Button>
-      </Box>
-    </motion.div>
-      </Box>
-      <Box margin={2} paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 70px)', background: theme.palette.mode === 'dark' ? '#121212' : theme.palette.background.paper, color: theme.palette.text.primary, overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
-        {loading ? (
-          <MIUILoader message="Loading orders..." />
-        ) : (
-          <DataGrid
-            rows={filteredRows}
-            columns={columns}
-            getRowClassName={(params) =>
-              params.row.status === 'canceled' ? 'order-canceled-row' : params.row.status === 'returned' ? 'order-returned-row' : ''
-            }
-            initialState={{
-              pagination: {
-                paginationModel: {
-                  pageSize: 50,
-                },
-              },
+        <Typography variant="h4" gutterBottom>
+          Orders
+        </Typography>
+        <Box sx={{ ...getPageToolbarSx(), mb: 2 }}>
+          <TextField
+            fullWidth
+            size="small"
+            placeholder="Search by Order ID, Tracking Number, Phone, Customer, Product, Courier Company"
+            value={search}
+            onChange={e => {
+              setSearch(e.target.value);
+              const params = new URLSearchParams(location.search);
+              if (e.target.value) {
+                params.set('search', e.target.value);
+              } else {
+                params.delete('search');
+              }
+              window.history.replaceState(null, '', `${location.pathname}?${params.toString()}`);
             }}
-            pageSizeOptions={[5]}
-            checkboxSelection
-            disableRowSelectionOnClick
-            onRowSelectionModelChange={setSelectionModel}
-            selectionModel={selectionModel}
-            sx={{
-              border: '1px solid',
-              borderColor: theme.palette.mode === 'dark' ? '#333' : 'divider',
-              color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
-              backgroundColor: theme.palette.mode === 'dark' ? '#121212' : theme.palette.background.paper,
-              '& .MuiDataGrid-cell': {
-                borderBottom: theme.palette.mode === 'dark' ? '1px solid #444' : undefined,
-                color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
-              },
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : theme.palette.background.default,
-                borderBottom: theme.palette.mode === 'dark' ? '1px solid #444' : undefined,
-                color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
-              },
-              '& .MuiDataGrid-footerContainer': {
-                backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : theme.palette.background.default,
-                borderTop: theme.palette.mode === 'dark' ? '1px solid #444' : undefined,
-                color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
-              },
-              '& .MuiDataGrid-row': {
-                backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#fff',
-              },
-              '& .MuiDataGrid-row:hover': {
-                backgroundColor: theme.palette.mode === 'dark' ? '#232946' : '#f5f5f5',
-              },
-              '& .MuiDataGrid-row.Mui-selected, & .MuiDataGrid-row.Mui-selected:hover': {
-                backgroundColor: theme.palette.mode === 'dark' ? '#232946' : '#e0e0e0',
-              },
-              '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
-                outline: 'none',
-                border: 'none',
-              },
-              '& .MuiDataGrid-virtualScroller': {
-                '&::-webkit-scrollbar': {
-                  width: 8,
-                  backgroundColor: theme.palette.mode === 'dark' ? '#000' : '#f5f5f5',
-                },
-                '&::-webkit-scrollbar-thumb': {
-                  backgroundColor: theme.palette.mode === 'dark' ? '#000' : '#c1c1c1',
-                  borderRadius: 4,
-                },
-                '&::-webkit-scrollbar-thumb:hover': {
-                  backgroundColor: theme.palette.mode === 'dark' ? '#222' : '#b0b0b0',
-                },
-                scrollbarColor: theme.palette.mode === 'dark'
-                  ? '#000 #000'
-                  : '#c1c1c1 #f5f5f5',
-              },
-            }}
+            sx={getPageToolbarFieldSx()}
           />
-        )}
+          <Button
+            component={RouterLink}
+            to="/createorder"
+            variant="contained"
+            color="primary"
+            sx={getPageToolbarButtonSx()}
+          >
+            Create Order
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={exportToCSV}
+            sx={getPageToolbarButtonSx()}
+          >
+            Export
+          </Button>
+        </Box>
+        <Box sx={getDataGridContainerSx(theme)}>
+          {loading ? (
+            <Box sx={{ minHeight: 420, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <MIUILoader message="Loading orders..." />
+            </Box>
+          ) : (
+            <DataGridTable
+              rows={filteredRows}
+              columns={columns}
+              emptyMessage="No orders yet. Create your first order to get started."
+              checkboxSelection
+              pageSize={25}
+              minHeight={420}
+              maxHeight={640}
+              rowSelectionModel={selectionModel}
+              onRowSelectionModelChange={setSelectionModel}
+              getRowClassName={(params) =>
+                params.row.status === 'canceled' ? 'order-canceled-row' : params.row.status === 'returned' ? 'order-returned-row' : ''
+              }
+            />
+          )}
+        </Box>
       </Box>
     </>
   );

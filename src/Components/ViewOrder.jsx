@@ -4,10 +4,11 @@ import {
 } from '@mui/material';
 import { useParams, Link as RouterLink } from 'react-router-dom';
 import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
+import LoadingButton from './LoadingButton';
 import MIUIAlert from './MIUIAlert';
 import MIUILoader from './MIUILoader';
 import { api } from '../server';
+import { PRODUCT_NAME } from '../constants/brand';
 import { useTheme } from '@mui/material/styles';
 import PrintIcon from '@mui/icons-material/Print';
 
@@ -22,10 +23,11 @@ const ViewOrder = () => {
   const theme = useTheme();
   const { id } = useParams();
   const [order, setOrder] = useState(null);
-  const [store, setStore] = useState({ name: 'Taylance CRM' });
+  const [store, setStore] = useState({ name: '' });
   const [storeLoading, setStoreLoading] = useState(true);
   const [comments, setComments] = useState([]);
   const [commentInput, setCommentInput] = useState('');
+  const [commentLoading, setCommentLoading] = useState(false);
   const [alert, setAlert] = useState({ open: false, type: 'error', message: '' });
   const [alertKey, setAlertKey] = useState(0);
   const printRef = useRef();
@@ -36,8 +38,6 @@ const ViewOrder = () => {
   };
 
   const API_URL = `${api}/v1/api/product/orders/${id}`;
-  // const API_URL = `http://localhost:8000/v1/api/product/orders/${id}`;
-  // const API_URL = `https://crm-backend-rho-weld.vercel.app/v1/api/product/orders/${id}`;
 
   useEffect(() => {
     fetch(API_URL, { credentials: 'include' })
@@ -137,7 +137,7 @@ const ViewOrder = () => {
               ${store?.logo ? `<img id="storeLogo" src="${store.logo}" alt="Store Logo" />` : ''}
             </div>
             <div class="bill-info-block">
-              <div class="bill-title">${store?.name || 'Taylance CRM'}</div>
+              <div class="bill-title">${store?.name || PRODUCT_NAME}</div>
               <div class="store-contact">
                 ${store?.address ? `<div><strong>Address:</strong> ${store.address}</div>` : ''}
                 ${store?.phone ? `<div><strong>Phone:</strong> ${store.phone}</div>` : ''}
@@ -278,25 +278,16 @@ const ViewOrder = () => {
           </Grid>
           <Grid item xs={12} sm={6}>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-              <Button
+              <LoadingButton
                 variant="contained"
+                color="primary"
                 startIcon={<PrintIcon />}
                 onClick={handlePrintBill}
-                sx={{
-                  bgcolor: '#4f8cff',
-                  color: '#fff',
-                  '&:hover': { bgcolor: '#3a7bd5' },
-                  fontWeight: 600,
-                  px: 3,
-                  py: 1,
-                  borderRadius: 2,
-                  textTransform: 'none',
-                  boxShadow: 2
-                }}
-                disabled={storeLoading}
+                loading={storeLoading}
+                sx={{ fontWeight: 600, px: 3, py: 1, borderRadius: 2 }}
               >
                 Print Bill
-              </Button>
+              </LoadingButton>
               <Box sx={{ textAlign: 'right' }}>
                 <Typography variant="subtitle2" color="text.secondary">Net Profit</Typography>
                 <Typography variant="h6" fontWeight="bold" sx={{ color: netProfit < 0 ? 'error.main' : 'success.main' }}>
@@ -398,39 +389,41 @@ const ViewOrder = () => {
               fullWidth
               size="small"
             />
-            <Button
+            <LoadingButton
               variant="contained"
+              color="primary"
+              loading={commentLoading}
               onClick={async () => {
-                if (commentInput.trim()) {
-                  try {
-                    const res = await fetch(`${API_URL}/comments`, {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json'
-                      },
-                      credentials: 'include',
-                      body: JSON.stringify({ text: commentInput })
-                    });
-                    const data = await res.json();
-                    if (data.data) {
-                      setComments(data.data);
-                      setCommentInput('');
-                      setAlert({ open: true, type: 'success', message: 'Comment added!' });
-                      setAlertKey((k) => k + 1);
-                    } else if (data.message) {
-                      setAlert({ open: true, type: 'error', message: data.message });
-                      setAlertKey((k) => k + 1);
-                    }
-                  } catch (err) {
-                    setAlert({ open: true, type: 'error', message: 'Error adding comment.' });
+                if (!commentInput.trim()) return;
+                setCommentLoading(true);
+                try {
+                  const res = await fetch(`${API_URL}/comments`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ text: commentInput })
+                  });
+                  const data = await res.json();
+                  if (data.data) {
+                    setComments(data.data);
+                    setCommentInput('');
+                    setAlert({ open: true, type: 'success', message: 'Comment added!' });
+                    setAlertKey((k) => k + 1);
+                  } else if (data.message) {
+                    setAlert({ open: true, type: 'error', message: data.message });
                     setAlertKey((k) => k + 1);
                   }
+                } catch {
+                  setAlert({ open: true, type: 'error', message: 'Error adding comment.' });
+                  setAlertKey((k) => k + 1);
+                } finally {
+                  setCommentLoading(false);
                 }
               }}
               sx={{ minWidth: 100 }}
             >
               Add
-            </Button>
+            </LoadingButton>
           </Box>
           <Box>
             {comments.length === 0 ? (

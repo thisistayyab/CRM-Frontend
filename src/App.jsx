@@ -13,12 +13,14 @@ import CreateOrder from './Components/CreateOrder';
 import Setting from './pages/Setting';
 import EditProfile from './Components/EditProfile';
 import ProtectedRoute from './Components/ProtectedRoute';
+import GuestRoute from './Components/GuestRoute';
 import Analytics from './pages/Analytics';
 import EditOrder from './Components/EditOrder';
 import ViewOrder from './Components/ViewOrder';
 import CustomerOrders from './pages/CustomerOrders';
 import Inventory from './pages/Inventory';
 import Customers from './pages/Customers';
+import FacebookImport from './pages/FacebookImport';
 import './App.css'
 
 function App() {
@@ -27,8 +29,8 @@ function App() {
     <Router>
       <Routes>
         {/* Public Routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
+        <Route path="/signup" element={<GuestRoute><Signup /></GuestRoute>} />
 
         {/* Protected Layout */}
         <Route
@@ -50,15 +52,14 @@ function App() {
           <Route path="orders" element={<Order />} />
           <Route path="createorder" element={<CreateOrder />} />
           <Route path="editorder/:id" element={<EditOrder />} />
-          <Route path="order/:id" element={<ViewOrder />} />
           <Route path="vieworder/:id" element={<ViewOrder />} />
           <Route path="settings" element={<Setting />} />
           <Route path="analytics" element={<Analytics/>} />
           <Route path="customers" element={<Customers />} />
+          <Route path="facebook-import" element={<FacebookImport />} />
           <Route path="customer-orders/:phoneNumber" element={<CustomerOrders />} />
         </Route>
-        {/* Catch-all: redirect unknown routes to login */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
     </>

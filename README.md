@@ -1,109 +1,35 @@
-# Taylance CRM
+# Taylance CRM (Frontend)
 
-**Taylance CRM** is a modern, full-featured Customer Relationship Management system built using the MERN stack (MongoDB, Express, React, Node.js). It helps teams track leads, manage clients, assign tasks, and streamline communication — all through a beautifully designed, responsive interface.
+Client and order management app for sellers. **Owned and maintained by [Taylance Tech](https://taylancetech.com).**
 
-![Taylance CRM UI Preview](taylancecrm.vercel.app)
+> Marketing and SEO live on [taylancetech.com](https://taylancetech.com). This app is deployed on a subdomain and is not indexed for search.
 
----
+## Scripts
 
-## Features
+| Command | Purpose |
+|---------|---------|
+| `npm run dev` | Local development (Vite) |
+| `npm run build` | Production build → `dist/` |
+| `npm run start` | Serve production build (run `build` first) |
+| `npm run preview` | Preview production build locally |
 
-- ✅ JWT Authentication with Access & Refresh Tokens
-- 👤 Role-Based Access (Admin, Member)
-- 📋 Leads & Client Management
-- 📈 Analytics Dashboard
-- 🌙 Dark Mode UI
-- 🧩 Modular, Scalable Architecture
-
----
-
-## Tech Stack
-
-### Frontend
-- React.js (Vite)
-- Material UI (MUI)
-- Axios
-- React Router
-- Framer Motion (for animation)
-- Context API & Custom Hooks
-
-### Backend (Separate Repo)
-- Node.js
-- Express.js
-- MongoDB Atlas
-- Mongoose
-- JWT
-- Multer (for file uploads)
-
----
-
-## Repositories
-
-| Layer      | Repository                                               |
-|------------|----------------------------------------------------------|
-| Frontend   | [CRM-Frontend](https://github.com/thisistayyab/CRM-Frontend) |
-| Backend    | [CRM-Backend](https://github.com/thisistayyab/CRM-Backend) |
-
----
-
-## Local Setup
-
-### Prerequisites
-- Node.js v18+
-- MongoDB Atlas Account
-- Vite (optional, will auto-install)
-
----
-
-### Frontend Setup
+## Setup
 
 ```bash
-git clone https://github.com/thisistayyab/CRM-Frontend.git
-cd CRM-Frontend
+cd Frontend
 npm install
+cp .env.example .env
 npm run dev
 ```
 
-### Backend Setup
-```bash
-git clone https://github.com/thisistayyab/CRM-Backend.git
-cd CRM-Backend
-npm install
-```
-### .env file
-# ====== Server Settings ======
-PORT=5000
-# The port your Express server runs on.
+Set `VITE_API_URL` to your backend URL (no trailing slash).
 
-# ====== Database (MongoDB Atlas) ======
-MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/taylance-crm?retryWrites=true&w=majority
-# MongoDB connection string
+## Production
 
-# ====== JWT Authentication ======
-ACCESS_TOKEN_SECRET=your_access_token_secret_key
-ACCESS_TOKEN_EXPIRY=15m
-# Short-lived token (e.g., 15m, 30m)
+1. `npm run build`
+2. Deploy `dist/` to your CRM subdomain (e.g. `crm.taylancetech.com`)
+3. Ensure backend `CORS_ORIGIN` includes your frontend URL
 
-REFRESH_TOKEN_SECRET=your_refresh_token_secret_key
-REFRESH_TOKEN_EXPIRY=7d
-# Long-lived refresh token (e.g., 7d, 30d)
+## Stack
 
-# ====== Email (SMTP Configuration) ======
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@example.com
-SMTP_PASS=your_app_password
-SMTP_FROM=Taylance CRM <your_email@example.com>
-# For sending verification/reset password emails
-
-# ====== Redis (Optional for session/cache/token storage) ======
-REDIS_URL=redis://default:<password>@<host>:<port>
-# Example: redis://default:1234abcd@redis-12345.c12.us-east-1-2.ec2.cloud.redislabs.com:12345
-
-# ====== Cloudinary (Image/File Uploads) ======
-CLOUDINARY_NAME=your_cloud_name
-CLOUDINARY_API=your_cloudinary_api_key
-CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-
-### License
-This project is licensed under the MIT License
+React 19 · Vite · MUI · React Router

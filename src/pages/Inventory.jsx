@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Button } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import DataGridTable from '../Components/DataGridTable';
+import { getDataGridContainerSx, getPageShellSx, getPageToolbarSx, getPageToolbarFieldSx } from '../utils/dataGridStyles';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -15,6 +16,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import ConfirmDialog from '../Components/ConfirmDialog';
+import LoadingButton from '../Components/LoadingButton';
 import MIUIAlert from '../Components/MIUIAlert';
 import MIUILoader from '../Components/MIUILoader';
 import { useTheme } from '@mui/material/styles';
@@ -26,6 +28,8 @@ export default function Inventory() {
   const [editItem, setEditItem] = useState(null);
   const [editOpen, setEditOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [editSaving, setEditSaving] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const [alert, setAlert] = useState({ open: false, type: 'success', message: '' });
   const [alertKey, setAlertKey] = useState(0);
@@ -48,23 +52,27 @@ export default function Inventory() {
     {
       field: 'productName',
       headerName: 'Product',
-      flex: 1,
-      minWidth: 150,
+      flex: 2.5,
+      minWidth: 180,
       renderCell: (params) => (
-        <div style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>{params.value}</div>
+        <Box sx={{ whiteSpace: 'normal', wordBreak: 'break-word', lineHeight: 1.4, py: 0.5 }}>
+          {params.value}
+        </Box>
       ),
     },
-    { field: 'quantity', headerName: 'Stock', type: 'number', flex: 0.5, minWidth: 100 },
-    { field: 'location', headerName: 'Location', flex: 1, minWidth: 120 },
-    { field: 'minStock', headerName: 'Min Stock', type: 'number', flex: 0.5, minWidth: 100 },
-    { field: 'lastUpdated', headerName: 'Last Updated', flex: 1, minWidth: 160 },
+    { field: 'quantity', headerName: 'Stock', type: 'number', flex: 1, minWidth: 100, align: 'right', headerAlign: 'right' },
+    { field: 'location', headerName: 'Location', flex: 1.5, minWidth: 140 },
+    { field: 'minStock', headerName: 'Min Stock', type: 'number', flex: 1, minWidth: 110, align: 'right', headerAlign: 'right' },
+    { field: 'lastUpdated', headerName: 'Last Updated', flex: 1.5, minWidth: 170 },
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 80,
+      width: 88,
+      align: 'center',
+      headerAlign: 'center',
       renderCell: (params) => (
         <IconButton size="small" onClick={e => handleMenuOpen(e, params.row)}>
-          <MoreVertIcon />
+          <MoreVertIcon fontSize="small" />
         </IconButton>
       ),
     },
@@ -112,6 +120,7 @@ export default function Inventory() {
   const handleEditChange = e => setEditForm(f => ({ ...f, [e.target.name]: e.target.value }));
   const handleEditSubmit = async () => {
     if (!editItem) return;
+    setEditSaving(true);
     try {
       const res = await fetch(`${api}/v1/api/inventory/${editItem._id}`, {
         method: 'PATCH',
@@ -128,13 +137,15 @@ export default function Inventory() {
       }
     } catch {
       setAlert({ open: true, type: 'error', message: 'Error updating inventory item.' }); setAlertKey(k => k + 1);
+    } finally {
+      setEditSaving(false);
     }
   };
 
   // Delete Inventory Item
   const handleConfirmDelete = async () => {
     if (!pendingDeleteId) return;
-    setConfirmOpen(false);
+    setDeleteLoading(true);
     try {
       const res = await fetch(`${api}/v1/api/inventory/${pendingDeleteId}`, {
         method: 'DELETE',
@@ -149,6 +160,8 @@ export default function Inventory() {
     } catch {
       setAlert({ open: true, type: 'error', message: 'Error deleting inventory item.' }); setAlertKey(k => k + 1);
     } finally {
+      setDeleteLoading(false);
+      setConfirmOpen(false);
       setPendingDeleteId(null);
       fetchInventory();
     }
@@ -173,102 +186,42 @@ export default function Inventory() {
 
   return (
     <>
-      <Box
-        sx={{
-          minHeight: '100vh',
-          bgcolor: theme.palette.mode === 'dark' ? '#181c2a' : '#f8fafd',
-          color: theme.palette.mode === 'dark' ? '#fff' : theme.palette.text.primary,
-        }}
-      >
-        <Box sx={{ px: 2, py: 3 }}>
+      <Box sx={{ bgcolor: 'background.default', color: 'text.primary' }}>
+        <Box
+          component={motion.div}
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+          sx={getPageShellSx()}
+        >
           <Typography variant="h4" fontWeight="bold" gutterBottom>
-            📦 Inventory
+            Inventory
           </Typography>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, alignItems: { sm: 'center' }, width: '100%' }}>
+          <Box sx={{ ...getPageToolbarSx(), mb: 2 }}>
             <TextField
               fullWidth
               size="small"
               placeholder="Search by Product Name"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              sx={{ minWidth: { sm: 300 }, flex: 1 }}
+              sx={getPageToolbarFieldSx()}
             />
           </Box>
-        </Box>
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: 'easeOut' }}
-        >
-          <Box margin={2} paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 70px)', background: theme.palette.mode === 'dark' ? '#121212' : theme.palette.background.paper, color: theme.palette.text.primary, overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
+          <Box sx={getDataGridContainerSx(theme)}>
             {loading ? (
-              <MIUILoader message="Loading inventory..." />
+              <Box sx={{ minHeight: 380, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <MIUILoader message="Loading inventory..." />
+              </Box>
             ) : (
-              <DataGrid
+              <DataGridTable
                 rows={filteredRows}
                 columns={columns}
-                initialState={{
-                  pagination: {
-                    paginationModel: {
-                      pageSize: 50,
-                    },
-                  },
-                }}
-                pageSizeOptions={[5, 10, 25, 50]}
-                disableRowSelectionOnClick
-                sx={{
-                  border: '1px solid',
-                  borderColor: theme.palette.mode === 'dark' ? '#333' : 'divider',
-                  color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
-                  backgroundColor: theme.palette.mode === 'dark' ? '#121212' : theme.palette.background.paper,
-                  '& .MuiDataGrid-cell': {
-                    borderBottom: theme.palette.mode === 'dark' ? '1px solid #444' : undefined,
-                    color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
-                  },
-                  '& .MuiDataGrid-columnHeaders': {
-                    backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : theme.palette.background.default,
-                    borderBottom: theme.palette.mode === 'dark' ? '1px solid #444' : undefined,
-                    color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
-                  },
-                  '& .MuiDataGrid-footerContainer': {
-                    backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : theme.palette.background.default,
-                    borderTop: theme.palette.mode === 'dark' ? '1px solid #444' : undefined,
-                    color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
-                  },
-                  '& .MuiDataGrid-row': {
-                    backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#fff',
-                  },
-                  '& .MuiDataGrid-row:hover': {
-                    backgroundColor: theme.palette.mode === 'dark' ? '#232946' : '#f5f5f5',
-                  },
-                  '& .MuiDataGrid-row.Mui-selected, & .MuiDataGrid-row.Mui-selected:hover': {
-                    backgroundColor: theme.palette.mode === 'dark' ? '#232946' : '#e0e0e0',
-                  },
-                  '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
-                    outline: 'none',
-                    border: 'none',
-                  },
-                  '& .MuiDataGrid-virtualScroller': {
-                    '&::-webkit-scrollbar': {
-                      width: 8,
-                      backgroundColor: theme.palette.mode === 'dark' ? '#000' : '#f5f5f5',
-                    },
-                    '&::-webkit-scrollbar-thumb': {
-                      backgroundColor: theme.palette.mode === 'dark' ? '#000' : '#c1c1c1',
-                      borderRadius: 4,
-                    },
-                    '&::-webkit-scrollbar-thumb:hover': {
-                      backgroundColor: theme.palette.mode === 'dark' ? '#222' : '#b0b0b0',
-                    },
-                    scrollbarColor: theme.palette.mode === 'dark'
-                      ? '#000 #000'
-                      : '#c1c1c1 #f5f5f5',
-                  },
-                }}
+                emptyMessage="No inventory items yet."
+                pageSize={25}
               />
             )}
           </Box>
-        </motion.div>
+        </Box>
         <Dialog open={!!editItem} onClose={handleEditDialogClose}>
           <DialogTitle>Edit Inventory Item</DialogTitle>
           <DialogContent>
@@ -280,7 +233,6 @@ export default function Inventory() {
               value={editForm.quantity || ''}
               onChange={handleEditChange}
               fullWidth
-              InputLabelProps={{ style: { color: theme.palette.mode === 'dark' ? '#fff' : undefined } }}
             />
             <TextField
               margin="dense"
@@ -289,7 +241,6 @@ export default function Inventory() {
               value={editForm.location || ''}
               onChange={handleEditChange}
               fullWidth
-              InputLabelProps={{ style: { color: theme.palette.mode === 'dark' ? '#fff' : undefined } }}
             />
             <TextField
               margin="dense"
@@ -299,7 +250,6 @@ export default function Inventory() {
               value={editForm.minStock || ''}
               onChange={handleEditChange}
               fullWidth
-              InputLabelProps={{ style: { color: theme.palette.mode === 'dark' ? '#fff' : undefined } }}
             />
           </DialogContent>
           <DialogActions>
@@ -307,13 +257,13 @@ export default function Inventory() {
               onClick={handleEditDialogClose}
               variant="outlined"
               sx={{
-                color: theme.palette.mode === 'dark' ? '#fff' : theme.palette.text.primary,
-                borderColor: theme.palette.mode === 'dark' ? '#444' : 'divider'
+                color: 'text.primary',
+                borderColor: 'divider'
               }}
             >
               Cancel
             </Button>
-            <Button onClick={handleEditSubmit} color="primary">Save</Button>
+            <LoadingButton onClick={handleEditSubmit} color="primary" variant="contained" loading={editSaving}>Save</LoadingButton>
           </DialogActions>
         </Dialog>
         <Menu
@@ -338,9 +288,10 @@ export default function Inventory() {
           title="Delete Inventory Item?"
           message="Are you sure you want to delete this inventory item? This action cannot be undone."
           onConfirm={handleConfirmDelete}
-          onCancel={() => setConfirmOpen(false)}
+          onCancel={() => { if (!deleteLoading) setConfirmOpen(false); }}
           confirmText="Delete"
           cancelText="Cancel"
+          confirmLoading={deleteLoading}
         />
       </Box>
     </>

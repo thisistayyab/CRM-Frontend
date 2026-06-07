@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import PropTypes from 'prop-types';
 
 // material-ui
 import { alpha, useTheme } from '@mui/material/styles';
@@ -13,28 +14,14 @@ import { BarChart } from '@mui/x-charts/BarChart';
 
 // project imports
 import MainCard from './MainCard.jsx';
-import { api } from '../../server.js';
-
+import ChartEmptyState, { hasChartData } from './ChartEmptyState';
 // ==============================|| SALES COLUMN CHART ||============================== //
 
-export default function SalesChart({ period = 'today' }) {
+export default function SalesChart({ period = 'today', orders = [] }) {
   const theme = useTheme();
 
   const [showIncome, setShowIncome] = useState(true);
   const [showCostOfSales, setShowCostOfSales] = useState(true);
-  const [orders, setOrders] = useState([]);
-
-  useEffect(() => {
-    // fetch('https://crm-backend-rho-weld.vercel.app/v1/api/product/orders', { credentials: 'include' })
-    // fetch('http://localhost:8000/v1/api/product/orders', { credentials: 'include' })
-    fetch(`${api}/v1/api/product/orders`, { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => {
-        if (data.data) {
-          setOrders(data.data);
-        }
-      });
-  }, []);
 
   // Fix: define handlers before use
   const handleIncomeChange = () => {
@@ -228,44 +215,53 @@ export default function SalesChart({ period = 'today' }) {
   }
 
   const axisFonstyle = { fontSize, fill: theme.palette.text.secondary };
+  const noSalesData = !filteredOrders.length || !hasChartData(incomeData);
 
   return (
     <MainCard sx={{ mt: 1 }} content={false}>
-      <Box sx={{ p: 2.5, pb: 0 }}>
-        <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+      <Box sx={{ p: 2.5, pb: noSalesData ? 2.5 : 0 }}>
+        <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between', mb: noSalesData ? 2 : 0 }}>
           <Box>
             <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
               Net Profit
             </Typography>
             <Typography variant="h4">PKR {netProfit.toLocaleString()}</Typography>
           </Box>
-
-          <FormGroup>
-            <Stack direction="row">
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={showIncome}
-                    onChange={handleIncomeChange}
-                    sx={{ '&.Mui-checked': { color: warningColor }, '&:hover': { backgroundColor: alpha(warningColor, 0.08) } }}
-                  />
-                }
-                label="Income"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={showCostOfSales}
-                    onChange={handleCostOfSalesChange}
-                    sx={{ '&.Mui-checked': { color: primaryColor } }}
-                  />
-                }
-                label="Cost of Sales"
-              />
-            </Stack>
-          </FormGroup>
+          {!noSalesData && (
+            <FormGroup>
+              <Stack direction="row">
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={showIncome}
+                      onChange={handleIncomeChange}
+                      sx={{ '&.Mui-checked': { color: warningColor }, '&:hover': { backgroundColor: alpha(warningColor, 0.08) } }}
+                    />
+                  }
+                  label="Income"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={showCostOfSales}
+                      onChange={handleCostOfSalesChange}
+                      sx={{ '&.Mui-checked': { color: primaryColor } }}
+                    />
+                  }
+                  label="Cost of Sales"
+                />
+              </Stack>
+            </FormGroup>
+          )}
         </Stack>
 
+        {noSalesData ? (
+          <ChartEmptyState
+            height={260}
+            message="No sales for this period"
+            hint="Switch the period or complete more orders to see the report."
+          />
+        ) : (
         <BarChart
           hideLegend
           height={380}
@@ -284,7 +280,13 @@ export default function SalesChart({ period = 'today' }) {
             '& .MuiChartsAxis-directionX .MuiChartsAxis-tick, & .MuiChartsAxis-root line': { stroke: theme.palette.divider }
           }}
         />
+        )}
       </Box>
     </MainCard>
   );
 }
+
+SalesChart.propTypes = {
+  period: PropTypes.string,
+  orders: PropTypes.array
+};

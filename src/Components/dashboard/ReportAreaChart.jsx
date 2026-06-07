@@ -1,29 +1,45 @@
 import PropTypes from 'prop-types';
 import { useTheme } from '@mui/material/styles';
 import { chartsGridClasses, LineChart } from '@mui/x-charts';
+import ChartEmptyState, { hasChartData } from './ChartEmptyState';
 
 export default function ReportAreaChart({ data = [], labels = [] }) {
   const theme = useTheme();
-  const axisFonstyle = { fill: theme.palette.text.secondary };
-  const chartData = data.length ? data : [0];
-  const chartLabels = labels.length ? labels : ['—'];
+
+  if (!hasChartData(data)) {
+    return (
+      <ChartEmptyState
+        height={180}
+        icon="line"
+        message="No profit history yet"
+        hint="Profit trend appears after you complete orders."
+      />
+    );
+  }
+
+  const axisFonstyle = { fill: theme.palette.text.secondary, fontSize: 10 };
 
   return (
     <LineChart
       hideLegend
       grid={{ horizontal: true }}
-      xAxis={[{ data: chartLabels, scaleType: 'point', disableLine: true, disableTicks: true, tickLabelStyle: axisFonstyle }]}
-      yAxis={[{ position: 'none', tickMaxStep: 10 }]}
+      xAxis={[{ data: labels, scaleType: 'point', tickLabelStyle: axisFonstyle }]}
+      yAxis={[{ tickLabelStyle: axisFonstyle, min: 0 }]}
       series={[{
-        data: chartData,
-        showMark: false,
+        data,
+        showMark: true,
         id: 'ProfitTrend',
         color: theme.palette.warning.main,
-        label: 'Profit'
+        label: 'Profit',
+        curve: 'natural',
+        area: true
       }]}
-      height={340}
-      margin={{ top: 30, bottom: 25, left: 20, right: 20 }}
-      sx={{ '& .MuiLineElement-root': { strokeWidth: 1 }, [`& .${chartsGridClasses.line}`]: { strokeDasharray: '5 3' } }}
+      height={180}
+      margin={{ top: 12, bottom: 28, left: 48, right: 16 }}
+      sx={{
+        '& .MuiLineElement-root': { strokeWidth: 2 },
+        [`& .${chartsGridClasses.line}`]: { strokeDasharray: '4 4', opacity: 0.4 }
+      }}
     />
   );
 }

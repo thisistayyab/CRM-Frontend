@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Button, Card as MuiCard, TextField, Typography } from '@mui/material';
+import { Box, Card as MuiCard, TextField, Typography } from '@mui/material';
+import LoadingButton from '../../LoadingButton';
 import { styled } from '@mui/material/styles';
 import MIUIAlert from '../../MIUIAlert';
 import { api } from '../../../server';
@@ -33,8 +34,9 @@ export default function ForgotPasswordCard({ onSuccess }) {
   const [alertKey, setAlertKey] = useState(0);
   const [loading, setLoading] = useState(false);
   const [resendDisabled, setResendDisabled] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const { mode, systemMode } = useColorScheme();
-  const resolvedMode = mode === 'system' ? systemMode : mode;
+  const resolvedMode = mode === 'system' ? systemMode || 'light' : mode || 'light';
 
   const handleAlertClose = (_, reason) => {
     if (reason !== 'clickaway') setAlert((a) => ({ ...a, open: false }));
@@ -76,7 +78,8 @@ export default function ForgotPasswordCard({ onSuccess }) {
 
   const handleResend = async () => {
     setResendDisabled(true);
-    setTimeout(() => setResendDisabled(false), 30000); // 30 seconds
+    setResendLoading(true);
+    setTimeout(() => setResendDisabled(false), 30000);
     try {
       const res = await fetch(`${api}/v1/api/user/forgot-password`, {
         method: 'POST',
@@ -89,6 +92,8 @@ export default function ForgotPasswordCard({ onSuccess }) {
     } catch (err) {
       setAlert({ open: true, type: 'error', message: 'Failed to resend code.' });
       setAlertKey((k) => k + 1);
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -150,9 +155,9 @@ export default function ForgotPasswordCard({ onSuccess }) {
               error={!!error}
               helperText={error}
             />
-            <Button type="submit" variant="contained" color="primary" fullWidth disabled={loading}>
+            <LoadingButton type="submit" variant="contained" color="primary" fullWidth loading={loading}>
               Send Reset Code
-            </Button>
+            </LoadingButton>
           </Box>
         ) : (
           <Box component="form" onSubmit={handleResetPassword} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -172,12 +177,12 @@ export default function ForgotPasswordCard({ onSuccess }) {
               fullWidth
               required
             />
-            <Button type="submit" variant="contained" color="primary" fullWidth disabled={loading}>
+            <LoadingButton type="submit" variant="contained" color="primary" fullWidth loading={loading}>
               Reset Password
-            </Button>
-            <Button variant="text" color="secondary" fullWidth onClick={handleResend} disabled={resendDisabled} sx={{ mt: 1 }}>
+            </LoadingButton>
+            <LoadingButton variant="text" color="secondary" fullWidth onClick={handleResend} disabled={resendDisabled} loading={resendLoading} sx={{ mt: 1 }}>
               Resend Code{resendDisabled ? ' (wait 30s)' : ''}
-            </Button>
+            </LoadingButton>
           </Box>
         )}
       </Card>

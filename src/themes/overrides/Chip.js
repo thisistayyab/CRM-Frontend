@@ -42,6 +42,10 @@ export default function Chip(theme) {
       styleOverrides: {
         root: {
           borderRadius: 4,
+          '&.MuiChip-colorDefault': {
+            color: theme.palette.mode === 'dark' ? theme.palette.grey[100] : theme.palette.grey[800],
+            backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200]
+          },
           '&:active': {
             boxShadow: 'none'
           },

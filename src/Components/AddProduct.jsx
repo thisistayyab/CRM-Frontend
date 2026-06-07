@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import MIUIAlert from './MIUIAlert';
+import LoadingButton from './LoadingButton';
 import MIUILoader from './MIUILoader';
 import { api } from '../server';
 import { useTheme } from '@mui/material/styles';
@@ -95,6 +96,15 @@ const AddProduct = () => {
 
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
+  const fieldSx = {
+    borderRadius: 2,
+    background: isDark ? 'rgba(255,255,255,0.06)' : '#f8fafd',
+    border: '1px solid',
+    borderColor: 'divider',
+    boxShadow: 'none',
+    fontSize: 16,
+    color: theme.palette.text.primary
+  };
   return (
     <>
     <MIUIAlert
@@ -129,7 +139,7 @@ const AddProduct = () => {
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
-                InputProps={{ sx: { borderRadius: 2, background: isDark ? '#232946' : '#f8fafd', border: 'none', boxShadow: 'none', '& fieldset': { border: 'none' }, fontSize: 16, color: theme.palette.text.primary } }}
+                InputProps={{ sx: fieldSx }}
                 sx={{ mb: 2 }}
               />
               {/* Second row: Description */}
@@ -141,7 +151,7 @@ const AddProduct = () => {
                 required
                 multiline
                 minRows={3}
-                InputProps={{ sx: { borderRadius: 2, background: isDark ? '#232946' : '#f8fafd', border: 'none', boxShadow: 'none', '& fieldset': { border: 'none' }, fontSize: 16, color: theme.palette.text.primary } }}
+                InputProps={{ sx: fieldSx }}
                 sx={{ mb: 2 }}
               />
               {/* Last row: Pricing and Stock */}
@@ -155,7 +165,7 @@ const AddProduct = () => {
                     value={price}
                     onChange={e => setPrice(e.target.value)}
                     required
-                    InputProps={{ sx: { borderRadius: 2, background: isDark ? '#232946' : '#f8fafd', border: 'none', boxShadow: 'none', '& fieldset': { border: 'none' }, fontSize: 16, color: theme.palette.text.primary } }}
+                    InputProps={{ sx: fieldSx }}
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -166,7 +176,7 @@ const AddProduct = () => {
                     value={inventory}
                     onChange={e => setInventory(e.target.value)}
                     required
-                    InputProps={{ sx: { borderRadius: 2, background: isDark ? '#232946' : '#f8fafd', border: 'none', boxShadow: 'none', '& fieldset': { border: 'none' }, fontSize: 16, color: theme.palette.text.primary } }}
+                    InputProps={{ sx: fieldSx }}
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -176,7 +186,7 @@ const AddProduct = () => {
                     type="number"
                     value={salePrice}
                     onChange={e => setSalePrice(e.target.value)}
-                    InputProps={{ sx: { borderRadius: 2, background: isDark ? '#232946' : '#f8fafd', border: 'none', boxShadow: 'none', '& fieldset': { border: 'none' }, fontSize: 16, color: theme.palette.text.primary } }}
+                    InputProps={{ sx: fieldSx }}
                   />
                 </Grid>
               </Grid>
@@ -188,9 +198,9 @@ const AddProduct = () => {
               <Typography variant="h6" fontWeight={700} mb={1.5}>Upload Img</Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                 {image ? (
-                  <Box component="img" src={URL.createObjectURL(image)} alt="Product Preview" sx={{ width: 180, height: 180, objectFit: 'cover', borderRadius: 3, border: isDark ? '1px solid #333' : '1px solid #e0e0e0', mb: 1 }} />
+                  <Box component="img" src={URL.createObjectURL(image)} alt="Product Preview" sx={{ width: 180, height: 180, objectFit: 'cover', borderRadius: 3, border: '1px solid', borderColor: 'divider', mb: 1 }} />
                 ) : (
-                  <Box sx={{ width: 180, height: 180, bgcolor: isDark ? '#232946' : '#f8fafd', borderRadius: 3, border: isDark ? '1px dashed #333' : '1px dashed #e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: theme.palette.text.secondary, mb: 1, fontSize: 18 }}>
+                  <Box sx={{ width: 180, height: 180, bgcolor: isDark ? 'rgba(255,255,255,0.06)' : '#f8fafd', borderRadius: 3, border: '1px dashed', borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'center', color: theme.palette.text.secondary, mb: 1, fontSize: 18 }}>
                     No Image
                   </Box>
                 )}
@@ -211,7 +221,7 @@ const AddProduct = () => {
                 label="Product Category"
                 value={category}
                 onChange={e => setCategory(e.target.value)}
-                InputProps={{ sx: { borderRadius: 2, background: isDark ? '#232946' : '#f8fafd', border: 'none', boxShadow: 'none', '& fieldset': { border: 'none' }, fontSize: 16, color: theme.palette.text.primary } }}
+                InputProps={{ sx: fieldSx }}
               />
             </Paper>
           </Grid>
@@ -219,25 +229,22 @@ const AddProduct = () => {
       </form>
       {/* Add Product Button at the end of the container */}
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4, mb: 2 }}>
-        <Button type="submit" form="add-product-form" variant="contained" size="large"
+        <LoadingButton type="submit" form="add-product-form" variant="contained" color="success" size="large"
+          loading={loading}
           sx={{
             borderRadius: 99,
-            fontWeight: 300,
+            fontWeight: 600,
             px: 3,
             py: 1,
-            bgcolor: isDark ? '#6DD400' : '#396f00ff',
-            color: '#fff',
-            boxShadow: 8,
             fontSize: 18,
             letterSpacing: 0.5,
-            '&:hover': { bgcolor: '#5cc200', boxShadow: 12 },
           }}
         >
           Add Product
-        </Button>
+        </LoadingButton>
       </Box>
       </motion.div>
-      {loading && <Box sx={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', bgcolor: 'rgba(255,255,255,0.7)', zIndex: 1300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MIUILoader message="Adding product..." /></Box>}
+      {loading && <Box sx={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', bgcolor: 'action.disabledBackground', zIndex: 1300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MIUILoader message="Adding product..." /></Box>}
     </Container>
     </>
   );

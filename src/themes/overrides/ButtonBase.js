@@ -1,19 +1,20 @@
-// ==============================|| OVERRIDES - BUTTON ||============================== //
+// ==============================|| OVERRIDES - BUTTON BASE ||============================== //
 
-export default function ButtonBase() {
+export default function ButtonBase(theme) {
   return {
     MuiButtonBase: {
       defaultProps: {
-        disableRipple: true
+        disableRipple: false,
       },
       styleOverrides: {
         root: {
-          '&.MuiButtonBase-root:disabled': {
+          '&.Mui-disabled': {
             cursor: 'not-allowed',
-            pointerEvents: 'auto'
-          }
-        }
-      }
-    }
+            pointerEvents: 'auto',
+            opacity: 0.55,
+          },
+        },
+      },
+    },
   };
 }

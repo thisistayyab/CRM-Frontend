@@ -1,6 +1,14 @@
 import * as React from 'react';
 import { Box, Typography, Button } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import DataGridTable from '../Components/DataGridTable';
+import GridRowActionsMenu from '../Components/GridRowActionsMenu';
+import {
+  getDataGridContainerSx,
+  getPageShellSx,
+  getPageToolbarSx,
+  getPageToolbarFieldSx,
+  getPageToolbarButtonSx,
+} from '../utils/dataGridStyles';
 import { Link as RouterLink } from "react-router-dom";
 import '../assets/Stylesheets/Order.css'
 import pic from '../assets/images/users/avatar-1.png';
@@ -10,131 +18,98 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
-import IconButton from '@mui/material/IconButton';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import MIUIAlert from '../Components/MIUIAlert';
 import ConfirmDialog from '../Components/ConfirmDialog';
+import LoadingButton from '../Components/LoadingButton';
 import { api } from '../server';
 import MIUILoader from '../Components/MIUILoader';
 import { useTheme } from '@mui/material/styles';
 import { motion } from 'framer-motion';
 
 const API_URL = `${api}/v1/api/product`;
-// const API_URL = "http://localhost:8000/v1/api/product";
-// const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product";
 
-const columns = [
+const buildColumns = () => [
   {
     field: 'image',
     headerName: '',
-    width: 60,
+    width: 72,
+    minWidth: 72,
+    maxWidth: 72,
+    sortable: false,
+    filterable: false,
+    disableColumnMenu: true,
     renderCell: (params) => (
-      <img
+      <Box
+        component="img"
         src={params.value || pic}
-        alt="product"
-        style={{ width: 40, height: 40, borderRadius: '20%', marginTop: 5 }}
+        alt=""
+        sx={{ width: 40, height: 40, borderRadius: 1, objectFit: 'cover', bgcolor: 'action.hover' }}
       />
     ),
   },
   {
     field: 'productname',
     headerName: 'Product',
-    width: 200,
-    editable: false,
+    flex: 1.4,
+    minWidth: 180,
     renderCell: (params) => (
-      <div style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
+      <Box sx={{ whiteSpace: 'normal', wordBreak: 'break-word', lineHeight: 1.4, py: 0.5 }}>
         {params.value}
-      </div>
+      </Box>
     ),
   },
   {
     field: 'quantity',
-    headerName: 'Inventory',
+    headerName: 'Stock',
     type: 'number',
-    width: 110,
-    editable: false,
+    flex: 0.5,
+    minWidth: 90,
+    align: 'right',
+    headerAlign: 'right',
   },
   {
     field: 'price',
     headerName: 'Price',
     type: 'number',
-    width: 110,
-    editable: false,
+    flex: 0.5,
+    minWidth: 90,
+    align: 'right',
+    headerAlign: 'right',
+    valueFormatter: (value) => (value != null ? `Rs ${value}` : '—'),
   },
   {
     field: 'salePrice',
     headerName: 'Sale Price',
     type: 'number',
-    width: 110,
-    editable: false,
+    flex: 0.55,
+    minWidth: 100,
+    align: 'right',
+    headerAlign: 'right',
+    valueFormatter: (value) => (value != null ? `Rs ${value}` : '—'),
   },
   {
     field: 'category',
     headerName: 'Category',
-    width: 140,
-    editable: false,
+    flex: 0.7,
+    minWidth: 120,
   },
   {
     field: 'actions',
-    headerName: 'Actions',
-    width: 80,
-    renderCell: (params) => {
-      const [anchorEl, setAnchorEl] = React.useState(null);
-      const open = Boolean(anchorEl);
-      const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-      };
-      const handleClose = () => {
-        setAnchorEl(null);
-      };
-      return (
-        <>
-          <IconButton
-            aria-label="more"
-            aria-controls={`actions-menu-${params.row.id}`}
-            aria-haspopup="true"
-            onClick={handleClick}
-            size="small"
-          >
-            <MoreVertIcon />
-          </IconButton>
-          <Menu
-            id={`actions-menu-${params.row.id}`}
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-            sx={theme => ({
-              '& .MuiPaper-root': {
-                backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.paper : '#fff',
-                color: theme.palette.mode === 'dark' ? theme.palette.text.primary : 'inherit',
-              },
-            })}
-          >
-            <MenuItem
-              onClick={() => {
-                handleClose();
-                params.row.onEdit(params.row);
-              }}
-              sx={theme => ({ color: theme.palette.text.primary })}
-            >
-              Edit
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                handleClose();
-                params.row.onDelete(params.row.id);
-              }}
-              sx={theme => ({ color: theme.palette.error.main })}
-            >
-              Delete
-            </MenuItem>
-          </Menu>
-        </>
-      );
-    },
+    headerName: '',
+    width: 56,
+    minWidth: 56,
+    maxWidth: 56,
+    sortable: false,
+    filterable: false,
+    disableColumnMenu: true,
+    align: 'center',
+    headerAlign: 'center',
+    renderCell: (params) => (
+      <GridRowActionsMenu
+        onEdit={() => params.row.onEdit(params.row)}
+        onDelete={() => params.row.onDelete(params.row.id)}
+      />
+    ),
   },
 ];
 
@@ -143,12 +118,14 @@ export default function Products() {
   const [loading, setLoading] = React.useState(true);
   const [editProduct, setEditProduct] = useState(null);
   const [editLoading, setEditLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [alert, setAlert] = React.useState({ open: false, type: 'success', message: '' });
   const [alertKey, setAlertKey] = React.useState(0); // for force remount
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const [search, setSearch] = useState("");
   const theme = useTheme();
+  const columns = React.useMemo(() => buildColumns(), []);
 
   // MIUI-style alert close handler
   const handleAlertClose = (event, reason) => {
@@ -174,7 +151,6 @@ export default function Products() {
         );
       }
     } catch (err) {
-      console.log(err)
     } finally {
       setLoading(false);
     }
@@ -192,7 +168,7 @@ export default function Products() {
 
   const handleConfirmDelete = async () => {
     if (!pendingDeleteId) return;
-    setConfirmOpen(false);
+    setDeleteLoading(true);
     try {
       const res = await fetch(`${API_URL}/${pendingDeleteId}`, {
         method: 'DELETE',
@@ -210,11 +186,14 @@ export default function Products() {
       setAlert({ open: true, type: 'error', message: 'Error deleting product.' });
       setAlertKey((k) => k + 1);
     } finally {
+      setDeleteLoading(false);
+      setConfirmOpen(false);
       setPendingDeleteId(null);
     }
   };
 
   const handleCancelDelete = () => {
+    if (deleteLoading) return;
     setConfirmOpen(false);
     setPendingDeleteId(null);
   };
@@ -249,7 +228,6 @@ export default function Products() {
         alert('Failed to update product');
       }
     } catch (err) {
-      console.log(err)
       alert('Error updating product');
     } finally {
       setEditLoading(false);
@@ -311,105 +289,50 @@ export default function Products() {
 
   return (
     <>
-      <Box sx={{ px: 2, py: 3 }}>
+      <Box
+        component={motion.div}
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        sx={getPageShellSx()}
+      >
         <Typography variant="h4" fontWeight="bold" gutterBottom>
-          🛒 Products
+          Products
         </Typography>
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, alignItems: { sm: 'center' }, width: '100%' }}>
+        <Box sx={{ ...getPageToolbarSx(), mb: 2 }}>
           <TextField
             fullWidth
             size="small"
             placeholder="Search by Product Name"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            sx={{ minWidth: { sm: 300 }, flex: 1 }}
+            sx={getPageToolbarFieldSx()}
           />
           <Button
             component={RouterLink}
             to="/addproduct"
             variant="contained"
             color="primary"
-            sx={{ width: { xs: '100%', sm: 'auto' } }}
+            sx={getPageToolbarButtonSx()}
           >
             Add Product
           </Button>
         </Box>
-      </Box>
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: 'easeOut' }}
-      >
-        <Box margin={2} paddingLeft={2} paddingRight={2} sx={{ height: 'calc(100vh - 70px)', background: theme.palette.mode === 'dark' ? '#121212' : theme.palette.background.paper, color: theme.palette.text.primary, overflow: 'auto', borderRadius: 2, boxShadow: 1, mt: 2 }}>
+        <Box sx={getDataGridContainerSx(theme)}>
           {loading ? (
-            <MIUILoader message="Loading products..." />
+            <Box sx={{ minHeight: 380, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <MIUILoader message="Loading products..." />
+            </Box>
           ) : (
-            <DataGrid
+            <DataGridTable
               rows={filteredRows}
               columns={columns}
-              initialState={{
-                pagination: {
-                  paginationModel: {
-                    pageSize: 50,
-                  },
-                },
-              }}
-              pageSizeOptions={[5]}
-              checkboxSelection
-              disableRowSelectionOnClick
-              sx={{
-                border: '1px solid',
-                borderColor: theme.palette.mode === 'dark' ? '#333' : 'divider',
-                color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
-                backgroundColor: theme.palette.mode === 'dark' ? '#121212' : theme.palette.background.paper,
-                '& .MuiDataGrid-cell': {
-                  borderBottom: theme.palette.mode === 'dark' ? '1px solid #444' : undefined,
-                  color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
-                },
-                '& .MuiDataGrid-columnHeaders': {
-                  backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : theme.palette.background.default,
-                  borderBottom: theme.palette.mode === 'dark' ? '1px solid #444' : undefined,
-                  color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
-                },
-                '& .MuiDataGrid-footerContainer': {
-                  backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : theme.palette.background.default,
-                  borderTop: theme.palette.mode === 'dark' ? '1px solid #444' : undefined,
-                  color: theme.palette.mode === 'dark' ? 'white' : theme.palette.text.primary,
-                },
-                '& .MuiDataGrid-row': {
-                  backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#fff',
-                },
-                '& .MuiDataGrid-row:hover': {
-                  backgroundColor: theme.palette.mode === 'dark' ? '#232946' : '#f5f5f5',
-                },
-                '& .MuiDataGrid-row.Mui-selected, & .MuiDataGrid-row.Mui-selected:hover': {
-                  backgroundColor: theme.palette.mode === 'dark' ? '#232946' : '#e0e0e0',
-                },
-                '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
-                  outline: 'none',
-                  border: 'none',
-                },
-                '& .MuiDataGrid-virtualScroller': {
-                  '&::-webkit-scrollbar': {
-                    width: 8,
-                    backgroundColor: theme.palette.mode === 'dark' ? '#000' : '#f5f5f5',
-                  },
-                  '&::-webkit-scrollbar-thumb': {
-                    backgroundColor: theme.palette.mode === 'dark' ? '#000' : '#c1c1c1',
-                    borderRadius: 4,
-                  },
-                  '&::-webkit-scrollbar-thumb:hover': {
-                    backgroundColor: theme.palette.mode === 'dark' ? '#222' : '#b0b0b0',
-                  },
-                  scrollbarColor: theme.palette.mode === 'dark'
-                    ? '#000 #000'
-                    : '#c1c1c1 #f5f5f5',
-                },
-              }}
+              emptyMessage="No products yet. Add your first product to get started."
+              pageSize={25}
             />
           )}
         </Box>
-      </motion.div>
+      </Box>
       <Dialog open={!!editProduct} onClose={() => setEditProduct(null)}>
         <DialogTitle>Edit Product</DialogTitle>
         <DialogContent>
@@ -467,7 +390,7 @@ export default function Products() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEditProduct(null)} color="secondary">Cancel</Button>
-          <Button onClick={handleEditSave} color="primary" disabled={editLoading}>{editLoading ? 'Saving...' : 'Save'}</Button>
+          <LoadingButton onClick={handleEditSave} color="primary" variant="contained" loading={editLoading}>Save</LoadingButton>
         </DialogActions>
       </Dialog>
       <MIUIAlert
@@ -486,6 +409,7 @@ export default function Products() {
         onCancel={handleCancelDelete}
         confirmText="Delete"
         cancelText="Cancel"
+        confirmLoading={deleteLoading}
       />
     </>
   );

@@ -7,6 +7,7 @@ import { useParams } from 'react-router-dom';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import MIUIAlert from './MIUIAlert';
+import LoadingButton from './LoadingButton';
 import { api } from '../server';
 import { useTheme } from '@mui/material/styles';
 
@@ -36,13 +37,8 @@ const EditOrder = () => {
     setAlert((a) => ({ ...a, open: false }));
   };
 
-  const API_URL = `${api}/v1/api/product `;
+  const API_URL = `${api}/v1/api/product`;
   const ORDER_API_URL = `${api}/v1/api/product/orders`;
-
-  // const API_URL = "http://localhost:8000/v1/api/product";
-  // const ORDER_API_URL = "http://localhost:8000/v1/api/product/orders";
-  // const API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product";
-  // const ORDER_API_URL = "https://crm-backend-rho-weld.vercel.app/v1/api/product/orders";
 
   useEffect(() => {
     fetchProducts();
@@ -56,7 +52,6 @@ const EditOrder = () => {
       const data = await res.json();
       if (res.ok) setProducts(data.data || []);
     } catch (err) {
-      console.log(err)
       setProductError('Failed to load products');
       setAlert({ open: true, type: 'error', message: 'Failed to load products.' });
       setAlertKey((k) => k + 1);
@@ -87,7 +82,6 @@ const EditOrder = () => {
         setSelectedProducts(formattedItems);
       }
     } catch (err) {
-      console.log(err)
       setAlert({ open: true, type: 'error', message: 'Failed to load order.' });
       setAlertKey((k) => k + 1);
     }
@@ -165,7 +159,6 @@ const EditOrder = () => {
         setAlertKey((k) => k + 1);
       }
     } catch (err) {
-      console.log(err)
       setAlert({ open: true, type: 'error', message: 'Error saving order.' });
       setAlertKey((k) => k + 1);
     }
@@ -272,16 +265,16 @@ const EditOrder = () => {
 
           <Typography variant="h6" sx={{ mt: 2 }}>Total: Rs {totalPrice}</Typography>
 
-          <Button
+          <LoadingButton
             fullWidth
             type="submit"
             variant="contained"
             color="primary"
             sx={{ mt: 2 }}
-            disabled={loading}
+            loading={loading}
           >
-            {loading ? (id ? 'Updating...' : 'Creating...') : (id ? 'Update Order' : 'Create Order')}
-          </Button>
+            {id ? 'Update Order' : 'Create Order'}
+          </LoadingButton>
 
           {success && <Typography color="success.main" sx={{ mt: 2 }}>{id ? 'Order updated' : 'Order created'} successfully!</Typography>}
         </form>

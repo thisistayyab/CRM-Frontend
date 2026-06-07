@@ -1,3 +1,3 @@
+# App subdomain — marketing SEO lives on https://taylancetech.com
 User-agent: *
-Allow: /
-Sitemap: https://taylancecrm.vercel.app/sitemap.xml 
+Disallow: /

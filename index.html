@@ -1,29 +1,74 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel='stylesheet' href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css'>
-    <meta name="description" content="Taylance CRM is a powerful, modern customer relationship management platform for businesses to manage sales, orders, customers, and analytics efficiently. Boost your productivity and grow your business with Taylance CRM." />
-    <meta name="keywords" content="Taylance CRM, CRM, Customer Relationship Management, Sales Management, Order Management, Business Analytics, Small Business CRM, Modern CRM, Sales Tracking, Customer Database" />
-    <link rel="canonical" href="https://taylancecrm.vercel.app/" />
-    <meta name="robots" content="index, follow" />
-    <meta property="og:title" content="Taylance CRM - Modern Customer Relationship Management" />
-    <meta property="og:description" content="Taylance CRM helps you manage customers, sales, and orders with ease. Grow your business with advanced analytics and a user-friendly dashboard." />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://taylancecrm.vercel.app/" />
-    <meta property="og:image" content="/logo.png" />
-    <meta property="og:site_name" content="Taylance CRM" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Taylance CRM - Modern Customer Relationship Management" />
-    <meta name="twitter:description" content="Taylance CRM helps you manage customers, sales, and orders with ease. Grow your business with advanced analytics and a user-friendly dashboard." />
-    <meta name="twitter:image" content="/logo.png" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Taylance CRM — client and order management app by Taylance Tech." />
+    <meta name="theme-color" content="#0F172A" />
     <link rel="icon" type="image/png" href="/favicon.png" />
-    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700&display=swap" rel="stylesheet">
-    <title>Taylance CRM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+
+      html.light {
+        color-scheme: light;
+      }
+
+      body {
+        margin: 0;
+        font-family: Urbanist, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #0F172A;
+        color: #F8FAFC;
+      }
+
+      html.light body {
+        background: #FAFAFA;
+        color: #0F172A;
+      }
+
+      .app-boot-loader {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        text-align: center;
+      }
+
+      .app-boot-spinner {
+        width: 42px;
+        height: 42px;
+        margin: 18px auto 12px;
+        border-radius: 50%;
+        border: 4px solid rgba(148, 163, 184, 0.2);
+        border-top-color: #22D3EE;
+        animation: app-boot-spin 0.8s linear infinite;
+      }
+
+      html.light .app-boot-spinner {
+        border-color: rgba(15, 23, 42, 0.12);
+        border-top-color: #0891B2;
+      }
+
+      @keyframes app-boot-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+    <title>Taylance CRM · Taylance Tech</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="app-boot-loader">
+        <div>
+          <strong>Taylance CRM</strong>
+          <div class="app-boot-spinner" aria-hidden="true"></div>
+          <div>Loading your workspace...</div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

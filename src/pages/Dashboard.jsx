@@ -11,6 +11,10 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { MenuItem, TextField } from '@mui/material';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import PendingActionsIcon from '@mui/icons-material/PendingActions';
+import RepeatIcon from '@mui/icons-material/Repeat';
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 
 // project imports
 import MainCard from '../Components/dashboard/MainCard.jsx';
@@ -22,9 +26,6 @@ import SaleReportCard from '../Components/dashboard/SaleReportCard.jsx';
 import OrdersTable from '../Components/dashboard/OrdersTable.jsx';
 import MIUIAlert from '../Components/MIUIAlert.jsx'
 import MIUILoader from '../Components/MIUILoader.jsx';
-
-// assets
-import GiftOutlined from '@ant-design/icons/GiftOutlined';
 
 // avatar style
 const avatarSX = {
@@ -43,24 +44,21 @@ const actionSX = {
   transform: 'none'
 };
 
+const signalIcons = {
+  'Facebook Inbox Orders': FacebookIcon,
+  'Pending Fulfillment': PendingActionsIcon,
+  'Repeat Customers': RepeatIcon,
+  'Inventory Pressure': Inventory2OutlinedIcon,
+};
+
 // ==============================|| DASHBOARD - DEFAULT ||============================== //
 
 import { useEffect, useState } from 'react';
 import { api } from '../server.js';
 import { useTheme } from '@mui/material/styles';
 import { motion } from 'framer-motion';
-
-function getLast7DaysExcludingToday() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const days = [];
-  for (let i = 7; i >= 1; i--) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
-    days.push(d);
-  }
-  return days;
-}
+import CardGiftcardOutlinedIcon from '@mui/icons-material/CardGiftcardOutlined';
+import { getTintedAvatarSx } from '../utils/pageStyles';
 
 export default function Dashboard() {
   const theme = useTheme();
@@ -68,6 +66,7 @@ export default function Dashboard() {
   const [period, setPeriod] = useState('today');
   const [orders, setOrders] = useState([]);
   const [insights, setInsights] = useState(null);
+  const [storeEmail, setStoreEmail] = useState('');
   const [salesTrend, setSalesTrend] = useState([]);
   const [customerEngagement, setCustomerEngagement] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -113,9 +112,10 @@ export default function Dashboard() {
     Promise.all([
       fetch(`${api}/v1/api/product/orders`, { credentials: 'include' }).then(r => r.json()),
       fetch(`${api}/v1/api/analytics/overview`, { credentials: 'include' }).then(r => r.json()),
-      fetch(`${api}/v1/api/analytics/dashboard`, { credentials: 'include' }).then(r => r.json())
+      fetch(`${api}/v1/api/analytics/dashboard`, { credentials: 'include' }).then(r => r.json()),
+      fetch(`${api}/v1/api/store/get-store`, { credentials: 'include' }).then(r => r.json())
     ])
-      .then(([ordersRes, analyticsRes, insightsRes]) => {
+      .then(([ordersRes, analyticsRes, insightsRes, storeRes]) => {
         if (ordersRes.data) {
           setOrders(ordersRes.data);
           const today = new Date();
@@ -140,6 +140,7 @@ export default function Dashboard() {
           setCustomerEngagement(analyticsRes.customerEngagement || []);
         }
         if (insightsRes.data) setInsights(insightsRes.data);
+        if (storeRes.data?.email) setStoreEmail(storeRes.data.email);
         if (!ordersRes.data) {
           setAlert({ open: true, type: 'error', message: ordersRes.message || 'Error loading dashboard data.' });
           setAlertKey((k) => k + 1);
@@ -215,8 +216,13 @@ export default function Dashboard() {
         >
           <Grid paddingTop={'30px'} marginLeft={'30px'} marginRight={'30px'} container rowSpacing={4.5} columnSpacing={2.75}>
             {/* row 1 */}
-            <Grid sx={{ mb: -2.25, display: 'flex', alignItems: 'center', gap: 2 }} size={12}>
-              <Typography variant="h5">Dashboard</Typography>
+            <Grid sx={{ mb: -2.25, display: 'flex', alignItems: { xs: 'flex-start', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }} size={12}>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h5">Business Command Center</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Your orders, customers, and inventory — updated live from your store data.
+                </Typography>
+              </Box>
               <TextField
                 select
                 size="small"
@@ -230,32 +236,59 @@ export default function Dashboard() {
                 <MenuItem value="year">This Year vs Last Year</MenuItem>
               </TextField>
             </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-              {loading ? <MIUILoader message="Loading..." /> : (
-                <AnalyticEcommerce title="Total Customers" count={currentStats.users} prevCount={prevStats.users} percentage={Math.abs(userPercent).toFixed(1)} isLoss={getIsLoss(currentStats.users, prevStats.users)} color={getColor(currentStats.users, prevStats.users)} extra={currentStats.users} period={period} />
-              )}
+            <Grid size={12}>
+              <Grid container spacing={2}>
+                {(insights?.growthSignals || []).map((system) => {
+                  const Icon = signalIcons[system.title] || PendingActionsIcon;
+                  return (
+                    <Grid key={system.title} size={{ xs: 12, sm: 6, lg: 3 }}>
+                      <MainCard
+                        sx={(theme) => ({
+                          height: '100%',
+                          borderColor: theme.palette.mode === 'dark' ? 'rgba(203, 213, 225, 0.22)' : 'divider',
+                          background: theme.palette.mode === 'dark'
+                            ? 'linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015))'
+                            : theme.palette.background.paper
+                        })}
+                        contentSX={{ p: 2.25, height: '100%' }}
+                      >
+                        <Stack sx={{ gap: 1.5, height: '100%' }}>
+                          <Avatar variant="rounded" sx={getTintedAvatarSx(theme, system.color)}>
+                            <Icon sx={{ fontSize: 22 }} />
+                          </Avatar>
+                          <Box>
+                            <Typography variant="h6">{system.title}</Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                              {system.description}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ flexGrow: 1 }} />
+                          <Typography variant="caption" color={`${system.color}.main`} fontWeight={700}>
+                            {system.metric}
+                          </Typography>
+                        </Stack>
+                      </MainCard>
+                    </Grid>
+                  );
+                })}
+              </Grid>
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-              {loading ? <MIUILoader message="Loading..." /> : (
-                <AnalyticEcommerce title="Total Products" count={currentStats.products} prevCount={prevStats.products} percentage={Math.abs(productPercent).toFixed(1)} isLoss={getIsLoss(currentStats.products, prevStats.products)} color={getColor(currentStats.products, prevStats.products)} extra={currentStats.products} period={period} />
-              )}
+              <AnalyticEcommerce title="Total Customers" count={currentStats.users} prevCount={prevStats.users} percentage={Math.abs(userPercent).toFixed(1)} isLoss={getIsLoss(currentStats.users, prevStats.users)} color={getColor(currentStats.users, prevStats.users)} period={period} />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-              {loading ? <MIUILoader message="Loading..." /> : (
-                <AnalyticEcommerce title="Total Order" count={currentStats.orders} prevCount={prevStats.orders} percentage={Math.abs(orderPercent).toFixed(1)} isLoss={getIsLoss(currentStats.orders, prevStats.orders)} color={getColor(currentStats.orders, prevStats.orders)} extra={currentStats.orders} period={period} />
-              )}
+              <AnalyticEcommerce title="Total Products" count={currentStats.products} prevCount={prevStats.products} percentage={Math.abs(productPercent).toFixed(1)} isLoss={getIsLoss(currentStats.products, prevStats.products)} color={getColor(currentStats.products, prevStats.products)} period={period} />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-              {loading ? <MIUILoader message="Loading..." /> : (
-                <AnalyticEcommerce title="Total Sales" count={currentStats.sales} prevCount={prevStats.sales} percentage={Math.abs(salesPercent).toFixed(1)} isLoss={getIsLoss(currentStats.sales, prevStats.sales)} color={getColor(currentStats.sales, prevStats.sales)} extra={currentStats.sales} period={period} />
-              )}
+              <AnalyticEcommerce title="Total Order" count={currentStats.orders} prevCount={prevStats.orders} percentage={Math.abs(orderPercent).toFixed(1)} isLoss={getIsLoss(currentStats.orders, prevStats.orders)} color={getColor(currentStats.orders, prevStats.orders)} period={period} />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+              <AnalyticEcommerce title="Total Sales" count={currentStats.sales} prevCount={prevStats.sales} percentage={Math.abs(salesPercent).toFixed(1)} isLoss={getIsLoss(currentStats.sales, prevStats.sales)} color={getColor(currentStats.sales, prevStats.sales)} period={period} />
             </Grid>
             <Grid sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} size={{ md: 8 }} />
             {/* row 2 */}
             <Grid size={{ xs: 12, md: 7, lg: 8 }}>
-              {loading ? <MIUILoader message="Loading..." /> : (
-                <UniqueVisitorCard salesData={salesTrend} engagementData={customerEngagement} />
-              )}
+              <UniqueVisitorCard salesData={salesTrend} engagementData={customerEngagement} />
             </Grid>
             <Grid size={{ xs: 12, md: 5, lg: 4 }}>
               <Grid container alignItems="center" justifyContent="space-between">
@@ -265,19 +298,15 @@ export default function Dashboard() {
                 <Grid />
               </Grid>
               <MainCard sx={{ mt: 2 }} content={false}>
-                {loading ? <MIUILoader message="Loading..." /> : (
-                  <>
-                    <Box sx={{ p: 3, pb: 0 }}>
-                      <Stack sx={{ gap: 2 }}>
-                        <Typography variant="h6" color="text.secondary">
-                          This Week Statistics
-                        </Typography>
-                        <Typography variant="h3">PKR {weekIncome.toLocaleString()}</Typography>
-                      </Stack>
-                    </Box>
-                    <MonthlyBarChart />
-                  </>
-                )}
+                <Box sx={{ p: 3, pb: 0 }}>
+                  <Stack sx={{ gap: 2 }}>
+                    <Typography variant="h6" color="text.secondary">
+                      This Week Statistics
+                    </Typography>
+                    <Typography variant="h3">PKR {weekIncome.toLocaleString()}</Typography>
+                  </Stack>
+                </Box>
+                <MonthlyBarChart orders={orders} />
               </MainCard>
             </Grid>
             {/* row 3 */}
@@ -289,7 +318,7 @@ export default function Dashboard() {
                 <Grid />
               </Grid>
               <MainCard sx={{ mt: 2 }} content={false}>
-                {loading ? <MIUILoader message="Loading..." /> : <OrdersTable />}
+                <OrdersTable orders={orders} />
               </MainCard>
             </Grid>
             <Grid size={{ xs: 12, md: 5, lg: 4 }}>
@@ -300,22 +329,21 @@ export default function Dashboard() {
                 <Grid />
               </Grid>
               <MainCard sx={{ mt: 2 }} content={false}>
-                {loading ? <MIUILoader message="Loading..." /> : (
-                  <>
-                    <List sx={{ p: 0, '& .MuiListItemButton-root': { py: 2 } }}>
+                <>
+                  <List sx={{ p: 0, '& .MuiListItemButton-root': { py: 2 } }}>
                       <ListItemButton divider>
                         <ListItemText primary="Profit Growth (This Month)" />
                         <Typography variant="h5" color={insights?.profitGrowth >= 0 ? 'success.main' : 'error.main'}>
-                          {insights ? `${insights.profitGrowth >= 0 ? '+' : ''}${insights.profitGrowth}%` : '—'}
+                          {insights ? `${insights.profitGrowth >= 0 ? '+' : ''}${insights.profitGrowth}%` : '-'}
                         </Typography>
                       </ListItemButton>
                       <ListItemButton divider>
                         <ListItemText primary="Expense Ratio" />
-                        <Typography variant="h5">{insights ? `${insights.expenseRatio}%` : '—'}</Typography>
+                        <Typography variant="h5">{insights ? `${insights.expenseRatio}%` : '-'}</Typography>
                       </ListItemButton>
                       <ListItemButton divider>
                         <ListItemText primary="Cancel/Return Rate" />
-                        <Typography variant="h5">{insights ? `${insights.cancelRate}%` : '—'}</Typography>
+                        <Typography variant="h5">{insights ? `${insights.cancelRate}%` : '-'}</Typography>
                       </ListItemButton>
                       <ListItemButton>
                         <ListItemText primary="Business Risk" />
@@ -323,21 +351,22 @@ export default function Dashboard() {
                           insights?.riskLevel === 'High' ? 'error.main' :
                           insights?.riskLevel === 'Medium' ? 'warning.main' : 'success.main'
                         }>
-                          {insights?.riskLevel || '—'}
+                          {insights?.riskLevel || '-'}
                         </Typography>
                       </ListItemButton>
                     </List>
-                    <ReportAreaChart
-                      data={insights?.profitTrend?.map(p => p.value) || []}
-                      labels={insights?.profitTrend?.map(p => p.label) || []}
-                    />
-                  </>
-                )}
+                    <Box sx={{ px: 2, pb: 2 }}>
+                      <ReportAreaChart
+                        data={insights?.profitTrend?.map(p => p.value) || []}
+                        labels={insights?.profitTrend?.map(p => p.label) || []}
+                      />
+                    </Box>
+                </>
               </MainCard>
             </Grid>
             {/* row 4 */}
             <Grid size={{ xs: 12, md: 7, lg: 8 }}>
-              {loading ? <MIUILoader message="Loading..." /> : <SaleReportCard />}
+              <SaleReportCard orders={orders} />
             </Grid>
             <Grid size={{ xs: 12, md: 5, lg: 4 }}>
               <Grid container alignItems="center" justifyContent="space-between">
@@ -347,8 +376,7 @@ export default function Dashboard() {
                 <Grid />
               </Grid>
               <MainCard sx={{ mt: 2 }} content={false}>
-                {loading ? <MIUILoader message="Loading..." /> : (
-                  <List
+                <List
                     component="nav"
                     sx={{
                       px: 0,
@@ -361,7 +389,11 @@ export default function Dashboard() {
                       }
                     }}
                   >
-                    {(orders.filter(o => o.status === 'complete')
+                    {orders.filter(o => o.status === 'complete').length === 0 ? (
+                      <Box sx={{ p: 3, textAlign: 'center' }}>
+                        <Typography variant="body2" color="text.secondary">No completed transactions yet.</Typography>
+                      </Box>
+                    ) : (orders.filter(o => o.status === 'complete')
                       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                       .slice(0, 3)
                     ).map((order, idx) => (
@@ -378,8 +410,8 @@ export default function Dashboard() {
                         }
                       >
                         <ListItemAvatar>
-                          <Avatar sx={{ color: 'primary.main', bgcolor: 'primary.lighter' }}>
-                            <GiftOutlined />
+                          <Avatar sx={getTintedAvatarSx(theme, 'primary', 36)}>
+                            <CardGiftcardOutlinedIcon sx={{ fontSize: 18 }} />
                           </Avatar>
                         </ListItemAvatar>
                         <ListItemText
@@ -388,8 +420,7 @@ export default function Dashboard() {
                         />
                       </ListItem>
                     ))}
-                  </List>
-                )}
+                </List>
               </MainCard>
               <MainCard sx={{ mt: 2 }}>
                 <Stack sx={{ gap: 2 }}>
@@ -406,10 +437,12 @@ export default function Dashboard() {
                   ) : (
                     <Typography variant="body2" color="text.secondary">All stock levels are healthy.</Typography>
                   )}
-                  <Button size="small" variant="contained" href="mailto:taylance@gmail.com"
-                    sx={{ textTransform: 'capitalize', mt: 1 }}>
-                    Contact Support
-                  </Button>
+                  {storeEmail && (
+                    <Button size="small" variant="contained" href={`mailto:${storeEmail}`}
+                      sx={{ textTransform: 'capitalize', mt: 1 }}>
+                      Contact Support
+                    </Button>
+                  )}
                 </Stack>
               </MainCard>
             </Grid>
